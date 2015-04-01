@@ -30,7 +30,7 @@ public:
    * - Root object must be either an array or an object value.
    * - Assumes value strings are encoded in UTF-8
    */
-  static features strictMode();
+  static features strict_mode();
 
   /** \brief Initialize the configuration like JsonConfig::allFeatures;
    */

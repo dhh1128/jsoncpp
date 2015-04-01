@@ -64,7 +64,7 @@ public:
 /** \brief Write into stringstream, then return string, for convenience.
  * A stream_writer will be created from the factory, used, and then deleted.
  */
-std::string JSON_API writeString(stream_writer::factory const& factory, value const& root);
+std::string JSON_API write_string(stream_writer::factory const& factory, value const& root);
 
 
 /** \brief Build a stream_writer implementation.
@@ -73,7 +73,7 @@ Usage:
 \code
   using namespace json;
   value value = ...;
-  StreamWriterBuilder builder;
+  stream_writer_builder builder;
   builder["commentStyle"] = "None";
   builder["indentation"] = "   ";  // or whatever you like
   std::unique_ptr<json::stream_writer> writer(
@@ -82,7 +82,7 @@ Usage:
   std::cout << std::endl;  // add lf and flush
 \endcode
 */
-class JSON_API StreamWriterBuilder : public stream_writer::factory {
+class JSON_API stream_writer_builder : public stream_writer::factory {
 public:
   // Note: We use a json::value so that we can add data-members to this class
   // without a major version bump.
@@ -105,8 +105,8 @@ public:
 	*/
   json::value settings_;
 
-  StreamWriterBuilder();
-  virtual ~StreamWriterBuilder();
+  stream_writer_builder();
+  virtual ~stream_writer_builder();
 
   /**
    * \throw std::exception if something goes wrong (e.g. invalid settings)
@@ -146,7 +146,7 @@ public:
  *consumption,
  * but may be usefull to support feature such as RPC where bandwith is limited.
  * \sa reader, value
- * \deprecated Use StreamWriterBuilder.
+ * \deprecated Use stream_writer_builder.
  */
 class JSON_API fast_writer : public Writer {
 
@@ -199,7 +199,7 @@ private:
  *#comment_placement.
  *
  * \sa reader, value, value::set_comment()
- * \deprecated Use StreamWriterBuilder.
+ * \deprecated Use stream_writer_builder.
  */
 class JSON_API styled_writer : public Writer {
 public:
@@ -261,12 +261,12 @@ private:
  *
  * \param indentation Each level will be indented by this amount extra.
  * \sa reader, value, value::set_comment()
- * \deprecated Use StreamWriterBuilder.
+ * \deprecated Use stream_writer_builder.
  */
-class JSON_API StyledStreamWriter {
+class JSON_API styled_stream_writer {
 public:
-  StyledStreamWriter(std::string indentation = "\t");
-  ~StyledStreamWriter() {}
+  styled_stream_writer(std::string indentation = "\t");
+  ~styled_stream_writer() {}
 
 public:
   /** \brief Serialize a value in <a HREF="http://www.json.org">JSON</a> format.
@@ -312,7 +312,7 @@ std::string JSON_API valueToString(double value);
 std::string JSON_API valueToString(bool value);
 std::string JSON_API valueToQuotedString(const char* value);
 
-/// \brief Output using the StyledStreamWriter.
+/// \brief Output using the styled_stream_writer.
 /// \see json::operator>>()
 JSON_API std::ostream& operator<<(std::ostream&, value const & root);
 

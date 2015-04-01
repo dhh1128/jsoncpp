@@ -158,7 +158,7 @@ public:
   /// Runs the test case at the specified index using the specified TestResult
   void runTestAt(unsigned int index, TestResult& result) const;
 
-  static void printUsage(const char* appName);
+  static void print_usage(const char* appName);
 
 private: // prevents copy construction and assignment
   Runner(const Runner& other);

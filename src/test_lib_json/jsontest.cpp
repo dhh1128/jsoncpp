@@ -341,11 +341,11 @@ int Runner::runCommandLine(int argc, const char* argv[]) const {
 		  return 2;
 		}
 	  } else {
-		printUsage(argv[0]);
+		print_usage(argv[0]);
 		return 2;
 	  }
 	} else {
-	  printUsage(argv[0]);
+	  print_usage(argv[0]);
 	  return 2;
 	}
   }
@@ -407,7 +407,7 @@ void Runner::preventDialogOnCrash() {
 #endif // if defined(_WIN32)
 }
 
-void Runner::printUsage(const char* appName) {
+void Runner::print_usage(const char* appName) {
   printf("Usage: %s [options]\n"
 		 "\n"
 		 "If --test is not specified, then all the test cases be run.\n"

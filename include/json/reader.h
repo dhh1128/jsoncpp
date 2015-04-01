@@ -290,7 +290,7 @@ public:
 	- `"strictRoot": false or true`
 	  - true if root must be either an array or an object value
 	- `"allowDroppedNullPlaceholders": false or true`
-	  - true if dropped null placeholders are allowed. (See StreamWriterBuilder.)
+	  - true if dropped null placeholders are allowed. (See stream_writer_builder.)
 	- `"allowNumericKeys": false or true`
 	  - true if numeric object keys are allowed.
 	- `"allowSingleQuotes": false or true`
@@ -333,12 +333,12 @@ public:
    * \snippet src/lib_json/json_reader.cpp CharReaderBuilderStrictMode
    */
   static void setDefaults(json::value* settings);
-  /** Same as old features::strictMode().
+  /** Same as old features::strict_mode().
    * \pre 'settings' != NULL (but json::null is fine)
    * \remark Defaults:
    * \snippet src/lib_json/json_reader.cpp CharReaderBuilderDefaults
    */
-  static void strictMode(json::value* settings);
+  static void strict_mode(json::value* settings);
 };
 
 /** Consume entire stream and use its begin/end.

@@ -471,9 +471,9 @@ json::value obj_value(json::vt_object); // {}
   void set_comment(const char* comment, size_t len, comment_placement placement);
   /// Comments must be //... or /* ... */
   void set_comment(std::string const & comment, comment_placement placement);
-  bool hasComment(comment_placement placement) const;
+  bool has_comment(comment_placement placement) const;
   /// Include delimiters and embedded newlines.
-  std::string getComment(comment_placement placement) const;
+  std::string get_comment(comment_placement placement) const;
 
   std::string toStyledString() const;
 

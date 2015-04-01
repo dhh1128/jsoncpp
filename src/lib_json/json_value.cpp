@@ -1253,12 +1253,12 @@ void value::set_comment(std::string const & comment, comment_placement placement
   set_comment(comment.c_str(), comment.length(), placement);
 }
 
-bool value::hasComment(comment_placement placement) const {
+bool value::has_comment(comment_placement placement) const {
   return comments_ != 0 && comments_[placement].comment_ != 0;
 }
 
-std::string value::getComment(comment_placement placement) const {
-  if (hasComment(placement))
+std::string value::get_comment(comment_placement placement) const {
+  if (has_comment(placement))
 	return comments_[placement].comment_;
   return "";
 }

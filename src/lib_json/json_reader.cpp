@@ -45,7 +45,7 @@ features::features()
 
 features features::all() { return features(); }
 
-features features::strictMode() {
+features features::strict_mode() {
   features features;
   features.allow_comments_ = false;
   features.strict_root_ = true;
@@ -1931,7 +1931,7 @@ value& char_reader_builder::operator[](std::string key)
   return settings_[key];
 }
 // static
-void char_reader_builder::strictMode(json::value* settings)
+void char_reader_builder::strict_mode(json::value* settings)
 {
 //! [CharReaderBuilderStrictMode]
   (*settings)["allowComments"] = false;
