@@ -79,7 +79,7 @@ public:
   void printFailure(bool printTestName) const;
 
   // Generic operator that will work with anything ostream can deal with.
-  template <typename T> TestResult& operator<<(const T& value) {
+  template <typename T> TestResult& operator<<(T const & value) {
 	std::ostringstream oss;
 	oss.precision(16);
 	oss.setf(std::ios_base::floatfield);
@@ -161,8 +161,8 @@ public:
   static void print_usage(const char* appName);
 
 private: // prevents copy construction and assignment
-  Runner(const Runner& other);
-  Runner& operator=(const Runner& other);
+  Runner(Runner const & other);
+  Runner& operator=(Runner const & other);
 
 private:
   void listTests() const;

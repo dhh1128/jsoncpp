@@ -137,7 +137,7 @@ print_value_tree(FILE* fout, json::value & value, std::string const & path = "."
 static int parseAndSaveValueTree(std::string const & input,
 								 std::string const & actual,
 								 std::string const & kind,
-								 const json::features & features,
+								 json::features const & features,
 								 bool parse_only,
 								 json::value* root)
 {
@@ -187,7 +187,7 @@ static std::string use_built_styled_stream_writer(
 }
 static int rewrite_value_tree(
 	std::string const & rewrite_path,
-	const json::value & root,
+	json::value const & root,
 	options::write_func write,
 	std::string* rewrite)
 {
@@ -318,7 +318,7 @@ int main(int argc, const char* argv[]) {
   try {
 	return run_test(opts);
   }
-  catch (const std::exception & e) {
+  catch (std::exception const & e) {
 	printf("Unhandled exception:\n%s\n", e.what());
 	return 1;
   }
