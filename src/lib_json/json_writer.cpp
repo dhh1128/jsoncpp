@@ -345,9 +345,9 @@ void fast_writer::write_value(value const& value)
         document_ += ']';
     } break;
     case vt_object: {
-        value::Members members(value.get_member_names());
+        value::members members(value.get_member_names());
         document_ += '{';
-        for (value::Members::iterator it = members.begin(); it != members.end();
+        for (value::members::iterator it = members.begin(); it != members.end();
              ++it) {
             std::string const& name = *it;
             if (it != members.begin())
@@ -365,20 +365,20 @@ void fast_writer::write_value(value const& value)
 // //////////////////////////////////////////////////////////////////
 
 styled_writer::styled_writer()
-    : rightMargin_(74)
+    : right_margin_(74)
     , indentSize_(3)
-    , addChildValues_()
+    , add_child_values_()
 {
 }
 
 std::string styled_writer::write(value const& root)
 {
     document_ = "";
-    addChildValues_ = false;
+    add_child_values_ = false;
     indentString_ = "";
-    writeCommentBeforeValue(root);
+    write_comment_before_value(root);
     write_value(root);
-    writeCommentAfterValueOnSameLine(root);
+    write_comment_after_value_on_same_line(root);
     document_ += "\n";
     return document_;
 }
@@ -387,16 +387,16 @@ void styled_writer::write_value(value const& value)
 {
     switch (value.type()) {
     case vt_null:
-        pushValue("null");
+        push_value("null");
         break;
     case vt_int:
-        pushValue(value_to_string(value.as_largest_int()));
+        push_value(value_to_string(value.as_largest_int()));
         break;
     case vt_uint:
-        pushValue(value_to_string(value.as_largest_uint()));
+        push_value(value_to_string(value.as_largest_uint()));
         break;
     case vt_real:
-        pushValue(value_to_string(value.as_double()));
+        push_value(value_to_string(value.as_double()));
         break;
     case vt_string: {
         // Is NULL is possible for value.string_?
@@ -404,122 +404,122 @@ void styled_writer::write_value(value const& value)
         char const* end;
         bool ok = value.get_string(&str, &end);
         if (ok)
-            pushValue(value_to_quoted_string_n(str, static_cast<unsigned>(end - str)));
+            push_value(value_to_quoted_string_n(str, static_cast<unsigned>(end - str)));
         else
-            pushValue("");
+            push_value("");
         break;
     }
     case vt_bool:
-        pushValue(value_to_string(value.as_bool()));
+        push_value(value_to_string(value.as_bool()));
         break;
     case vt_array:
-        writeArrayValue(value);
+        write_array_value(value);
         break;
     case vt_object: {
-        value::Members members(value.get_member_names());
+        value::members members(value.get_member_names());
         if (members.empty())
-            pushValue("{}");
+            push_value("{}");
         else {
-            writeWithIndent("{");
+            write_with_indent("{");
             indent();
-            value::Members::iterator it = members.begin();
+            value::members::iterator it = members.begin();
             for (;;) {
                 std::string const& name = *it;
-                class value const& childValue = value[name];
-                writeCommentBeforeValue(childValue);
-                writeWithIndent(value_to_quoted_string(name.c_str()));
+                class value const& child_value = value[name];
+                write_comment_before_value(child_value);
+                write_with_indent(value_to_quoted_string(name.c_str()));
                 document_ += " : ";
-                write_value(childValue);
+                write_value(child_value);
                 if (++it == members.end()) {
-                    writeCommentAfterValueOnSameLine(childValue);
+                    write_comment_after_value_on_same_line(child_value);
                     break;
                 }
                 document_ += ',';
-                writeCommentAfterValueOnSameLine(childValue);
+                write_comment_after_value_on_same_line(child_value);
             }
             unindent();
-            writeWithIndent("}");
+            write_with_indent("}");
         }
     } break;
     }
 }
 
-void styled_writer::writeArrayValue(value const& value)
+void styled_writer::write_array_value(value const& value)
 {
     unsigned size = value.size();
     if (size == 0)
-        pushValue("[]");
+        push_value("[]");
     else {
-        bool isArrayMultiLine = isMultineArray(value);
+        bool isArrayMultiLine = is_multiline_array(value);
         if (isArrayMultiLine) {
-            writeWithIndent("[");
+            write_with_indent("[");
             indent();
-            bool hasChildValue = !childValues_.empty();
+            bool has_child_value = !child_values_.empty();
             unsigned index = 0;
             for (;;) {
-                class value const& childValue = value[index];
-                writeCommentBeforeValue(childValue);
-                if (hasChildValue)
-                    writeWithIndent(childValues_[index]);
+                class value const& child_value = value[index];
+                write_comment_before_value(child_value);
+                if (has_child_value)
+                    write_with_indent(child_values_[index]);
                 else {
                     writeIndent();
-                    write_value(childValue);
+                    write_value(child_value);
                 }
                 if (++index == size) {
-                    writeCommentAfterValueOnSameLine(childValue);
+                    write_comment_after_value_on_same_line(child_value);
                     break;
                 }
                 document_ += ',';
-                writeCommentAfterValueOnSameLine(childValue);
+                write_comment_after_value_on_same_line(child_value);
             }
             unindent();
-            writeWithIndent("]");
+            write_with_indent("]");
         }
         else // output on a single line
         {
-            assert(childValues_.size() == size);
+            assert(child_values_.size() == size);
             document_ += "[ ";
             for (unsigned index = 0; index < size; ++index) {
                 if (index > 0)
                     document_ += ", ";
-                document_ += childValues_[index];
+                document_ += child_values_[index];
             }
             document_ += " ]";
         }
     }
 }
 
-bool styled_writer::isMultineArray(value const& value)
+bool styled_writer::is_multiline_array(value const& value)
 {
     int size = value.size();
-    bool isMultiLine = size * 3 >= rightMargin_;
-    childValues_.clear();
-    for (int index = 0; index < size && !isMultiLine; ++index) {
-        class value const& childValue = value[index];
-        isMultiLine = isMultiLine || ((childValue.is_array() || childValue.is_object()) && childValue.size() > 0);
+    bool is_multiline = size * 3 >= right_margin_;
+    child_values_.clear();
+    for (int index = 0; index < size && !is_multiline; ++index) {
+        class value const& child_value = value[index];
+        is_multiline = is_multiline || ((child_value.is_array() || child_value.is_object()) && child_value.size() > 0);
     }
-    if (!isMultiLine) // check if line length > max line length
+    if (!is_multiline) // check if line length > max line length
     {
-        childValues_.reserve(size);
-        addChildValues_ = true;
+        child_values_.reserve(size);
+        add_child_values_ = true;
         int lineLength = 4 + (size - 1) * 2; // '[ ' + ', '*n + ' ]'
         for (int index = 0; index < size; ++index) {
-            if (hasCommentForValue(value[index])) {
-                isMultiLine = true;
+            if (has_comment_for_value(value[index])) {
+                is_multiline = true;
             }
             write_value(value[index]);
-            lineLength += int(childValues_[index].length());
+            lineLength += int(child_values_[index].length());
         }
-        addChildValues_ = false;
-        isMultiLine = isMultiLine || lineLength >= rightMargin_;
+        add_child_values_ = false;
+        is_multiline = is_multiline || lineLength >= right_margin_;
     }
-    return isMultiLine;
+    return is_multiline;
 }
 
-void styled_writer::pushValue(std::string const& value)
+void styled_writer::push_value(std::string const& value)
 {
-    if (addChildValues_)
-        childValues_.push_back(value);
+    if (add_child_values_)
+        child_values_.push_back(value);
     else
         document_ += value;
 }
@@ -536,7 +536,7 @@ void styled_writer::writeIndent()
     document_ += indentString_;
 }
 
-void styled_writer::writeWithIndent(std::string const& value)
+void styled_writer::write_with_indent(std::string const& value)
 {
     writeIndent();
     document_ += value;
@@ -550,7 +550,7 @@ void styled_writer::unindent()
     indentString_.resize(indentString_.size() - indentSize_);
 }
 
-void styled_writer::writeCommentBeforeValue(value const& root)
+void styled_writer::write_comment_before_value(value const& root)
 {
     if (!root.has_comment(comment_before))
         return;
@@ -570,7 +570,7 @@ void styled_writer::writeCommentBeforeValue(value const& root)
     document_ += "\n";
 }
 
-void styled_writer::writeCommentAfterValueOnSameLine(value const& root)
+void styled_writer::write_comment_after_value_on_same_line(value const& root)
 {
     if (root.has_comment(comment_after_on_same_line))
         document_ += " " + root.get_comment(comment_after_on_same_line);
@@ -582,7 +582,7 @@ void styled_writer::writeCommentAfterValueOnSameLine(value const& root)
     }
 }
 
-bool styled_writer::hasCommentForValue(value const& value)
+bool styled_writer::has_comment_for_value(value const& value)
 {
     return value.has_comment(comment_before) || value.has_comment(comment_after_on_same_line) || value.has_comment(comment_after);
 }
@@ -592,24 +592,24 @@ bool styled_writer::hasCommentForValue(value const& value)
 
 styled_stream_writer::styled_stream_writer(std::string indentation)
     : document_(NULL)
-    , rightMargin_(74)
+    , right_margin_(74)
     , indentation_(indentation)
-    , addChildValues_()
+    , add_child_values_()
 {
 }
 
 void styled_stream_writer::write(std::ostream& out, value const& root)
 {
     document_ = &out;
-    addChildValues_ = false;
+    add_child_values_ = false;
     indentString_ = "";
     indented_ = true;
-    writeCommentBeforeValue(root);
+    write_comment_before_value(root);
     if (!indented_)
         writeIndent();
     indented_ = true;
     write_value(root);
-    writeCommentAfterValueOnSameLine(root);
+    write_comment_after_value_on_same_line(root);
     *document_ << "\n";
     document_ = NULL; // Forget the stream, for safety.
 }
@@ -618,134 +618,134 @@ void styled_stream_writer::write_value(value const& value)
 {
     switch (value.type()) {
     case vt_null:
-        pushValue("null");
+        push_value("null");
         break;
     case vt_int:
-        pushValue(value_to_string(value.as_largest_int()));
+        push_value(value_to_string(value.as_largest_int()));
         break;
     case vt_uint:
-        pushValue(value_to_string(value.as_largest_uint()));
+        push_value(value_to_string(value.as_largest_uint()));
         break;
     case vt_real:
-        pushValue(value_to_string(value.as_double()));
+        push_value(value_to_string(value.as_double()));
         break;
     case vt_string:
-        pushValue(value_to_quoted_string(value.as_cstring()));
+        push_value(value_to_quoted_string(value.as_cstring()));
         break;
     case vt_bool:
-        pushValue(value_to_string(value.as_bool()));
+        push_value(value_to_string(value.as_bool()));
         break;
     case vt_array:
-        writeArrayValue(value);
+        write_array_value(value);
         break;
     case vt_object: {
-        value::Members members(value.get_member_names());
+        value::members members(value.get_member_names());
         if (members.empty())
-            pushValue("{}");
+            push_value("{}");
         else {
-            writeWithIndent("{");
+            write_with_indent("{");
             indent();
-            value::Members::iterator it = members.begin();
+            value::members::iterator it = members.begin();
             for (;;) {
                 std::string const& name = *it;
-                class value const& childValue = value[name];
-                writeCommentBeforeValue(childValue);
-                writeWithIndent(value_to_quoted_string(name.c_str()));
+                class value const& child_value = value[name];
+                write_comment_before_value(child_value);
+                write_with_indent(value_to_quoted_string(name.c_str()));
                 *document_ << " : ";
-                write_value(childValue);
+                write_value(child_value);
                 if (++it == members.end()) {
-                    writeCommentAfterValueOnSameLine(childValue);
+                    write_comment_after_value_on_same_line(child_value);
                     break;
                 }
                 *document_ << ",";
-                writeCommentAfterValueOnSameLine(childValue);
+                write_comment_after_value_on_same_line(child_value);
             }
             unindent();
-            writeWithIndent("}");
+            write_with_indent("}");
         }
     } break;
     }
 }
 
-void styled_stream_writer::writeArrayValue(value const& value)
+void styled_stream_writer::write_array_value(value const& value)
 {
     unsigned size = value.size();
     if (size == 0)
-        pushValue("[]");
+        push_value("[]");
     else {
-        bool isArrayMultiLine = isMultineArray(value);
+        bool isArrayMultiLine = is_multiline_array(value);
         if (isArrayMultiLine) {
-            writeWithIndent("[");
+            write_with_indent("[");
             indent();
-            bool hasChildValue = !childValues_.empty();
+            bool has_child_value = !child_values_.empty();
             unsigned index = 0;
             for (;;) {
-                class value const& childValue = value[index];
-                writeCommentBeforeValue(childValue);
-                if (hasChildValue)
-                    writeWithIndent(childValues_[index]);
+                class value const& child_value = value[index];
+                write_comment_before_value(child_value);
+                if (has_child_value)
+                    write_with_indent(child_values_[index]);
                 else {
                     if (!indented_)
                         writeIndent();
                     indented_ = true;
-                    write_value(childValue);
+                    write_value(child_value);
                     indented_ = false;
                 }
                 if (++index == size) {
-                    writeCommentAfterValueOnSameLine(childValue);
+                    write_comment_after_value_on_same_line(child_value);
                     break;
                 }
                 *document_ << ",";
-                writeCommentAfterValueOnSameLine(childValue);
+                write_comment_after_value_on_same_line(child_value);
             }
             unindent();
-            writeWithIndent("]");
+            write_with_indent("]");
         }
         else // output on a single line
         {
-            assert(childValues_.size() == size);
+            assert(child_values_.size() == size);
             *document_ << "[ ";
             for (unsigned index = 0; index < size; ++index) {
                 if (index > 0)
                     *document_ << ", ";
-                *document_ << childValues_[index];
+                *document_ << child_values_[index];
             }
             *document_ << " ]";
         }
     }
 }
 
-bool styled_stream_writer::isMultineArray(value const& value)
+bool styled_stream_writer::is_multiline_array(value const& value)
 {
     int size = value.size();
-    bool isMultiLine = size * 3 >= rightMargin_;
-    childValues_.clear();
-    for (int index = 0; index < size && !isMultiLine; ++index) {
-        class value const& childValue = value[index];
-        isMultiLine = isMultiLine || ((childValue.is_array() || childValue.is_object()) && childValue.size() > 0);
+    bool is_multiline = size * 3 >= right_margin_;
+    child_values_.clear();
+    for (int index = 0; index < size && !is_multiline; ++index) {
+        class value const& child_value = value[index];
+        is_multiline = is_multiline || ((child_value.is_array() || child_value.is_object()) && child_value.size() > 0);
     }
-    if (!isMultiLine) // check if line length > max line length
+    if (!is_multiline) // check if line length > max line length
     {
-        childValues_.reserve(size);
-        addChildValues_ = true;
+        child_values_.reserve(size);
+        add_child_values_ = true;
         int lineLength = 4 + (size - 1) * 2; // '[ ' + ', '*n + ' ]'
         for (int index = 0; index < size; ++index) {
-            if (hasCommentForValue(value[index])) {
-                isMultiLine = true;
+            if (has_comment_for_value(value[index])) {
+                is_multiline = true;
             }
             write_value(value[index]);
-            lineLength += int(childValues_[index].length());
+            lineLength += int(child_values_[index].length());
         }
-        addChildValues_ = false;
-        isMultiLine = isMultiLine || lineLength >= rightMargin_;
+        add_child_values_ = false;
+        is_multiline = is_multiline || lineLength >= right_margin_;
     }
-    return isMultiLine;
+    return is_multiline;
 }
 
-void styled_stream_writer::pushValue(std::string const& value)
+void styled_stream_writer::push_value(std::string const& value)
 {
-    if (addChildValues_)
-        childValues_.push_back(value);
+    if (add_child_values_)
+        child_values_.push_back(value);
     else
         *document_ << value;
 }
@@ -759,7 +759,7 @@ void styled_stream_writer::writeIndent()
     *document_ << '\n' << indentString_;
 }
 
-void styled_stream_writer::writeWithIndent(std::string const& value)
+void styled_stream_writer::write_with_indent(std::string const& value)
 {
     if (!indented_)
         writeIndent();
@@ -775,7 +775,7 @@ void styled_stream_writer::unindent()
     indentString_.resize(indentString_.size() - indentation_.size());
 }
 
-void styled_stream_writer::writeCommentBeforeValue(value const& root)
+void styled_stream_writer::write_comment_before_value(value const& root)
 {
     if (!root.has_comment(comment_before))
         return;
@@ -794,7 +794,7 @@ void styled_stream_writer::writeCommentBeforeValue(value const& root)
     indented_ = false;
 }
 
-void styled_stream_writer::writeCommentAfterValueOnSameLine(value const& root)
+void styled_stream_writer::write_comment_after_value_on_same_line(value const& root)
 {
     if (root.has_comment(comment_after_on_same_line))
         *document_ << ' ' << root.get_comment(comment_after_on_same_line);
@@ -806,7 +806,7 @@ void styled_stream_writer::writeCommentAfterValueOnSameLine(value const& root)
     indented_ = false;
 }
 
-bool styled_stream_writer::hasCommentForValue(value const& value)
+bool styled_stream_writer::has_comment_for_value(value const& value)
 {
     return value.has_comment(comment_before) || value.has_comment(comment_after_on_same_line) || value.has_comment(comment_after);
 }
@@ -814,80 +814,77 @@ bool styled_stream_writer::hasCommentForValue(value const& value)
 //////////////////////////
 // built_styled_stream_writer
 
-/// Scoped enums are not available until C++11.
-struct CommentStyle {
-    /// Decide whether to write comments.
-    enum Enum {
-        None, ///< Drop all comments.
-        Most, ///< Recover odd behavior of previous versions (not implemented yet).
-        All ///< Keep all comments.
-    };
+/// Decide whether to write comments.
+enum class comment_style {
+    None, ///< Drop all comments.
+    Most, ///< Recover odd behavior of previous versions (not implemented yet).
+    All ///< Keep all comments.
 };
 
 struct built_styled_stream_writer : public stream_writer {
     built_styled_stream_writer(
         std::string const& indentation,
-        CommentStyle::Enum cs,
-        std::string const& colonSymbol,
-        std::string const& nullSymbol,
-        std::string const& endingLineFeedSymbol);
+        comment_style cs,
+        std::string const& colon_symbol,
+        std::string const& null_symbol,
+        std::string const& ending_linefeed_symbol);
     virtual int write(value const& root, std::ostream* sout);
 
 private:
     void write_value(value const& value);
-    void writeArrayValue(value const& value);
-    bool isMultineArray(value const& value);
-    void pushValue(std::string const& value);
+    void write_array_value(value const& value);
+    bool is_multiline_array(value const& value);
+    void push_value(std::string const& value);
     void writeIndent();
-    void writeWithIndent(std::string const& value);
+    void write_with_indent(std::string const& value);
     void indent();
     void unindent();
-    void writeCommentBeforeValue(value const& root);
-    void writeCommentAfterValueOnSameLine(value const& root);
-    static bool hasCommentForValue(value const& value);
+    void write_comment_before_value(value const& root);
+    void write_comment_after_value_on_same_line(value const& root);
+    static bool has_comment_for_value(value const& value);
 
     typedef std::vector<std::string> ChildValues;
 
-    ChildValues childValues_;
+    ChildValues child_values_;
     std::string indentString_;
-    int rightMargin_;
+    int right_margin_;
     std::string indentation_;
-    CommentStyle::Enum cs_;
-    std::string colonSymbol_;
-    std::string nullSymbol_;
-    std::string endingLineFeedSymbol_;
-    bool addChildValues_ : 1;
+    comment_style cs_;
+    std::string colon_symbol_;
+    std::string null_symbol_;
+    std::string ending_linefeed_symbol_;
+    bool add_child_values_ : 1;
     bool indented_ : 1;
 };
 built_styled_stream_writer::built_styled_stream_writer(
     std::string const& indentation,
-    CommentStyle::Enum cs,
-    std::string const& colonSymbol,
-    std::string const& nullSymbol,
-    std::string const& endingLineFeedSymbol)
-    : rightMargin_(74)
+    comment_style cs,
+    std::string const& colon_symbol,
+    std::string const& null_symbol,
+    std::string const& ending_linefeed_symbol)
+    : right_margin_(74)
     , indentation_(indentation)
     , cs_(cs)
-    , colonSymbol_(colonSymbol)
-    , nullSymbol_(nullSymbol)
-    , endingLineFeedSymbol_(endingLineFeedSymbol)
-    , addChildValues_(false)
+    , colon_symbol_(colon_symbol)
+    , null_symbol_(null_symbol)
+    , ending_linefeed_symbol_(ending_linefeed_symbol)
+    , add_child_values_(false)
     , indented_(false)
 {
 }
 int built_styled_stream_writer::write(value const& root, std::ostream* sout)
 {
     sout_ = sout;
-    addChildValues_ = false;
+    add_child_values_ = false;
     indented_ = true;
     indentString_ = "";
-    writeCommentBeforeValue(root);
+    write_comment_before_value(root);
     if (!indented_)
         writeIndent();
     indented_ = true;
     write_value(root);
-    writeCommentAfterValueOnSameLine(root);
-    *sout_ << endingLineFeedSymbol_;
+    write_comment_after_value_on_same_line(root);
+    *sout_ << ending_linefeed_symbol_;
     sout_ = NULL;
     return 0;
 }
@@ -895,16 +892,16 @@ void built_styled_stream_writer::write_value(value const& value)
 {
     switch (value.type()) {
     case vt_null:
-        pushValue(nullSymbol_);
+        push_value(null_symbol_);
         break;
     case vt_int:
-        pushValue(value_to_string(value.as_largest_int()));
+        push_value(value_to_string(value.as_largest_int()));
         break;
     case vt_uint:
-        pushValue(value_to_string(value.as_largest_uint()));
+        push_value(value_to_string(value.as_largest_uint()));
         break;
     case vt_real:
-        pushValue(value_to_string(value.as_double()));
+        push_value(value_to_string(value.as_double()));
         break;
     case vt_string: {
         // Is NULL is possible for value.string_?
@@ -912,90 +909,90 @@ void built_styled_stream_writer::write_value(value const& value)
         char const* end;
         bool ok = value.get_string(&str, &end);
         if (ok)
-            pushValue(value_to_quoted_string_n(str, static_cast<unsigned>(end - str)));
+            push_value(value_to_quoted_string_n(str, static_cast<unsigned>(end - str)));
         else
-            pushValue("");
+            push_value("");
         break;
     }
     case vt_bool:
-        pushValue(value_to_string(value.as_bool()));
+        push_value(value_to_string(value.as_bool()));
         break;
     case vt_array:
-        writeArrayValue(value);
+        write_array_value(value);
         break;
     case vt_object: {
-        value::Members members(value.get_member_names());
+        value::members members(value.get_member_names());
         if (members.empty())
-            pushValue("{}");
+            push_value("{}");
         else {
-            writeWithIndent("{");
+            write_with_indent("{");
             indent();
-            value::Members::iterator it = members.begin();
+            value::members::iterator it = members.begin();
             for (;;) {
                 std::string const& name = *it;
-                class value const& childValue = value[name];
-                writeCommentBeforeValue(childValue);
-                writeWithIndent(value_to_quoted_string_n(name.data(), name.length()));
-                *sout_ << colonSymbol_;
-                write_value(childValue);
+                class value const& child_value = value[name];
+                write_comment_before_value(child_value);
+                write_with_indent(value_to_quoted_string_n(name.data(), name.length()));
+                *sout_ << colon_symbol_;
+                write_value(child_value);
                 if (++it == members.end()) {
-                    writeCommentAfterValueOnSameLine(childValue);
+                    write_comment_after_value_on_same_line(child_value);
                     break;
                 }
                 *sout_ << ",";
-                writeCommentAfterValueOnSameLine(childValue);
+                write_comment_after_value_on_same_line(child_value);
             }
             unindent();
-            writeWithIndent("}");
+            write_with_indent("}");
         }
     } break;
     }
 }
 
-void built_styled_stream_writer::writeArrayValue(value const& value)
+void built_styled_stream_writer::write_array_value(value const& value)
 {
     unsigned size = value.size();
     if (size == 0)
-        pushValue("[]");
+        push_value("[]");
     else {
-        bool isMultiLine = (cs_ == CommentStyle::All) || isMultineArray(value);
-        if (isMultiLine) {
-            writeWithIndent("[");
+        bool is_multiline = (cs_ == comment_style::All) || is_multiline_array(value);
+        if (is_multiline) {
+            write_with_indent("[");
             indent();
-            bool hasChildValue = !childValues_.empty();
+            bool has_child_value = !child_values_.empty();
             unsigned index = 0;
             for (;;) {
-                class value const& childValue = value[index];
-                writeCommentBeforeValue(childValue);
-                if (hasChildValue)
-                    writeWithIndent(childValues_[index]);
+                class value const& child_value = value[index];
+                write_comment_before_value(child_value);
+                if (has_child_value)
+                    write_with_indent(child_values_[index]);
                 else {
                     if (!indented_)
                         writeIndent();
                     indented_ = true;
-                    write_value(childValue);
+                    write_value(child_value);
                     indented_ = false;
                 }
                 if (++index == size) {
-                    writeCommentAfterValueOnSameLine(childValue);
+                    write_comment_after_value_on_same_line(child_value);
                     break;
                 }
                 *sout_ << ",";
-                writeCommentAfterValueOnSameLine(childValue);
+                write_comment_after_value_on_same_line(child_value);
             }
             unindent();
-            writeWithIndent("]");
+            write_with_indent("]");
         }
         else // output on a single line
         {
-            assert(childValues_.size() == size);
+            assert(child_values_.size() == size);
             *sout_ << "[";
             if (!indentation_.empty())
                 *sout_ << " ";
             for (unsigned index = 0; index < size; ++index) {
                 if (index > 0)
                     *sout_ << ", ";
-                *sout_ << childValues_[index];
+                *sout_ << child_values_[index];
             }
             if (!indentation_.empty())
                 *sout_ << " ";
@@ -1004,37 +1001,37 @@ void built_styled_stream_writer::writeArrayValue(value const& value)
     }
 }
 
-bool built_styled_stream_writer::isMultineArray(value const& value)
+bool built_styled_stream_writer::is_multiline_array(value const& value)
 {
     int size = value.size();
-    bool isMultiLine = size * 3 >= rightMargin_;
-    childValues_.clear();
-    for (int index = 0; index < size && !isMultiLine; ++index) {
-        class value const& childValue = value[index];
-        isMultiLine = isMultiLine || ((childValue.is_array() || childValue.is_object()) && childValue.size() > 0);
+    bool is_multiline = size * 3 >= right_margin_;
+    child_values_.clear();
+    for (int index = 0; index < size && !is_multiline; ++index) {
+        class value const& child_value = value[index];
+        is_multiline = is_multiline || ((child_value.is_array() || child_value.is_object()) && child_value.size() > 0);
     }
-    if (!isMultiLine) // check if line length > max line length
+    if (!is_multiline) // check if line length > max line length
     {
-        childValues_.reserve(size);
-        addChildValues_ = true;
+        child_values_.reserve(size);
+        add_child_values_ = true;
         int lineLength = 4 + (size - 1) * 2; // '[ ' + ', '*n + ' ]'
         for (int index = 0; index < size; ++index) {
-            if (hasCommentForValue(value[index])) {
-                isMultiLine = true;
+            if (has_comment_for_value(value[index])) {
+                is_multiline = true;
             }
             write_value(value[index]);
-            lineLength += int(childValues_[index].length());
+            lineLength += int(child_values_[index].length());
         }
-        addChildValues_ = false;
-        isMultiLine = isMultiLine || lineLength >= rightMargin_;
+        add_child_values_ = false;
+        is_multiline = is_multiline || lineLength >= right_margin_;
     }
-    return isMultiLine;
+    return is_multiline;
 }
 
-void built_styled_stream_writer::pushValue(std::string const& value)
+void built_styled_stream_writer::push_value(std::string const& value)
 {
-    if (addChildValues_)
-        childValues_.push_back(value);
+    if (add_child_values_)
+        child_values_.push_back(value);
     else
         *sout_ << value;
 }
@@ -1052,7 +1049,7 @@ void built_styled_stream_writer::writeIndent()
     }
 }
 
-void built_styled_stream_writer::writeWithIndent(std::string const& value)
+void built_styled_stream_writer::write_with_indent(std::string const& value)
 {
     if (!indented_)
         writeIndent();
@@ -1068,9 +1065,9 @@ void built_styled_stream_writer::unindent()
     indentString_.resize(indentString_.size() - indentation_.size());
 }
 
-void built_styled_stream_writer::writeCommentBeforeValue(value const& root)
+void built_styled_stream_writer::write_comment_before_value(value const& root)
 {
-    if (cs_ == CommentStyle::None)
+    if (cs_ == comment_style::None)
         return;
     if (!root.has_comment(comment_before))
         return;
@@ -1089,9 +1086,9 @@ void built_styled_stream_writer::writeCommentBeforeValue(value const& root)
     indented_ = false;
 }
 
-void built_styled_stream_writer::writeCommentAfterValueOnSameLine(value const& root)
+void built_styled_stream_writer::write_comment_after_value_on_same_line(value const& root)
 {
-    if (cs_ == CommentStyle::None)
+    if (cs_ == comment_style::None)
         return;
     if (root.has_comment(comment_after_on_same_line))
         *sout_ << " " + root.get_comment(comment_after_on_same_line);
@@ -1103,7 +1100,7 @@ void built_styled_stream_writer::writeCommentAfterValueOnSameLine(value const& r
 }
 
 // static
-bool built_styled_stream_writer::hasCommentForValue(value const& value)
+bool built_styled_stream_writer::has_comment_for_value(value const& value)
 {
     return value.has_comment(comment_before) || value.has_comment(comment_after_on_same_line) || value.has_comment(comment_after);
 }
@@ -1115,56 +1112,61 @@ stream_writer::stream_writer()
     : sout_(NULL)
 {
 }
+
 stream_writer::~stream_writer()
 {
 }
+
 stream_writer::factory::~factory()
 {
 }
+
 stream_writer_builder::stream_writer_builder()
 {
     set_defaults(&settings_);
 }
+
 stream_writer_builder::~stream_writer_builder()
 {
 }
-stream_writer* stream_writer_builder::newStreamwriter() const
+
+stream_writer* stream_writer_builder::new_stream_writer() const
 {
     std::string indentation = settings_["indentation"].as_string();
-    std::string cs_str = settings_["commentStyle"].as_string();
+    std::string cs_str = settings_["comment_style"].as_string();
     bool eyc = settings_["enable_yaml_compatibility"].as_bool();
     bool dnp = settings_["drop_null_placeholders"].as_bool();
-    CommentStyle::Enum cs = CommentStyle::All;
+    comment_style cs = comment_style::All;
     if (cs_str == "All") {
-        cs = CommentStyle::All;
+        cs = comment_style::All;
     }
     else if (cs_str == "None") {
-        cs = CommentStyle::None;
+        cs = comment_style::None;
     }
     else {
-        throw_runtime_error("commentStyle must be 'All' or 'None'");
+        throw_runtime_error("comment_style must be 'All' or 'None'");
     }
-    std::string colonSymbol = " : ";
+    std::string colon_symbol = " : ";
     if (eyc) {
-        colonSymbol = ": ";
+        colon_symbol = ": ";
     }
     else if (indentation.empty()) {
-        colonSymbol = ":";
+        colon_symbol = ":";
     }
-    std::string nullSymbol = "null";
+    std::string null_symbol = "null";
     if (dnp) {
-        nullSymbol = "";
+        null_symbol = "";
     }
-    std::string endingLineFeedSymbol = "";
+    std::string ending_linefeed_symbol = "";
     return new built_styled_stream_writer(
         indentation, cs,
-        colonSymbol, nullSymbol, endingLineFeedSymbol);
+        colon_symbol, null_symbol, ending_linefeed_symbol);
 }
-static void getValidwriterKeys(std::set<std::string>* valid_keys)
+static void get_valid_writer_keys(std::set<std::string>* valid_keys)
 {
     valid_keys->clear();
     valid_keys->insert("indentation");
-    valid_keys->insert("commentStyle");
+    valid_keys->insert("comment_style");
     valid_keys->insert("enable_yaml_compatibility");
     valid_keys->insert("drop_null_placeholders");
 }
@@ -1175,8 +1177,8 @@ bool stream_writer_builder::validate(json::value* invalid) const
         invalid = &my_invalid; // so we do not need to test for NULL
     json::value& inv = *invalid;
     std::set<std::string> valid_keys;
-    getValidwriterKeys(&valid_keys);
-    value::Members keys = settings_.get_member_names();
+    get_valid_writer_keys(&valid_keys);
+    value::members keys = settings_.get_member_names();
     size_t n = keys.size();
     for (size_t i = 0; i < n; ++i) {
         std::string const& key = keys[i];
@@ -1194,7 +1196,7 @@ value& stream_writer_builder::operator[](std::string key)
 void stream_writer_builder::set_defaults(json::value* settings)
 {
     //! [StreamwriterBuilderDefaults]
-    (*settings)["commentStyle"] = "All";
+    (*settings)["comment_style"] = "All";
     (*settings)["indentation"] = "\t";
     (*settings)["enable_yaml_compatibility"] = false;
     (*settings)["drop_null_placeholders"] = false;
@@ -1204,7 +1206,7 @@ void stream_writer_builder::set_defaults(json::value* settings)
 std::string write_string(stream_writer::factory const& builder, value const& root)
 {
     std::ostringstream sout;
-    StreamwriterPtr const writer(builder.newStreamwriter());
+    StreamwriterPtr const writer(builder.new_stream_writer());
     writer->write(root, &sout);
     return sout.str();
 }
@@ -1212,7 +1214,7 @@ std::string write_string(stream_writer::factory const& builder, value const& roo
 std::ostream& operator<<(std::ostream& sout, value const& root)
 {
     stream_writer_builder builder;
-    StreamwriterPtr const writer(builder.newStreamwriter());
+    StreamwriterPtr const writer(builder.new_stream_writer());
     writer->write(root, &sout);
     return sout;
 }

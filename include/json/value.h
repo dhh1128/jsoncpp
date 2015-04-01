@@ -136,7 +136,7 @@ class JSON_API value {
     friend class value_iterator_base;
 
 public:
-    typedef std::vector<std::string> Members;
+    typedef std::vector<std::string> members;
     typedef value_iterator iterator;
     typedef value_const_iterator const_iterator;
     typedef json::largest_int_t largest_int_t;
@@ -461,7 +461,7 @@ json::value obj_value(json::vt_object); // {}
     /// If null, return an empty list.
     /// \pre type() is vt_object or vt_null
     /// \post if type() was vt_null, it remains vt_null
-    Members get_member_names() const;
+    members get_member_names() const;
 
     /// \deprecated Always pass len.
     void set_comment(const char* comment, comment_placement placement);

@@ -1193,14 +1193,14 @@ bool value::is_member(std::string const& key) const
     return is_member(key.data(), key.data() + key.length());
 }
 
-value::Members value::get_member_names() const
+value::members value::get_member_names() const
 {
     JSON_ASSERT_MESSAGE(
         type_ == vt_null || type_ == vt_object,
         "in json::value::get_member_names(), value must be vt_object");
     if (type_ == vt_null)
-        return value::Members();
-    Members members;
+        return value::members();
+    members members;
     members.reserve(value_.map_->size());
     object_values::const_iterator it = value_.map_->begin();
     object_values::const_iterator itEnd = value_.map_->end();

@@ -2010,7 +2010,7 @@ bool char_reader_builder::validate(json::value* invalid) const
     json::value& inv = *invalid;
     std::set<std::string> valid_keys;
     get_valid_reader_keys(&valid_keys);
-    value::Members keys = settings_.get_member_names();
+    value::members keys = settings_.get_member_names();
     size_t n = keys.size();
     for (size_t i = 0; i < n; ++i) {
         std::string const& key = keys[i];

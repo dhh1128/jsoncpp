@@ -1583,7 +1583,7 @@ JSONTEST_FIXTURE(ValueTest, CommentBefore)
     json::value val; // fill val
     val.set_comment("// this comment should appear before", json::comment_before);
     json::stream_writer_builder wbuilder;
-    wbuilder.settings_["commentStyle"] = "All";
+    wbuilder.settings_["comment_style"] = "All";
     {
         char const expected[] = "// this comment should appear before\nnull";
         std::string result = json::write_string(wbuilder, val);

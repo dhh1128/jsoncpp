@@ -27,7 +27,7 @@ Usage:
   using namespace json;
   void writeToStdout(stream_writer::factory const& factory, value const& value) {
     std::unique_ptr<stream_writer> const writer(
-      factory.newStreamwriter());
+      factory.new_stream_writer());
     writer->write(value, &std::cout);
     std::cout << std::endl;  // add lf and flush
   }
@@ -55,7 +55,7 @@ public:
         /** \brief Allocate a char_reader via operator new().
      * \throw std::exception if something goes wrong (e.g. invalid settings)
      */
-        virtual stream_writer* newStreamwriter() const = 0;
+        virtual stream_writer* new_stream_writer() const = 0;
     }; // factory
 }; // stream_writer
 
@@ -71,10 +71,10 @@ Usage:
   using namespace json;
   value value = ...;
   stream_writer_builder builder;
-  builder["commentStyle"] = "None";
+  builder["comment_style"] = "None";
   builder["indentation"] = "   ";  // or whatever you like
   std::unique_ptr<json::stream_writer> writer(
-      builder.newStreamwriter());
+      builder.new_stream_writer());
   writer->write(value, &std::cout);
   std::cout << std::endl;  // add lf and flush
 \endcode
@@ -85,7 +85,7 @@ public:
     // without a major version bump.
     /** Configuration of this builder.
     Available settings (case-sensitive):
-    - "commentStyle": "None" or "All"
+    - "comment_style": "None" or "All"
     - "indentation":  "<anything>"
     - "enable_yaml_compatibility": false or true
       - slightly change the whitespace around colons
@@ -108,7 +108,7 @@ public:
     /**
    * \throw std::exception if something goes wrong (e.g. invalid settings)
    */
-    virtual stream_writer* newStreamwriter() const;
+    virtual stream_writer* new_stream_writer() const;
 
     /** \return true if 'settings' are legal and consistent;
    *   otherwise, indicate bad settings via 'invalid'.
@@ -212,26 +212,26 @@ public: // overridden from writer
 
 private:
     void write_value(value const& value);
-    void writeArrayValue(value const& value);
-    bool isMultineArray(value const& value);
-    void pushValue(std::string const& value);
+    void write_array_value(value const& value);
+    bool is_multiline_array(value const& value);
+    void push_value(std::string const& value);
     void writeIndent();
-    void writeWithIndent(std::string const& value);
+    void write_with_indent(std::string const& value);
     void indent();
     void unindent();
-    void writeCommentBeforeValue(value const& root);
-    void writeCommentAfterValueOnSameLine(value const& root);
-    bool hasCommentForValue(value const& value);
+    void write_comment_before_value(value const& root);
+    void write_comment_after_value_on_same_line(value const& root);
+    bool has_comment_for_value(value const& value);
     static std::string normalize_eol(std::string const& text);
 
     typedef std::vector<std::string> ChildValues;
 
-    ChildValues childValues_;
+    ChildValues child_values_;
     std::string document_;
     std::string indentString_;
-    int rightMargin_;
+    int right_margin_;
     int indentSize_;
-    bool addChildValues_;
+    bool add_child_values_;
 };
 
 /** \brief Writes a value in <a HREF="http://www.json.org">JSON</a> format in a
@@ -276,26 +276,26 @@ public:
 
 private:
     void write_value(value const& value);
-    void writeArrayValue(value const& value);
-    bool isMultineArray(value const& value);
-    void pushValue(std::string const& value);
+    void write_array_value(value const& value);
+    bool is_multiline_array(value const& value);
+    void push_value(std::string const& value);
     void writeIndent();
-    void writeWithIndent(std::string const& value);
+    void write_with_indent(std::string const& value);
     void indent();
     void unindent();
-    void writeCommentBeforeValue(value const& root);
-    void writeCommentAfterValueOnSameLine(value const& root);
-    bool hasCommentForValue(value const& value);
+    void write_comment_before_value(value const& root);
+    void write_comment_after_value_on_same_line(value const& root);
+    bool has_comment_for_value(value const& value);
     static std::string normalize_eol(std::string const& text);
 
     typedef std::vector<std::string> ChildValues;
 
-    ChildValues childValues_;
+    ChildValues child_values_;
     std::ostream* document_;
     std::string indentString_;
-    int rightMargin_;
+    int right_margin_;
     std::string indentation_;
-    bool addChildValues_ : 1;
+    bool add_child_values_ : 1;
     bool indented_ : 1;
 };
 

@@ -114,10 +114,10 @@ print_value_tree(FILE* fout, json::value& value, std::string const& path = ".")
     } break;
     case json::vt_object: {
         fprintf(fout, "%s={}\n", path.c_str());
-        json::value::Members members(value.get_member_names());
+        json::value::members members(value.get_member_names());
         std::sort(members.begin(), members.end());
         std::string suffix = *(path.end() - 1) == '.' ? "" : ".";
-        for (json::value::Members::iterator it = members.begin();
+        for (json::value::members::iterator it = members.begin();
              it != members.end();
              ++it) {
             std::string const& name = *it;
