@@ -72,7 +72,7 @@ struct ValueTest : JsonTest::TestCase {
     bool isArray_;
     bool isBool_;
     bool isString_;
-    bool isNull_;
+    bool is_null_;
 
     bool isInt_;
     bool isInt64_;
@@ -260,7 +260,7 @@ JSONTEST_FIXTURE(ValueTest, null) {
   JSONTEST_ASSERT_EQUAL(json::vt_null, null_.type());
 
   IsCheck checks;
-  checks.isNull_ = true;
+  checks.is_null_ = true;
   JSONTEST_ASSERT_PRED(checkIs(null_, checks));
 
   JSONTEST_ASSERT(null_.is_convertible_to(json::vt_null));
@@ -1281,7 +1281,7 @@ void ValueTest::checkMemberCount(json::value& value,
 
 ValueTest::IsCheck::IsCheck()
     : isObject_(false), isArray_(false), isBool_(false), isString_(false),
-      isNull_(false), isInt_(false), isInt64_(false), isUInt_(false),
+      is_null_(false), isInt_(false), isInt64_(false), isUInt_(false),
       isUInt64_(false), isIntegral_(false), isDouble_(false),
       isNumeric_(false) {}
 
@@ -1295,7 +1295,7 @@ void ValueTest::checkIs(const json::value& value, const IsCheck& check) {
   JSONTEST_ASSERT_EQUAL(check.isIntegral_, value.isIntegral());
   JSONTEST_ASSERT_EQUAL(check.isNumeric_, value.isNumeric());
   JSONTEST_ASSERT_EQUAL(check.isString_, value.isString());
-  JSONTEST_ASSERT_EQUAL(check.isNull_, value.is_null());
+  JSONTEST_ASSERT_EQUAL(check.is_null_, value.is_null());
 
 #ifdef JSON_HAS_INT64
   JSONTEST_ASSERT_EQUAL(check.isInt64_, value.is_int64());

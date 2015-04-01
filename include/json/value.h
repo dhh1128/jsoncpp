@@ -602,17 +602,17 @@ public:
   typedef std::bidirectional_iterator_tag iterator_category;
   typedef unsigned int size_t;
   typedef int difference_type;
-  typedef value_iterator_base SelfType;
+  typedef value_iterator_base self_type;
 
   value_iterator_base();
   explicit value_iterator_base(const value::object_values::iterator& current);
 
-  bool operator==(const SelfType& other) const { return isEqual(other); }
+  bool operator==(const self_type& other) const { return is_equal(other); }
 
-  bool operator!=(const SelfType& other) const { return !isEqual(other); }
+  bool operator!=(const self_type& other) const { return !is_equal(other); }
 
-  difference_type operator-(const SelfType& other) const {
-    return other.computeDistance(*this);
+  difference_type operator-(const self_type& other) const {
+    return other.compute_distance(*this);
   }
 
   /// Return either the index or the member name of the referenced value as a
@@ -627,15 +627,9 @@ public:
   /// \note Avoid `c_str()` on result, as embedded zeroes are possible.
   std::string name() const;
 
-  /// Return the member name of the referenced value. "" if it is not an
-  /// vt_object.
-  /// \deprecated This cannot be used for UTF-8 strings, since there can be embedded nulls.
-  JSONCPP_DEPRECATED("Use `key = name();` instead.")
-  char const* memberName() const;
   /// Return the member name of the referenced value, or NULL if it is not an
-  /// vt_object.
-  /// \note Better version than memberName(). Allows embedded nulls.
-  char const* memberName(char const** end) const;
+  /// vt_object. Because end is passed as an OUT param, embedded nulls are supported.
+  char const* member_name(char const** end) const;
 
 protected:
   value& deref() const;
@@ -644,16 +638,16 @@ protected:
 
   void decrement();
 
-  difference_type computeDistance(const SelfType& other) const;
+  difference_type compute_distance(const self_type& other) const;
 
-  bool isEqual(const SelfType& other) const;
+  bool is_equal(const self_type& other) const;
 
-  void copy(const SelfType& other);
+  void copy(const self_type& other);
 
 private:
   value::object_values::iterator current_;
   // Indicates that iterator is for a null value.
-  bool isNull_;
+  bool is_null_;
 };
 
 /** \brief const iterator for object and array value.
@@ -668,7 +662,7 @@ public:
   //typedef int difference_type;
   typedef value const & reference;
   typedef const value* pointer;
-  typedef value_const_iterator SelfType;
+  typedef value_const_iterator self_type;
 
   value_const_iterator();
 
@@ -677,26 +671,26 @@ private:
  */
   explicit value_const_iterator(const value::object_values::iterator& current);
 public:
-  SelfType& operator=(const value_iterator_base& other);
+  self_type& operator=(const value_iterator_base& other);
 
-  SelfType operator++(int) {
-    SelfType temp(*this);
+  self_type operator++(int) {
+    self_type temp(*this);
     ++*this;
     return temp;
   }
 
-  SelfType operator--(int) {
-    SelfType temp(*this);
+  self_type operator--(int) {
+    self_type temp(*this);
     --*this;
     return temp;
   }
 
-  SelfType& operator--() {
+  self_type& operator--() {
     decrement();
     return *this;
   }
 
-  SelfType& operator++() {
+  self_type& operator++() {
     increment();
     return *this;
   }
@@ -717,7 +711,7 @@ public:
   typedef int difference_type;
   typedef value& reference;
   typedef value* pointer;
-  typedef value_iterator SelfType;
+  typedef value_iterator self_type;
 
   value_iterator();
   value_iterator(const value_const_iterator& other);
@@ -728,26 +722,26 @@ private:
  */
   explicit value_iterator(const value::object_values::iterator& current);
 public:
-  SelfType& operator=(const SelfType& other);
+  self_type& operator=(const self_type& other);
 
-  SelfType operator++(int) {
-    SelfType temp(*this);
+  self_type operator++(int) {
+    self_type temp(*this);
     ++*this;
     return temp;
   }
 
-  SelfType operator--(int) {
-    SelfType temp(*this);
+  self_type operator--(int) {
+    self_type temp(*this);
     --*this;
     return temp;
   }
 
-  SelfType& operator--() {
+  self_type& operator--() {
     decrement();
     return *this;
   }
 
-  SelfType& operator++() {
+  self_type& operator++() {
     increment();
     return *this;
   }
@@ -771,4 +765,4 @@ inline void swap(json::value& a, json::value& b) { a.swap(b); }
 #pragma warning(pop)
 #endif // if defined(JSONCPP_DISABLE_DLL_INTERFACE_WARNING)
 
-#endif // CPPTL_JSON_H_INCLUDED
+#endif // sentry
