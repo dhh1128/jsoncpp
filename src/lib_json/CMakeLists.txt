@@ -36,11 +36,11 @@ SET( PUBLIC_HEADERS
 SOURCE_GROUP( "Public API" FILES ${PUBLIC_HEADERS} )
 
 SET(jsoncpp_sources
-                json_tool.h
-                json_reader.cpp
-                json_valueiterator.inl
-                json_value.cpp
-                json_writer.cpp
+                tool.h
+                reader.cpp
+                value_iterator.inl
+                value.cpp
+                writer.cpp
                 version.h.in)
 
 # Install instructions for this target
