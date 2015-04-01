@@ -2,8 +2,8 @@
 // https://github.com/open-source-parsers/jsoncpp. Thanks, Baptiste Lepilleur!
 
 #include "jsontest.h"
-#include <json/config.h>
-#include <json/json.h>
+#include "config.h"
+#include "json.h"
 #include <cstring>
 
 // Make numeric limits more convenient to talk about.

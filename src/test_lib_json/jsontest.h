@@ -4,10 +4,11 @@
 #ifndef _168447578ee3470da61b7ef63813d636
 #define _168447578ee3470da61b7ef63813d636
 
-#include <json/config.h>
-#include <json/value.h>
-#include <json/writer.h>
-#include <stdio.h>
+#include "config.h"
+#include "value.h"
+#include "writer.h"
+
+#include <cstdio>
 #include <deque>
 #include <sstream>
 #include <string>

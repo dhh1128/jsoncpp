@@ -2,7 +2,7 @@
 // and "version.h.in" files.
 // Run CMake configure step to update it.
 #ifndef _1f60240c55344642832bf44ce87e861c
-# define _1f60240c55344642832bf44ce87e861c
+#define _1f60240c55344642832bf44ce87e861c
 
 # define JSONCPP_VERSION_STRING "@JSONCPP_VERSION@"
 # define JSONCPP_VERSION_MAJOR @JSONCPP_VERSION_MAJOR@

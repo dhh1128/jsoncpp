@@ -1,9 +1,9 @@
 // Derived from public-domain/MIT-licensed code at
 // https://github.com/open-source-parsers/jsoncpp. Thanks, Baptiste Lepilleur!
 
-#include <json/assertions.h>
-#include <json/reader.h>
-#include <json/value.h>
+#include "assertions.h"
+#include "reader.h"
+#include "value.h"
 #include "tool.h"
 #include <utility>
 #include <cstdio>

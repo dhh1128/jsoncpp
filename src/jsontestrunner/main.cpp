@@ -4,10 +4,10 @@
 /* This executable is used for testing parser/writer using real JSON files.
  */
 
-#include <json/json.h>
+#include "json.h"
 #include <algorithm> // sort
 #include <sstream>
-#include <stdio.h>
+#include <cstdio>
 
 #if defined(_MSC_VER) && _MSC_VER >= 1310
 #pragma warning(disable : 4996) // disable fopen deprecation warning

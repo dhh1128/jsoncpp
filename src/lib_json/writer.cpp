@@ -1,7 +1,7 @@
 // Derived from public-domain/MIT-licensed code at
 // https://github.com/open-source-parsers/jsoncpp. Thanks, Baptiste Lepilleur!
 
-#include <json/writer.h>
+#include "writer.h"
 #include "tool.h"
 #include <iomanip>
 #include <memory>

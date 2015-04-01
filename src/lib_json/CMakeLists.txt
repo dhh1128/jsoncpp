@@ -20,17 +20,15 @@ if( CMAKE_COMPILER_IS_GNUCXX )
   endif()
 endif( CMAKE_COMPILER_IS_GNUCXX )
 
-SET( JSONCPP_INCLUDE_DIR ../../include )
-
 SET( PUBLIC_HEADERS
-    ${JSONCPP_INCLUDE_DIR}/json/config.h
-    ${JSONCPP_INCLUDE_DIR}/json/forwards.h
-    ${JSONCPP_INCLUDE_DIR}/json/features.h
-    ${JSONCPP_INCLUDE_DIR}/json/value.h
-    ${JSONCPP_INCLUDE_DIR}/json/reader.h
-    ${JSONCPP_INCLUDE_DIR}/json/writer.h
-    ${JSONCPP_INCLUDE_DIR}/json/assertions.h
-    ${JSONCPP_INCLUDE_DIR}/json/version.h
+    config.h
+    forwards.h
+    features.h
+    value.h
+    reader.h
+    writer.h
+    assertions.h
+    version.h
     )
 
 SOURCE_GROUP( "Public API" FILES ${PUBLIC_HEADERS} )

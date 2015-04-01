@@ -4,7 +4,7 @@
 #ifndef _1feb388b3b7b4e3f92d1c3f399efebb8
 #define _1feb388b3b7b4e3f92d1c3f399efebb8
 
-#include <stdlib.h>
+#include <cstdlib>
 #include <sstream>
 
 #include "config.h"
