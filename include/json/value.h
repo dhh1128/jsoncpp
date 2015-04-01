@@ -202,11 +202,7 @@ private:
   };
 
 public:
-#ifndef JSON_USE_CPPTL_SMALLMAP
   typedef std::map<czstring, value> object_values;
-#else
-  typedef CppTL::SmallMap<czstring, value> object_values;
-#endif // ifndef JSON_USE_CPPTL_SMALLMAP
 #endif // ifndef JSONCPP_DOC_EXCLUDE_IMPLEMENTATION
 
 public:
