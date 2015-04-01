@@ -23,15 +23,15 @@
 #pragma warning(disable : 4996)
 #endif
 
-static int const stackLimit_g = 1000;
-static int       stackDepth_g = 0;  // see read_value()
+static int const stack_limit_g = 1000;
+static int       stack_depth_g = 0;  // see read_value()
 
 namespace json {
 
 #if __cplusplus >= 201103L
-typedef std::unique_ptr<char_reader> CharReaderPtr;
+typedef std::unique_ptr<char_reader> char_reader_ptr;
 #else
-typedef std::auto_ptr<char_reader>   CharReaderPtr;
+typedef std::auto_ptr<char_reader>   char_reader_ptr;
 #endif
 
 // Implementation of class features
@@ -70,7 +70,7 @@ reader::reader()
       last_value_(), comments_before_(), features_(features::all()),
       collect_comments_() {}
 
-reader::reader(const features & features)
+reader::reader(features const & features)
     : errors_(), document_(), begin_(), end_(), current_(), last_value_end_(),
       last_value_(), comments_before_(), features_(features), collect_comments_() {
 }
@@ -116,7 +116,7 @@ bool reader::parse(const char* begin_doc,
     nodes_.pop();
   nodes_.push(&root);
 
-  stackDepth_g = 0;  // Yes, this is bad coding, but options are limited.
+  stack_depth_g = 0;  // Yes, this is bad coding, but options are limited.
   bool successful = read_value();
   token token;
   skip_comment_tokens(token);
@@ -139,12 +139,12 @@ bool reader::parse(const char* begin_doc,
 }
 
 bool reader::read_value() {
-  // This is a non-reentrant way to support a stackLimit. Terrible!
+  // This is a non-reentrant way to support a stack limit. Terrible!
   // But this deprecated class has a security problem: Bad input can
   // cause a seg-fault. This seems like a fair, binary-compatible way
   // to prevent the problem.
-  if (stackDepth_g >= stackLimit_g) throw_runtime_error("Exceeded stackLimit in read_value().");
-  ++stackDepth_g;
+  if (stack_depth_g >= stack_limit_g) throw_runtime_error("Exceeded stack_limit in read_value().");
+  ++stack_depth_g;
 
   token token;
   skip_comment_tokens(token);
@@ -218,7 +218,7 @@ bool reader::read_value() {
     last_value_ = &current_value();
   }
 
-  --stackDepth_g;
+  --stack_depth_g;
   return successful;
 }
 
@@ -437,29 +437,29 @@ bool reader::read_string() {
   return c == '"';
 }
 
-bool reader::read_object(token & tokenStart) {
-  token tokenName;
+bool reader::read_object(token & token_start) {
+  token token_name;
   std::string name;
   value init(vt_object);
   current_value().swap_payload(init);
-  current_value().set_offset_start(tokenStart.start_ - begin_);
-  while (read_token(tokenName)) {
-    bool initialTokenOk = true;
-    while (tokenName.type_ == tt_comment && initialTokenOk)
-      initialTokenOk = read_token(tokenName);
-    if (!initialTokenOk)
+  current_value().set_offset_start(token_start.start_ - begin_);
+  while (read_token(token_name)) {
+    bool initial_token_ok = true;
+    while (token_name.type_ == tt_comment && initial_token_ok)
+      initial_token_ok = read_token(token_name);
+    if (!initial_token_ok)
       break;
-    if (tokenName.type_ == tt_object_end && name.empty()) // empty object
+    if (token_name.type_ == tt_object_end && name.empty()) // empty object
       return true;
     name = "";
-    if (tokenName.type_ == tt_string) {
-      if (!decode_string(tokenName, name))
+    if (token_name.type_ == tt_string) {
+      if (!decode_string(token_name, name))
         return recover_from_error(tt_object_end);
-    } else if (tokenName.type_ == tt_number && features_.allow_numeric_keys_) {
-      value numberName;
-      if (!decode_number(tokenName, numberName))
+    } else if (token_name.type_ == tt_number && features_.allow_numeric_keys_) {
+      value number_name;
+      if (!decode_number(token_name, number_name))
         return recover_from_error(tt_object_end);
-      name = numberName.as_string();
+      name = number_name.as_string();
     } else {
       break;
     }
@@ -490,13 +490,13 @@ bool reader::read_object(token & tokenStart) {
       return true;
   }
   return add_error_and_recover(
-      "Missing '}' or object member name", tokenName, tt_object_end);
+      "Missing '}' or object member name", token_name, tt_object_end);
 }
 
-bool reader::read_array(token & tokenStart) {
+bool reader::read_array(token & token_start) {
   value init(vt_array);
   current_value().swap_payload(init);
-  current_value().set_offset_start(tokenStart.start_ - begin_);
+  current_value().set_offset_start(token_start.start_ - begin_);
   skip_spaces();
   if (*current_ == ']') // empty array
   {
@@ -546,14 +546,14 @@ bool reader::decode_number(token & token, value & decoded) {
   // larger than the maximum supported value of an integer then
   // we decode the number as a double.
   location_t current = token.start_;
-  bool isNegative = *current == '-';
-  if (isNegative)
+  bool is_negative = *current == '-';
+  if (is_negative)
     ++current;
   // TODO: Help the compiler do the div and mod at compile time or get rid of them.
-  value::largest_uint_t maxIntegerValue =
-      isNegative ? value::largest_uint_t(-value::min_largest_int)
+  value::largest_uint_t max_integer_value =
+      is_negative ? value::largest_uint_t(-value::min_largest_int)
                  : value::max_largest_uint;
-  value::largest_uint_t threshold = maxIntegerValue / 10;
+  value::largest_uint_t threshold = max_integer_value / 10;
   value::largest_uint_t value = 0;
   while (current < token.end_) {
     char c = *current++;
@@ -566,13 +566,13 @@ bool reader::decode_number(token & token, value & decoded) {
       // c) it's small enough to fit in that rounding delta, we're okay.
       // Otherwise treat this number as a double to avoid overflow.
       if (value > threshold || current != token.end_ ||
-          digit > maxIntegerValue % 10) {
+          digit > max_integer_value % 10) {
         return decode_double(token, decoded);
       }
     }
     value = value * 10 + digit;
   }
-  if (isNegative)
+  if (is_negative)
     decoded = -value::largest_int_t(value);
   else if (value <= value::largest_uint_t(value::max_int))
     decoded = value::largest_int_t(value);
@@ -679,7 +679,7 @@ bool reader::decode_string(token & token, std::string & decoded) {
         unsigned int unicode;
         if (!decode_unicode_codepoint(token, current, end, unicode))
           return false;
-        decoded += codePointToUTF8(unicode);
+        decoded += codepoint_to_utf8(unicode);
       } break;
       default:
         return add_error("Bad escape sequence in string", token, current);
@@ -750,7 +750,7 @@ bool reader::decode_unicode_escape_sequence(token & token,
 
 bool
 reader::add_error(std::string const & message, token & token, location_t extra) {
-  ErrorInfo info;
+  error_info info;
   info.token_ = token;
   info.message_ = message;
   info.extra_ = extra;
@@ -830,7 +830,7 @@ std::string reader::get_formatted_messages() const {
   for (errors::const_iterator itError = errors_.begin();
        itError != errors_.end();
        ++itError) {
-    const ErrorInfo & error = *itError;
+    error_info const & error = *itError;
     formattedMessage +=
         "* " + get_location_line_and_column(error.token_.start_) + "\n";
     formattedMessage += "  " + error.message_ + "\n";
@@ -846,7 +846,7 @@ std::vector<reader::structured_error> reader::get_structured_errors() const {
   for (errors::const_iterator itError = errors_.begin();
        itError != errors_.end();
        ++itError) {
-    const ErrorInfo & error = *itError;
+    error_info const & error = *itError;
     reader::structured_error structured;
     structured.offset_start = error.token_.start_ - begin_;
     structured.offset_limit = error.token_.end_ - begin_;
@@ -865,7 +865,7 @@ bool reader::push_error(value const & value, std::string const & message) {
   token.type_ = tt_error;
   token.start_ = begin_ + value.get_offset_start();
   token.end_ = end_ + value.get_offset_limit();
-  ErrorInfo info;
+  error_info info;
   info.token_ = token;
   info.message_ = message;
   info.extra_ = 0;
@@ -883,7 +883,7 @@ bool reader::push_error(class value const & value, std::string const & message, 
   token.type_ = tt_error;
   token.start_ = begin_ + value.get_offset_start();
   token.end_ = begin_ + value.get_offset_limit();
-  ErrorInfo info;
+  error_info info;
   info.token_ = token;
   info.message_ = message;
   info.extra_ = begin_ + extra.get_offset_start();
@@ -975,14 +975,14 @@ private:
     location_t end_;
   };
 
-  class ErrorInfo {
+  class error_info {
   public:
     token token_;
     std::string message_;
     location_t extra_;
   };
 
-  typedef std::deque<ErrorInfo> errors;
+  typedef std::deque<error_info> errors;
 
   bool read_token(token & token);
   void skip_spaces();
@@ -991,7 +991,7 @@ private:
   bool read_c_style_comment();
   bool read_cpp_style_comment();
   bool read_string();
-  bool readStringSingleQuote();
+  bool read_string_single_quote();
   void read_number();
   bool read_value();
   bool read_object(token & token);
@@ -1018,8 +1018,7 @@ private:
   void skip_until_space();
   value & current_value();
   char get_next_char();
-  void
-  get_location_line_and_column(location_t location, int & line, int & column) const;
+  void get_location_line_and_column(location_t location, int & line, int & column) const;
   std::string get_location_line_and_column(location_t location) const;
   void add_comment(location_t begin, location_t end, comment_placement placement);
   void skip_comment_tokens(token & token);
@@ -1096,7 +1095,7 @@ bool our_reader::parse(const char* begin_doc,
 }
 
 bool our_reader::read_value() {
-  if (stack_depth_ >= features_.stack_limit_) throw_runtime_error("Exceeded stackLimit in read_value().");
+  if (stack_depth_ >= features_.stack_limit_) throw_runtime_error("Exceeded stack_limit in read_value().");
   ++stack_depth_;
   token token;
   skip_comment_tokens(token);
@@ -1209,7 +1208,7 @@ bool our_reader::read_token(token & token) {
   case '\'':
     if (features_.allow_single_quotes_) {
     token.type_ = tt_string;
-    ok = readStringSingleQuote();
+    ok = read_string_single_quote();
     break;
     } // else continue
   case '/':
@@ -1376,7 +1375,7 @@ bool our_reader::read_string() {
 }
 
 
-bool our_reader::readStringSingleQuote() {
+bool our_reader::read_string_single_quote() {
   char c = 0;
   while (current_ != end_) {
     c = get_next_char();
@@ -1388,29 +1387,29 @@ bool our_reader::readStringSingleQuote() {
   return c == '\'';
 }
 
-bool our_reader::read_object(token & tokenStart) {
-  token tokenName;
+bool our_reader::read_object(token & token_start) {
+  token token_name;
   std::string name;
   value init(vt_object);
   current_value().swap_payload(init);
-  current_value().set_offset_start(tokenStart.start_ - begin_);
-  while (read_token(tokenName)) {
-    bool initialTokenOk = true;
-    while (tokenName.type_ == tt_comment && initialTokenOk)
-      initialTokenOk = read_token(tokenName);
-    if (!initialTokenOk)
+  current_value().set_offset_start(token_start.start_ - begin_);
+  while (read_token(token_name)) {
+    bool initial_token_ok = true;
+    while (token_name.type_ == tt_comment && initial_token_ok)
+      initial_token_ok = read_token(token_name);
+    if (!initial_token_ok)
       break;
-    if (tokenName.type_ == tt_object_end && name.empty()) // empty object
+    if (token_name.type_ == tt_object_end && name.empty()) // empty object
       return true;
     name = "";
-    if (tokenName.type_ == tt_string) {
-      if (!decode_string(tokenName, name))
+    if (token_name.type_ == tt_string) {
+      if (!decode_string(token_name, name))
         return recover_from_error(tt_object_end);
-    } else if (tokenName.type_ == tt_number && features_.allow_numeric_keys_) {
-      value numberName;
-      if (!decode_number(tokenName, numberName))
+    } else if (token_name.type_ == tt_number && features_.allow_numeric_keys_) {
+      value number_name;
+      if (!decode_number(token_name, number_name))
         return recover_from_error(tt_object_end);
-      name = numberName.as_string();
+      name = number_name.as_string();
     } else {
       break;
     }
@@ -1424,7 +1423,7 @@ bool our_reader::read_object(token & tokenStart) {
     if (features_.reject_dup_keys_ && current_value().is_member(name)) {
       std::string msg = "Duplicate key: '" + name + "'";
       return add_error_and_recover(
-          msg, tokenName, tt_object_end);
+          msg, token_name, tt_object_end);
     }
     value & value = current_value()[name];
     nodes_.push(&value);
@@ -1447,13 +1446,13 @@ bool our_reader::read_object(token & tokenStart) {
       return true;
   }
   return add_error_and_recover(
-      "Missing '}' or object member name", tokenName, tt_object_end);
+      "Missing '}' or object member name", token_name, tt_object_end);
 }
 
-bool our_reader::read_array(token & tokenStart) {
+bool our_reader::read_array(token & token_start) {
   value init(vt_array);
   current_value().swap_payload(init);
-  current_value().set_offset_start(tokenStart.start_ - begin_);
+  current_value().set_offset_start(token_start.start_ - begin_);
   skip_spaces();
   if (*current_ == ']') // empty array
   {
@@ -1503,14 +1502,14 @@ bool our_reader::decode_number(token & token, value & decoded) {
   // larger than the maximum supported value of an integer then
   // we decode the number as a double.
   location_t current = token.start_;
-  bool isNegative = *current == '-';
-  if (isNegative)
+  bool is_negative = *current == '-';
+  if (is_negative)
     ++current;
   // TODO: Help the compiler do the div and mod at compile time or get rid of them.
-  value::largest_uint_t maxIntegerValue =
-      isNegative ? value::largest_uint_t(-value::min_largest_int)
+  value::largest_uint_t max_integer_value =
+      is_negative ? value::largest_uint_t(-value::min_largest_int)
                  : value::max_largest_uint;
-  value::largest_uint_t threshold = maxIntegerValue / 10;
+  value::largest_uint_t threshold = max_integer_value / 10;
   value::largest_uint_t value = 0;
   while (current < token.end_) {
     char c = *current++;
@@ -1523,13 +1522,13 @@ bool our_reader::decode_number(token & token, value & decoded) {
       // c) it's small enough to fit in that rounding delta, we're okay.
       // Otherwise treat this number as a double to avoid overflow.
       if (value > threshold || current != token.end_ ||
-          digit > maxIntegerValue % 10) {
+          digit > max_integer_value % 10) {
         return decode_double(token, decoded);
       }
     }
     value = value * 10 + digit;
   }
-  if (isNegative)
+  if (is_negative)
     decoded = -value::largest_int_t(value);
   else if (value <= value::largest_uint_t(value::max_int))
     decoded = value::largest_int_t(value);
@@ -1636,7 +1635,7 @@ bool our_reader::decode_string(token & token, std::string & decoded) {
         unsigned int unicode;
         if (!decode_unicode_codepoint(token, current, end, unicode))
           return false;
-        decoded += codePointToUTF8(unicode);
+        decoded += codepoint_to_utf8(unicode);
       } break;
       default:
         return add_error("Bad escape sequence in string", token, current);
@@ -1707,7 +1706,7 @@ bool our_reader::decode_unicode_escape_sequence(token & token,
 
 bool
 our_reader::add_error(std::string const & message, token & token, location_t extra) {
-  ErrorInfo info;
+  error_info info;
   info.token_ = token;
   info.message_ = message;
   info.extra_ = extra;
@@ -1787,7 +1786,7 @@ std::string our_reader::get_formatted_messages() const {
   for (errors::const_iterator itError = errors_.begin();
        itError != errors_.end();
        ++itError) {
-    const ErrorInfo & error = *itError;
+    error_info const & error = *itError;
     formattedMessage +=
         "* " + get_location_line_and_column(error.token_.start_) + "\n";
     formattedMessage += "  " + error.message_ + "\n";
@@ -1803,7 +1802,7 @@ std::vector<our_reader::structured_error> our_reader::get_structured_errors() co
   for (errors::const_iterator itError = errors_.begin();
        itError != errors_.end();
        ++itError) {
-    const ErrorInfo & error = *itError;
+    error_info const & error = *itError;
     our_reader::structured_error structured;
     structured.offset_start = error.token_.start_ - begin_;
     structured.offset_limit = error.token_.end_ - begin_;
@@ -1822,7 +1821,7 @@ bool our_reader::push_error(value const & value, std::string const & message) {
   token.type_ = tt_error;
   token.start_ = begin_ + value.get_offset_start();
   token.end_ = end_ + value.get_offset_limit();
-  ErrorInfo info;
+  error_info info;
   info.token_ = token;
   info.message_ = message;
   info.extra_ = 0;
@@ -1840,7 +1839,7 @@ bool our_reader::push_error(class value const & value, std::string const & messa
   token.type_ = tt_error;
   token.start_ = begin_ + value.get_offset_start();
   token.end_ = begin_ + value.get_offset_limit();
-  ErrorInfo info;
+  error_info info;
   info.token_ = token;
   info.message_ = message;
   info.extra_ = begin_ + extra.get_offset_start();
@@ -1853,11 +1852,11 @@ bool our_reader::good() const {
 }
 
 
-class OurCharReader : public char_reader {
+class our_char_reader : public char_reader {
   bool const collect_comments_;
   our_reader reader_;
 public:
-  OurCharReader(
+  our_char_reader(
     bool collect_comments,
     our_features const & features)
   : collect_comments_(collect_comments)
@@ -1876,36 +1875,36 @@ public:
 
 char_reader_builder::char_reader_builder()
 {
-  setDefaults(&settings_);
+  set_defaults(&settings_);
 }
 char_reader_builder::~char_reader_builder()
 {}
-char_reader* char_reader_builder::newCharReader() const
+char_reader* char_reader_builder::new_char_reader() const
 {
   bool collect_comments = settings_["collect_comments"].as_bool();
   our_features features = our_features::all();
-  features.allow_comments_ = settings_["allowComments"].as_bool();
-  features.strict_root_ = settings_["strictRoot"].as_bool();
-  features.allow_dropped_null_placeholders_ = settings_["allowDroppedNullPlaceholders"].as_bool();
-  features.allow_numeric_keys_ = settings_["allowNumericKeys"].as_bool();
-  features.allow_single_quotes_ = settings_["allowSingleQuotes"].as_bool();
-  features.stack_limit_ = settings_["stackLimit"].as_int();
-  features.fail_if_extra_ = settings_["failIfExtra"].as_bool();
-  features.reject_dup_keys_ = settings_["rejectDupKeys"].as_bool();
-  return new OurCharReader(collect_comments, features);
+  features.allow_comments_ = settings_["allow_comments"].as_bool();
+  features.strict_root_ = settings_["strict_root"].as_bool();
+  features.allow_dropped_null_placeholders_ = settings_["allow_dropped_null_placeholders"].as_bool();
+  features.allow_numeric_keys_ = settings_["allow_numeric_keys"].as_bool();
+  features.allow_single_quotes_ = settings_["allow_single_quotes"].as_bool();
+  features.stack_limit_ = settings_["stack_limit"].as_int();
+  features.fail_if_extra_ = settings_["fail_if_extra"].as_bool();
+  features.reject_dup_keys_ = settings_["reject_dup_keys"].as_bool();
+  return new our_char_reader(collect_comments, features);
 }
-static void getValidReaderKeys(std::set<std::string>* valid_keys)
+static void get_valid_reader_keys(std::set<std::string>* valid_keys)
 {
   valid_keys->clear();
   valid_keys->insert("collect_comments");
-  valid_keys->insert("allowComments");
-  valid_keys->insert("strictRoot");
-  valid_keys->insert("allowDroppedNullPlaceholders");
-  valid_keys->insert("allowNumericKeys");
-  valid_keys->insert("allowSingleQuotes");
-  valid_keys->insert("stackLimit");
-  valid_keys->insert("failIfExtra");
-  valid_keys->insert("rejectDupKeys");
+  valid_keys->insert("allow_comments");
+  valid_keys->insert("strict_root");
+  valid_keys->insert("allow_dropped_null_placeholders");
+  valid_keys->insert("allow_numeric_keys");
+  valid_keys->insert("allow_single_quotes");
+  valid_keys->insert("stack_limit");
+  valid_keys->insert("fail_if_extra");
+  valid_keys->insert("reject_dup_keys");
 }
 bool char_reader_builder::validate(json::value* invalid) const
 {
@@ -1913,7 +1912,7 @@ bool char_reader_builder::validate(json::value* invalid) const
   if (!invalid) invalid = &my_invalid;  // so we do not need to test for NULL
   json::value & inv = *invalid;
   std::set<std::string> valid_keys;
-  getValidReaderKeys(&valid_keys);
+  get_valid_reader_keys(&valid_keys);
   value::Members keys = settings_.get_member_names();
   size_t n = keys.size();
   for (size_t i = 0; i < n; ++i) {
@@ -1932,35 +1931,35 @@ value & char_reader_builder::operator[](std::string key)
 void char_reader_builder::strict_mode(json::value* settings)
 {
 //! [CharReaderBuilderStrictMode]
-  (*settings)["allowComments"] = false;
-  (*settings)["strictRoot"] = true;
-  (*settings)["allowDroppedNullPlaceholders"] = false;
-  (*settings)["allowNumericKeys"] = false;
-  (*settings)["allowSingleQuotes"] = false;
-  (*settings)["failIfExtra"] = true;
-  (*settings)["rejectDupKeys"] = true;
+  (*settings)["allow_comments"] = false;
+  (*settings)["strict_root"] = true;
+  (*settings)["allow_dropped_null_placeholders"] = false;
+  (*settings)["allow_numeric_keys"] = false;
+  (*settings)["allow_single_quotes"] = false;
+  (*settings)["fail_if_extra"] = true;
+  (*settings)["reject_dup_keys"] = true;
 //! [CharReaderBuilderStrictMode]
 }
 // static
-void char_reader_builder::setDefaults(json::value* settings)
+void char_reader_builder::set_defaults(json::value* settings)
 {
 //! [CharReaderBuilderDefaults]
   (*settings)["collect_comments"] = true;
-  (*settings)["allowComments"] = true;
-  (*settings)["strictRoot"] = false;
-  (*settings)["allowDroppedNullPlaceholders"] = false;
-  (*settings)["allowNumericKeys"] = false;
-  (*settings)["allowSingleQuotes"] = false;
-  (*settings)["stackLimit"] = 1000;
-  (*settings)["failIfExtra"] = false;
-  (*settings)["rejectDupKeys"] = false;
+  (*settings)["allow_comments"] = true;
+  (*settings)["strict_root"] = false;
+  (*settings)["allow_dropped_null_placeholders"] = false;
+  (*settings)["allow_numeric_keys"] = false;
+  (*settings)["allow_single_quotes"] = false;
+  (*settings)["stack_limit"] = 1000;
+  (*settings)["fail_if_extra"] = false;
+  (*settings)["reject_dup_keys"] = false;
 //! [CharReaderBuilderDefaults]
 }
 
 //////////////////////////////////
 // global functions
 
-bool parseFromStream(
+bool parse_from_stream(
     char_reader::factory const & fact, std::istream & sin,
     value* root, std::string* errs)
 {
@@ -1970,14 +1969,14 @@ bool parseFromStream(
   char const* begin = doc.data();
   char const* end = begin + doc.size();
   // Note that we do not actually need a null-terminator.
-  CharReaderPtr const reader(fact.newCharReader());
+  char_reader_ptr const reader(fact.new_char_reader());
   return reader->parse(begin, end, root, errs);
 }
 
 std::istream & operator>>(std::istream & sin, value & root) {
   char_reader_builder b;
   std::string errs;
-  bool ok = parseFromStream(b, sin, &root, &errs);
+  bool ok = parse_from_stream(b, sin, &root, &errs);
   if (!ok) {
     fprintf(stderr,
             "Error from reader: %s",

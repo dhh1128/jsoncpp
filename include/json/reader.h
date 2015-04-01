@@ -50,7 +50,7 @@ public:
   /** \brief Constructs a reader allowing the specified feature set
    * for parsing.
    */
-  reader(const features& features);
+  reader(features const & features);
 
   /** \brief Read a value from a <a HREF="http://www.json.org">JSON</a>
    * document.
@@ -163,14 +163,14 @@ private:
     location_t end_;
   };
 
-  class ErrorInfo {
+  class error_info {
   public:
     token token_;
     std::string message_;
     location_t extra_;
   };
 
-  typedef std::deque<ErrorInfo> errors;
+  typedef std::deque<error_info> errors;
 
   bool read_token(token& token);
   void skip_spaces();
@@ -256,7 +256,7 @@ public:
     /** \brief Allocate a char_reader via operator new().
      * \throw std::exception if something goes wrong (e.g. invalid settings)
      */
-    virtual char_reader* newCharReader() const = 0;
+    virtual char_reader* new_char_reader() const = 0;
   };  // factory
 };  // char_reader
 
@@ -269,7 +269,7 @@ Usage:
   builder["collect_comments"] = false;
   value value;
   std::string errs;
-  bool ok = parseFromStream(builder, std::cin, &value, &errs);
+  bool ok = parse_from_stream(builder, std::cin, &value, &errs);
 \endcode
 */
 class JSON_API char_reader_builder : public char_reader::factory {
@@ -282,39 +282,39 @@ public:
     - `"collect_comments": false or true`
       - true to collect comment and allow writing them
         back during serialization, false to discard comments.
-        This parameter is ignored if allowComments is false.
-    - `"allowComments": false or true`
+        This parameter is ignored if allow_comments is false.
+    - `"allow_comments": false or true`
       - true if comments are allowed.
-    - `"strictRoot": false or true`
+    - `"strict_root": false or true`
       - true if root must be either an array or an object value
-    - `"allowDroppedNullPlaceholders": false or true`
+    - `"allow_dropped_null_placeholders": false or true`
       - true if dropped null placeholders are allowed. (See stream_writer_builder.)
-    - `"allowNumericKeys": false or true`
+    - `"allow_numeric_keys": false or true`
       - true if numeric object keys are allowed.
-    - `"allowSingleQuotes": false or true`
+    - `"allow_single_quotes": false or true`
       - true if '' are allowed for strings (both keys and values)
-    - `"stackLimit": integer`
-      - Exceeding stackLimit (recursive depth of `read_value()`) will
+    - `"stack_limit": integer`
+      - Exceeding stack_limit (recursive depth of `read_value()`) will
         cause an exception.
       - This is a security issue (seg-faults caused by deeply nested JSON),
         so the default is low.
-    - `"failIfExtra": false or true`
+    - `"fail_if_extra": false or true`
       - If true, `parse()` returns false when extra non-whitespace trails
         the JSON value in the input string.
-    - `"rejectDupKeys": false or true`
+    - `"reject_dup_keys": false or true`
       - If true, `parse()` returns false when a key is duplicated within an object.
 
     You can examine 'settings_` yourself
     to see the defaults. You can also write and read them just like any
     JSON value.
-    \sa setDefaults()
+    \sa set_defaults()
     */
   json::value settings_;
 
   char_reader_builder();
   virtual ~char_reader_builder();
 
-  virtual char_reader* newCharReader() const;
+  virtual char_reader* new_char_reader() const;
 
   /** \return true if 'settings' are legal and consistent;
    *   otherwise, indicate bad settings via 'invalid'.
@@ -330,7 +330,7 @@ public:
    * \remark Defaults:
    * \snippet src/lib_json/json_reader.cpp CharReaderBuilderStrictMode
    */
-  static void setDefaults(json::value* settings);
+  static void set_defaults(json::value* settings);
   /** Same as old features::strict_mode().
    * \pre 'settings' != NULL (but json::null is fine)
    * \remark Defaults:
@@ -343,7 +343,7 @@ public:
   * Someday we might have a real StreamReader, but for now this
   * is convenient.
   */
-bool JSON_API parseFromStream(
+bool JSON_API parse_from_stream(
     char_reader::factory const&,
     std::istream&,
     value* root, std::string* errs);

@@ -72,7 +72,7 @@ static inline bool in_range(double d, T min, U max) {
  *               computed using strlen(value).
  * @return Pointer on the duplicate instance of string.
  */
-static inline char* duplicateStringValue(const char* value,
+static inline char* dupliate_string_value(const char* value,
                                          size_t length) {
   // Avoid an integer overflow in the call to malloc below by limiting length
   // to a sane value.
@@ -82,7 +82,7 @@ static inline char* duplicateStringValue(const char* value,
   char* newString = static_cast<char*>(malloc(length + 1));
   if (newString == NULL) {
     throw_runtime_error(
-        "in json::value::duplicateStringValue(): "
+        "in json::value::dupliate_string_value(): "
         "Failed to allocate string value buffer");
   }
   memcpy(newString, value, length);
@@ -92,20 +92,20 @@ static inline char* duplicateStringValue(const char* value,
 
 /* Record the length as a prefix.
  */
-static inline char* duplicateAndPrefixStringValue(
+static inline char* duplicate_and_prefix_string_value(
     const char* value,
     unsigned int length)
 {
   // Avoid an integer overflow in the call to malloc below by limiting length
   // to a sane value.
   JSON_ASSERT_MESSAGE(length <= (unsigned)value::max_int - sizeof(unsigned) - 1U,
-                      "in json::value::duplicateAndPrefixStringValue(): "
+                      "in json::value::duplicate_and_prefix_string_value(): "
                       "length too big for prefixing");
   unsigned actualLength = length + sizeof(unsigned) + 1U;
   char* newString = static_cast<char*>(malloc(actualLength));
   if (newString == 0) {
     throw_runtime_error(
-        "in json::value::duplicateAndPrefixStringValue(): "
+        "in json::value::duplicate_and_prefix_string_value(): "
         "Failed to allocate string value buffer");
   }
   *reinterpret_cast<unsigned*>(newString) = length;
@@ -113,7 +113,7 @@ static inline char* duplicateAndPrefixStringValue(
   newString[actualLength - 1U] = 0; // to avoid buffer over-run accidents by users later
   return newString;
 }
-inline static void decodePrefixedString(
+inline static void decode_prefixed_string(
     bool isPrefixed, char const* prefixed,
     unsigned* length, char const** value)
 {
@@ -125,7 +125,7 @@ inline static void decodePrefixedString(
     *value = prefixed + sizeof(unsigned);
   }
 }
-/** Free the string duplicated by duplicateStringValue()/duplicateAndPrefixStringValue().
+/** Free the string duplicated by dupliate_string_value()/duplicate_and_prefix_string_value().
  */
 static inline void releaseStringValue(char* value) { free(value); }
 
@@ -143,45 +143,45 @@ static inline void releaseStringValue(char* value) { free(value); }
 
 namespace json {
 
-class JSON_API Exception : public std::exception {
+class JSON_API exception : public std::exception {
 public:
-  Exception(std::string const & msg);
-  virtual ~Exception() throw();
+  exception(std::string const & msg);
+  virtual ~exception() throw();
   virtual char const* what() const throw();
 protected:
   std::string const msg_;
 };
-class JSON_API RuntimeError : public Exception {
+class JSON_API runtime_error : public exception {
 public:
-  RuntimeError(std::string const & msg);
+  runtime_error(std::string const & msg);
 };
-class JSON_API LogicError : public Exception {
+class JSON_API logic_error : public exception {
 public:
-  LogicError(std::string const & msg);
+  logic_error(std::string const & msg);
 };
 
-Exception::Exception(std::string const & msg)
+exception::exception(std::string const & msg)
   : msg_(msg)
 {}
-Exception::~Exception() throw()
+exception::~exception() throw()
 {}
-char const* Exception::what() const throw()
+char const* exception::what() const throw()
 {
   return msg_.c_str();
 }
-RuntimeError::RuntimeError(std::string const & msg)
-  : Exception(msg)
+runtime_error::runtime_error(std::string const & msg)
+  : exception(msg)
 {}
-LogicError::LogicError(std::string const & msg)
-  : Exception(msg)
+logic_error::logic_error(std::string const & msg)
+  : exception(msg)
 {}
 void throw_runtime_error(std::string const & msg)
 {
-  throw RuntimeError(msg);
+  throw runtime_error(msg);
 }
 void throw_logic_error(std::string const & msg)
 {
-  throw LogicError(msg);
+  throw logic_error(msg);
 }
 
 // //////////////////////////////////////////////////////////////////
@@ -209,7 +209,7 @@ void value::comment_info::set_comment(const char* text, size_t len) {
       text[0] == '\0' || text[0] == '/',
       "in json::value::set_comment(): Comments must start with /");
   // It seems that /**/ style comments are acceptable as well.
-  comment_ = duplicateStringValue(text, len);
+  comment_ = dupliate_string_value(text, len);
 }
 
 // //////////////////////////////////////////////////////////////////
@@ -233,9 +233,9 @@ value::czstring::czstring(char const* str, unsigned length, duplication_policy a
   storage_.length_ = length;
 }
 
-value::czstring::czstring(const czstring & other)
+value::czstring::czstring(czstring const & other)
     : cstr_(other.storage_.policy_ != no_duplication && other.cstr_ != 0
-                ? duplicateStringValue(other.cstr_, other.storage_.length_)
+                ? dupliate_string_value(other.cstr_, other.storage_.length_)
                 : other.cstr_)
 {
   storage_.policy_ = (other.cstr_
@@ -260,7 +260,7 @@ value::czstring & value::czstring::operator=(czstring other) {
   return *this;
 }
 
-bool value::czstring::operator<(const czstring & other) const {
+bool value::czstring::operator<(czstring const & other) const {
   if (!cstr_) return index_ < other.index_;
   //return strcmp(cstr_, other.cstr_) < 0;
   // Assume both are strings.
@@ -273,7 +273,7 @@ bool value::czstring::operator<(const czstring & other) const {
   return (this_len < other_len);
 }
 
-bool value::czstring::operator==(const czstring & other) const {
+bool value::czstring::operator==(czstring const & other) const {
   if (!cstr_) return index_ == other.index_;
   //return strcmp(cstr_, other.cstr_) == 0;
   // Assume both are strings.
@@ -357,22 +357,22 @@ value::value(double value) {
 
 value::value(const char* value) {
   init_basic(vt_string, true);
-  value_.string_ = duplicateAndPrefixStringValue(value, static_cast<unsigned>(strlen(value)));
+  value_.string_ = duplicate_and_prefix_string_value(value, static_cast<unsigned>(strlen(value)));
 }
 
 value::value(const char* beginValue, const char* endValue) {
   init_basic(vt_string, true);
   value_.string_ =
-      duplicateAndPrefixStringValue(beginValue, static_cast<unsigned>(endValue - beginValue));
+      duplicate_and_prefix_string_value(beginValue, static_cast<unsigned>(endValue - beginValue));
 }
 
 value::value(std::string const & value) {
   init_basic(vt_string, true);
   value_.string_ =
-      duplicateAndPrefixStringValue(value.data(), static_cast<unsigned>(value.length()));
+      duplicate_and_prefix_string_value(value.data(), static_cast<unsigned>(value.length()));
 }
 
-value::value(const static_string & value) {
+value::value(static_string const & value) {
   init_basic(vt_string);
   value_.string_ = const_cast<char*>(value.c_str());
 }
@@ -399,9 +399,9 @@ value::value(value const & other)
     if (other.value_.string_ && other.allocated_) {
       unsigned len;
       char const* str;
-      decodePrefixedString(other.allocated_, other.value_.string_,
+      decode_prefixed_string(other.allocated_, other.value_.string_,
           &len, &str);
-      value_.string_ = duplicateAndPrefixStringValue(str, len);
+      value_.string_ = duplicate_and_prefix_string_value(str, len);
       allocated_ = true;
     } else {
       value_.string_ = other.value_.string_;
@@ -418,7 +418,7 @@ value::value(value const & other)
   if (other.comments_) {
     comments_ = new comment_info[number_of_comment_placement];
     for (int comment = 0; comment < number_of_comment_placement; ++comment) {
-      const comment_info & otherComment = other.comments_[comment];
+      comment_info const & otherComment = other.comments_[comment];
       if (otherComment.comment_)
         comments_[comment].set_comment(
             otherComment.comment_, strlen(otherComment.comment_));
@@ -507,8 +507,8 @@ bool value::operator<(value const & other) const {
     unsigned other_len;
     char const* this_str;
     char const* other_str;
-    decodePrefixedString(this->allocated_, this->value_.string_, &this_len, &this_str);
-    decodePrefixedString(other.allocated_, other.value_.string_, &other_len, &other_str);
+    decode_prefixed_string(this->allocated_, this->value_.string_, &this_len, &this_str);
+    decode_prefixed_string(other.allocated_, other.value_.string_, &other_len, &other_str);
     unsigned min_len = std::min(this_len, other_len);
     int comp = memcmp(this_str, other_str, min_len);
     if (comp < 0) return true;
@@ -562,8 +562,8 @@ bool value::operator==(value const & other) const {
     unsigned other_len;
     char const* this_str;
     char const* other_str;
-    decodePrefixedString(this->allocated_, this->value_.string_, &this_len, &this_str);
-    decodePrefixedString(other.allocated_, other.value_.string_, &other_len, &other_str);
+    decode_prefixed_string(this->allocated_, this->value_.string_, &this_len, &this_str);
+    decode_prefixed_string(other.allocated_, other.value_.string_, &other_len, &other_str);
     if (this_len != other_len) return false;
     int comp = memcmp(this_str, other_str, this_len);
     return comp == 0;
@@ -586,7 +586,7 @@ const char* value::as_cstring() const {
   if (value_.string_ == 0) return 0;
   unsigned this_len;
   char const* this_str;
-  decodePrefixedString(this->allocated_, this->value_.string_, &this_len, &this_str);
+  decode_prefixed_string(this->allocated_, this->value_.string_, &this_len, &this_str);
   return this_str;
 }
 
@@ -594,7 +594,7 @@ bool value::get_string(char const** str, char const** end) const {
   if (type_ != vt_string) return false;
   if (value_.string_ == 0) return false;
   unsigned length;
-  decodePrefixedString(this->allocated_, this->value_.string_, &length, str);
+  decode_prefixed_string(this->allocated_, this->value_.string_, &length, str);
   *end = *str + length;
   return true;
 }
@@ -608,7 +608,7 @@ std::string value::as_string() const {
     if (value_.string_ == 0) return "";
     unsigned this_len;
     char const* this_str;
-    decodePrefixedString(this->allocated_, this->value_.string_, &this_len, &this_str);
+    decode_prefixed_string(this->allocated_, this->value_.string_, &this_len, &this_str);
     return std::string(this_str, this_len);
   }
   case vt_bool:
@@ -1022,7 +1022,7 @@ value & value::operator[](std::string const & key) {
   return resolve_reference(key.data(), key.data() + key.length());
 }
 
-value & value::operator[](const static_string & key) {
+value & value::operator[](static_string const & key) {
   return resolve_reference(key.c_str());
 }
 
@@ -1342,11 +1342,11 @@ path_argument::path_argument(std::string const & key)
 // //////////////////////////////////////////////////////////////////
 
 path::path(std::string const & path,
-           const path_argument & a1,
-           const path_argument & a2,
-           const path_argument & a3,
-           const path_argument & a4,
-           const path_argument & a5) {
+           path_argument const & a1,
+           path_argument const & a2,
+           path_argument const & a3,
+           path_argument const & a4,
+           path_argument const & a5) {
   InArgs in;
   in.push_back(&a1);
   in.push_back(&a2);
@@ -1356,7 +1356,7 @@ path::path(std::string const & path,
   makePath(path, in);
 }
 
-void path::makePath(std::string const & path, const InArgs & in) {
+void path::makePath(std::string const & path, InArgs const & in) {
   const char* current = path.c_str();
   const char* end = current + path.length();
   InArgs::const_iterator itInArg = in.begin();
@@ -1388,7 +1388,7 @@ void path::makePath(std::string const & path, const InArgs & in) {
 }
 
 void path::addPathInArg(std::string const & /*path*/,
-                        const InArgs & in,
+                        InArgs const & in,
                         InArgs::const_iterator & itInArg,
                         path_argument::Kind kind) {
   if (itInArg == in.end()) {
@@ -1407,7 +1407,7 @@ void path::invalidPath(std::string const & /*path*/, int /*location*/) {
 value const & path::resolve(value const & root) const {
   const value* node = &root;
   for (Args::const_iterator it = args_.begin(); it != args_.end(); ++it) {
-    const path_argument & arg = *it;
+    path_argument const & arg = *it;
     if (arg.kind_ == path_argument::kindIndex) {
       if (!node->is_array() || !node->is_valid_index(arg.index_)) {
         // Error: unable to resolve path (array value expected at position...
@@ -1430,7 +1430,7 @@ value const & path::resolve(value const & root) const {
 value path::resolve(value const & root, value const & default_value) const {
   const value* node = &root;
   for (Args::const_iterator it = args_.begin(); it != args_.end(); ++it) {
-    const path_argument & arg = *it;
+    path_argument const & arg = *it;
     if (arg.kind_ == path_argument::kindIndex) {
       if (!node->is_array() || !node->is_valid_index(arg.index_))
         return default_value;
@@ -1449,7 +1449,7 @@ value path::resolve(value const & root, value const & default_value) const {
 value & path::make(value & root) const {
   value* node = &root;
   for (Args::const_iterator it = args_.begin(); it != args_.end(); ++it) {
-    const path_argument & arg = *it;
+    path_argument const & arg = *it;
     if (arg.kind_ == path_argument::kindIndex) {
       if (!node->is_array()) {
         // Error: node is not an array at position ...

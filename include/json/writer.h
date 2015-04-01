@@ -99,7 +99,7 @@ public:
     You can examine 'settings_` yourself
     to see the defaults. You can also write and read them just like any
     JSON value.
-    \sa setDefaults()
+    \sa set_defaults()
     */
   json::value settings_;
 
@@ -124,7 +124,7 @@ public:
    * \remark Defaults:
    * \snippet src/lib_json/json_writer.cpp StreamWriterBuilderDefaults
    */
-  static void setDefaults(json::value* settings);
+  static void set_defaults(json::value* settings);
 };
 
 /** \brief Abstract class for writers.

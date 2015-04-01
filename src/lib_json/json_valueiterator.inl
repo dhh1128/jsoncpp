@@ -18,7 +18,7 @@ value_iterator_base::value_iterator_base()
 }
 
 value_iterator_base::value_iterator_base(
-    const value::object_values::iterator& current)
+    value::object_values::iterator const & current)
     : current_(current), is_null_(false) {}
 
 value& value_iterator_base::deref() const {
@@ -34,7 +34,7 @@ void value_iterator_base::decrement() {
 }
 
 value_iterator_base::difference_type
-value_iterator_base::compute_distance(const self_type& other) const {
+value_iterator_base::compute_distance(self_type const & other) const {
   // Iterator for null value are initialized using the default
   // constructor, which initialize current_ to the default
   // std::map::iterator. As begin() and end() are two instance
@@ -56,14 +56,14 @@ value_iterator_base::compute_distance(const self_type& other) const {
   return my_distance;
 }
 
-bool value_iterator_base::is_equal(const self_type& other) const {
+bool value_iterator_base::is_equal(self_type const & other) const {
   if (is_null_) {
     return other.is_null_;
   }
   return current_ == other.current_;
 }
 
-void value_iterator_base::copy(const self_type& other) {
+void value_iterator_base::copy(self_type const & other) {
   current_ = other.current_;
   is_null_ = other.is_null_;
 }
@@ -114,11 +114,11 @@ char const* value_iterator_base::member_name(char const** end) const {
 value_const_iterator::value_const_iterator() {}
 
 value_const_iterator::value_const_iterator(
-    const value::object_values::iterator& current)
+    value::object_values::iterator const & current)
     : value_iterator_base(current) {}
 
 value_const_iterator& value_const_iterator::
-operator=(const value_iterator_base& other) {
+operator=(value_iterator_base const & other) {
   copy(other);
   return *this;
 }
@@ -133,16 +133,16 @@ operator=(const value_iterator_base& other) {
 
 value_iterator::value_iterator() {}
 
-value_iterator::value_iterator(const value::object_values::iterator& current)
+value_iterator::value_iterator(value::object_values::iterator const & current)
     : value_iterator_base(current) {}
 
-value_iterator::value_iterator(const value_const_iterator& other)
+value_iterator::value_iterator(value_const_iterator const & other)
     : value_iterator_base(other) {}
 
-value_iterator::value_iterator(const value_iterator& other)
+value_iterator::value_iterator(value_iterator const & other)
     : value_iterator_base(other) {}
 
-value_iterator& value_iterator::operator=(const self_type& other) {
+value_iterator& value_iterator::operator=(self_type const & other) {
   copy(other);
   return *this;
 }

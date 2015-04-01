@@ -44,7 +44,7 @@ typedef std::auto_ptr<stream_writer>   StreamWriterPtr;
 
 static bool containsControlCharacter(const char* str) {
   while (*str) {
-    if (isControlCharacter(*(str++)))
+    if (is_control_char(*(str++)))
       return true;
   }
   return false;
@@ -53,7 +53,7 @@ static bool containsControlCharacter(const char* str) {
 static bool containsControlCharacter0(const char* str, unsigned len) {
   char const* end = str + len;
   while (end != str) {
-    if (isControlCharacter(*str) || 0==*str)
+    if (is_control_char(*str) || 0==*str)
       return true;
     ++str;
   }
@@ -61,22 +61,22 @@ static bool containsControlCharacter0(const char* str, unsigned len) {
 }
 
 std::string valueToString(largest_int_t value) {
-  UIntToStringBuffer buffer;
+  uint_to_string_buffer buffer;
   char* current = buffer + sizeof(buffer);
-  bool isNegative = value < 0;
-  if (isNegative)
+  bool is_negative = value < 0;
+  if (is_negative)
     value = -value;
-  uintToString(largest_uint_t(value), current);
-  if (isNegative)
+  uint_to_string(largest_uint_t(value), current);
+  if (is_negative)
     *--current = '-';
   assert(current >= buffer);
   return current;
 }
 
 std::string valueToString(largest_uint_t value) {
-  UIntToStringBuffer buffer;
+  uint_to_string_buffer buffer;
   char* current = buffer + sizeof(buffer);
-  uintToString(value, current);
+  uint_to_string(value, current);
   assert(current >= buffer);
   return current;
 }
@@ -126,7 +126,7 @@ std::string valueToString(double value) {
   }
 #endif
   assert(len >= 0);
-  fixNumericLocale(buffer, buffer + len);
+  fix_numeric_locale(buffer, buffer + len);
   return buffer;
 }
 
@@ -179,7 +179,7 @@ std::string valueToQuotedString(const char* value) {
     // Should add a flag to allow this compatibility mode and prevent this
     // sequence from occurring.
     default:
-      if (isControlCharacter(*c)) {
+      if (is_control_char(*c)) {
         std::ostringstream oss;
         oss << "\\u" << std::hex << std::uppercase << std::setfill('0')
             << std::setw(4) << static_cast<int>(*c);
@@ -257,7 +257,7 @@ static std::string valueToQuotedStringN(const char* value, unsigned length) {
     // Should add a flag to allow this compatibility mode and prevent this
     // sequence from occurring.
     default:
-      if ((isControlCharacter(*c)) || (*c == 0)) {
+      if ((is_control_char(*c)) || (*c == 0)) {
         std::ostringstream oss;
         oss << "\\u" << std::hex << std::uppercase << std::setfill('0')
             << std::setw(4) << static_cast<int>(*c);
@@ -1064,7 +1064,7 @@ stream_writer::factory::~factory()
 {}
 stream_writer_builder::stream_writer_builder()
 {
-  setDefaults(&settings_);
+  set_defaults(&settings_);
 }
 stream_writer_builder::~stream_writer_builder()
 {}
@@ -1127,7 +1127,7 @@ value & stream_writer_builder::operator[](std::string key)
   return settings_[key];
 }
 // static
-void stream_writer_builder::setDefaults(json::value* settings)
+void stream_writer_builder::set_defaults(json::value* settings)
 {
   //! [StreamWriterBuilderDefaults]
   (*settings)["commentStyle"] = "All";

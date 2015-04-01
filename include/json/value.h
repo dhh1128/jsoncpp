@@ -27,21 +27,21 @@ namespace json {
  *
  * We use nothing but these internally. Of course, STL can throw others.
  */
-class JSON_API Exception;
-/** Exceptions which the user cannot easily avoid.
+class JSON_API exception;
+/** exceptions which the user cannot easily avoid.
  *
  * E.g. out-of-memory (when we use malloc), stack-overflow, malicious input
  *
- * \remark derived from json::Exception
+ * \remark derived from json::exception
  */
-class JSON_API RuntimeError;
-/** Exceptions thrown by JSON_ASSERT/JSON_FAIL macros.
+class JSON_API runtime_error;
+/** exceptions thrown by JSON_ASSERT/JSON_FAIL macros.
  *
  * These are precondition-violations (user bugs) and internal errors (our bugs).
  *
- * \remark derived from json::Exception
+ * \remark derived from json::exception
  */
-class JSON_API LogicError;
+class JSON_API logic_error;
 
 /// used internally
 void throw_runtime_error(std::string const& msg);
@@ -246,7 +246,7 @@ json::value obj_value(json::vt_object); // {}
    * json::value aValue(foo);
    * \endcode
    */
-  value(const static_string& value);
+  value(static_string const & value);
   value(std::string const & value); ///< Copy data() til size(). Embedded zeroes too.
   value(bool value);
   /// Deep copy.
@@ -391,7 +391,7 @@ json::value obj_value(json::vt_object); // {}
    * object[code] = 1234;
    * \endcode
    */
-  value& operator[](const static_string& key);
+  value& operator[](static_string const & key);
   /// Return the member named key if it exist, default_value otherwise.
   /// \note deep copy
   value get(const char* key, value const & default_value) const;
@@ -502,7 +502,7 @@ private:
   // struct MemberNamesTransform
   //{
   //   typedef const char *result_type;
-  //   const char *operator()( const czstring &name ) const
+  //   const char *operator()( czstring const &name ) const
   //   {
   //      return name.c_str();
   //   }
@@ -564,11 +564,11 @@ private:
 class JSON_API path {
 public:
   path(std::string const & path,
-       const path_argument& a1 = path_argument(),
-       const path_argument& a2 = path_argument(),
-       const path_argument& a3 = path_argument(),
-       const path_argument& a4 = path_argument(),
-       const path_argument& a5 = path_argument());
+       path_argument const & a1 = path_argument(),
+       path_argument const & a2 = path_argument(),
+       path_argument const & a3 = path_argument(),
+       path_argument const & a4 = path_argument(),
+       path_argument const & a5 = path_argument());
 
   value const & resolve(value const & root) const;
   value resolve(value const & root, value const & default_value) const;
@@ -580,9 +580,9 @@ private:
   typedef std::vector<const path_argument*> InArgs;
   typedef std::vector<path_argument> Args;
 
-  void makePath(std::string const & path, const InArgs& in);
+  void makePath(std::string const & path, InArgs const & in);
   void addPathInArg(std::string const & path,
-                    const InArgs& in,
+                    InArgs const & in,
                     InArgs::const_iterator& itInArg,
                     path_argument::Kind kind);
   void invalidPath(std::string const & path, int location);
@@ -601,13 +601,13 @@ public:
   typedef value_iterator_base self_type;
 
   value_iterator_base();
-  explicit value_iterator_base(const value::object_values::iterator& current);
+  explicit value_iterator_base(value::object_values::iterator const & current);
 
-  bool operator==(const self_type& other) const { return is_equal(other); }
+  bool operator==(self_type const & other) const { return is_equal(other); }
 
-  bool operator!=(const self_type& other) const { return !is_equal(other); }
+  bool operator!=(self_type const & other) const { return !is_equal(other); }
 
-  difference_type operator-(const self_type& other) const {
+  difference_type operator-(self_type const & other) const {
     return other.compute_distance(*this);
   }
 
@@ -634,11 +634,11 @@ protected:
 
   void decrement();
 
-  difference_type compute_distance(const self_type& other) const;
+  difference_type compute_distance(self_type const & other) const;
 
-  bool is_equal(const self_type& other) const;
+  bool is_equal(self_type const & other) const;
 
-  void copy(const self_type& other);
+  void copy(self_type const & other);
 
 private:
   value::object_values::iterator current_;
@@ -665,9 +665,9 @@ public:
 private:
 /*! \internal Use by value to create an iterator.
  */
-  explicit value_const_iterator(const value::object_values::iterator& current);
+  explicit value_const_iterator(value::object_values::iterator const & current);
 public:
-  self_type& operator=(const value_iterator_base& other);
+  self_type& operator=(value_iterator_base const & other);
 
   self_type operator++(int) {
     self_type temp(*this);
@@ -710,15 +710,15 @@ public:
   typedef value_iterator self_type;
 
   value_iterator();
-  value_iterator(const value_const_iterator& other);
-  value_iterator(const value_iterator& other);
+  value_iterator(value_const_iterator const & other);
+  value_iterator(value_iterator const & other);
 
 private:
 /*! \internal Use by value to create an iterator.
  */
-  explicit value_iterator(const value::object_values::iterator& current);
+  explicit value_iterator(value::object_values::iterator const & current);
 public:
-  self_type& operator=(const self_type& other);
+  self_type& operator=(self_type const & other);
 
   self_type operator++(int) {
     self_type temp(*this);
