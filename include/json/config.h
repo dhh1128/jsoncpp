@@ -6,30 +6,19 @@
 
 #include <cstdint>
 
-// If non-zero, the library uses exceptions to report bad input instead of C
-// assertion macros. The default is to use exceptions.
-#ifndef JSON_USE_EXCEPTION
-#define JSON_USE_EXCEPTION 1
-#endif
-
-/// If defined, indicates that the source file is amalgated
-/// to prevent private header inclusion.
-/// Remarks: it is automatically defined in the generated amalgated header.
-// #define JSON_IS_AMALGAMATION
-
 #if defined(JSON_DLL_BUILD)
-	#if defined(_MSC_VER)
-		#define JSON_API __declspec(dllexport)
-		#define JSONCPP_DISABLE_DLL_INTERFACE_WARNING
-	#endif // if defined(_MSC_VER)
+    #if defined(_MSC_VER)
+        #define JSON_API __declspec(dllexport)
+        #define JSONCPP_DISABLE_DLL_INTERFACE_WARNING
+    #endif // if defined(_MSC_VER)
 #elif defined(JSON_DLL)
-	#if defined(_MSC_VER)
-		#define JSON_API __declspec(dllimport)
-		#define JSONCPP_DISABLE_DLL_INTERFACE_WARNING
-	#endif // if defined(_MSC_VER)
-#endif // ifdef JSON_IN_CPPTL
+    #if defined(_MSC_VER)
+        #define JSON_API __declspec(dllimport)
+        #define JSONCPP_DISABLE_DLL_INTERFACE_WARNING
+    #endif // if defined(_MSC_VER)
+#endif
 #if !defined(JSON_API)
-	#define JSON_API
+    #define JSON_API
 #endif
 
 // If JSON_NO_INT64 is defined, then json only support C++ "int" type for

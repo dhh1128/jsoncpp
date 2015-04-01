@@ -4,9 +4,7 @@
 #ifndef _b6d1716efdfd4e8bb9fff5b55b9b64bd
 #define _b6d1716efdfd4e8bb9fff5b55b9b64bd
 
-#if !defined(JSON_IS_AMALGAMATION)
 #include "forwards.h"
-#endif // if !defined(JSON_IS_AMALGAMATION)
 
 namespace json {
 

@@ -72,7 +72,7 @@ namespace JsonTest {
 // //////////////////////////////////////////////////////////////////
 
 TestResult::TestResult()
-	: predicateId_(1), lastUsedPredicateId_(0), messageTarget_(0) {
+    : predicateId_(1), lastUsedPredicateId_(0), messageTarget_(0) {
   // The root predicate has id 0
   rootPredicateNode_.id_ = 0;
   rootPredicateNode_.next_ = 0;
@@ -88,16 +88,16 @@ TestResult::addFailure(const char* file, unsigned int line, const char* expr) {
   unsigned int nestingLevel = 0;
   PredicateContext* lastNode = rootPredicateNode_.next_;
   for (; lastNode != 0; lastNode = lastNode->next_) {
-	if (lastNode->id_ > lastUsedPredicateId_) // new PredicateContext
-	{
-	  lastUsedPredicateId_ = lastNode->id_;
-	  addFailureInfo(
-		  lastNode->file_, lastNode->line_, lastNode->expr_, nestingLevel);
-	  // Link the PredicateContext to the failure for message target when
-	  // popping the PredicateContext.
-	  lastNode->failure_ = &(failures_.back());
-	}
-	++nestingLevel;
+    if (lastNode->id_ > lastUsedPredicateId_) // new PredicateContext
+    {
+      lastUsedPredicateId_ = lastNode->id_;
+      addFailureInfo(
+          lastNode->file_, lastNode->line_, lastNode->expr_, nestingLevel);
+      // Link the PredicateContext to the failure for message target when
+      // popping the PredicateContext.
+      lastNode->failure_ = &(failures_.back());
+    }
+    ++nestingLevel;
   }
 
   // Adds the failed assertion
@@ -107,14 +107,14 @@ TestResult::addFailure(const char* file, unsigned int line, const char* expr) {
 }
 
 void TestResult::addFailureInfo(const char* file,
-								unsigned int line,
-								const char* expr,
-								unsigned int nestingLevel) {
+                                unsigned int line,
+                                const char* expr,
+                                unsigned int nestingLevel) {
   Failure failure;
   failure.file_ = file;
   failure.line_ = line;
   if (expr) {
-	failure.expr_ = expr;
+    failure.expr_ = expr;
   }
   failure.nestingLevel_ = nestingLevel;
   failures_.push_back(failure);
@@ -123,12 +123,12 @@ void TestResult::addFailureInfo(const char* file,
 TestResult& TestResult::popPredicateContext() {
   PredicateContext* lastNode = &rootPredicateNode_;
   while (lastNode->next_ != 0 && lastNode->next_->next_ != 0) {
-	lastNode = lastNode->next_;
+    lastNode = lastNode->next_;
   }
   // Set message target to popped failure
   PredicateContext* tail = lastNode->next_;
   if (tail != 0 && tail->failure_ != 0) {
-	messageTarget_ = tail->failure_;
+    messageTarget_ = tail->failure_;
   }
   // Remove tail from list
   predicateStackTail_ = lastNode;
@@ -142,60 +142,60 @@ unsigned int TestResult::getAssertionNestingLevel() const {
   unsigned int level = 0;
   const PredicateContext* lastNode = &rootPredicateNode_;
   while (lastNode->next_ != 0) {
-	lastNode = lastNode->next_;
-	++level;
+    lastNode = lastNode->next_;
+    ++level;
   }
   return level;
 }
 
 void TestResult::printFailure(bool printTestName) const {
   if (failures_.empty()) {
-	return;
+    return;
   }
 
   if (printTestName) {
-	printf("* Detail of %s test failure:\n", name_.c_str());
+    printf("* Detail of %s test failure:\n", name_.c_str());
   }
 
   // Print in reverse to display the callstack in the right order
   Failures::const_iterator itEnd = failures_.end();
   for (Failures::const_iterator it = failures_.begin(); it != itEnd; ++it) {
-	const Failure& failure = *it;
-	std::string indent(failure.nestingLevel_ * 2, ' ');
-	if (failure.file_) {
-	  printf("%s%s(%d): ", indent.c_str(), failure.file_, failure.line_);
-	}
-	if (!failure.expr_.empty()) {
-	  printf("%s\n", failure.expr_.c_str());
-	} else if (failure.file_) {
-	  printf("\n");
-	}
-	if (!failure.message_.empty()) {
-	  std::string reindented = indentText(failure.message_, indent + "  ");
-	  printf("%s\n", reindented.c_str());
-	}
+    const Failure& failure = *it;
+    std::string indent(failure.nestingLevel_ * 2, ' ');
+    if (failure.file_) {
+      printf("%s%s(%d): ", indent.c_str(), failure.file_, failure.line_);
+    }
+    if (!failure.expr_.empty()) {
+      printf("%s\n", failure.expr_.c_str());
+    } else if (failure.file_) {
+      printf("\n");
+    }
+    if (!failure.message_.empty()) {
+      std::string reindented = indentText(failure.message_, indent + "  ");
+      printf("%s\n", reindented.c_str());
+    }
   }
 }
 
 std::string TestResult::indentText(std::string const & text,
-								   std::string const & indent) {
+                                   std::string const & indent) {
   std::string reindented;
   std::string::size_type lastIndex = 0;
   while (lastIndex < text.size()) {
-	std::string::size_type nextIndex = text.find('\n', lastIndex);
-	if (nextIndex == std::string::npos) {
-	  nextIndex = text.size() - 1;
-	}
-	reindented += indent;
-	reindented += text.substr(lastIndex, nextIndex - lastIndex + 1);
-	lastIndex = nextIndex + 1;
+    std::string::size_type nextIndex = text.find('\n', lastIndex);
+    if (nextIndex == std::string::npos) {
+      nextIndex = text.size() - 1;
+    }
+    reindented += indent;
+    reindented += text.substr(lastIndex, nextIndex - lastIndex + 1);
+    lastIndex = nextIndex + 1;
   }
   return reindented;
 }
 
 TestResult& TestResult::addToLastFailure(std::string const & message) {
   if (messageTarget_ != 0) {
-	messageTarget_->message_ += message;
+    messageTarget_->message_ += message;
   }
   return *this;
 }
@@ -250,17 +250,13 @@ void Runner::runTestAt(unsigned int index, TestResult& result) const {
   result.setTestName(test->testName());
   printf("Testing %s: ", test->testName());
   fflush(stdout);
-#if JSON_USE_EXCEPTION
   try {
-#endif // if JSON_USE_EXCEPTION
-	test->run(result);
-#if JSON_USE_EXCEPTION
+    test->run(result);
   }
   catch (const std::exception& e) {
-	result.addFailure(__FILE__, __LINE__, "Unexpected exception caught:")
-		<< e.what();
+    result.addFailure(__FILE__, __LINE__, "Unexpected exception caught:")
+        << e.what();
   }
-#endif // if JSON_USE_EXCEPTION
   delete test;
   const char* status = result.failed() ? "FAILED" : "OK";
   printf("%s\n", status);
@@ -271,44 +267,44 @@ bool Runner::runAllTest(bool printSummary) const {
   unsigned int count = testCount();
   std::deque<TestResult> failures;
   for (unsigned int index = 0; index < count; ++index) {
-	TestResult result;
-	runTestAt(index, result);
-	if (result.failed()) {
-	  failures.push_back(result);
-	}
+    TestResult result;
+    runTestAt(index, result);
+    if (result.failed()) {
+      failures.push_back(result);
+    }
   }
 
   if (failures.empty()) {
-	if (printSummary) {
-	  printf("All %d tests passed\n", count);
-	}
-	return true;
+    if (printSummary) {
+      printf("All %d tests passed\n", count);
+    }
+    return true;
   } else {
-	for (unsigned int index = 0; index < failures.size(); ++index) {
-	  TestResult& result = failures[index];
-	  result.printFailure(count > 1);
-	}
+    for (unsigned int index = 0; index < failures.size(); ++index) {
+      TestResult& result = failures[index];
+      result.printFailure(count > 1);
+    }
 
-	if (printSummary) {
-	  unsigned int failedCount = static_cast<unsigned int>(failures.size());
-	  unsigned int passedCount = count - failedCount;
-	  printf("%d/%d tests passed (%d failure(s))\n",
-			 passedCount,
-			 count,
-			 failedCount);
-	}
-	return false;
+    if (printSummary) {
+      unsigned int failedCount = static_cast<unsigned int>(failures.size());
+      unsigned int passedCount = count - failedCount;
+      printf("%d/%d tests passed (%d failure(s))\n",
+             passedCount,
+             count,
+             failedCount);
+    }
+    return false;
   }
 }
 
 bool Runner::testIndex(std::string const & testName,
-					   unsigned int& indexOut) const {
+                       unsigned int& indexOut) const {
   unsigned int count = testCount();
   for (unsigned int index = 0; index < count; ++index) {
-	if (testNameAt(index) == testName) {
-	  indexOut = index;
-	  return true;
-	}
+    if (testNameAt(index) == testName) {
+      indexOut = index;
+      return true;
+    }
   }
   return false;
 }
@@ -316,7 +312,7 @@ bool Runner::testIndex(std::string const & testName,
 void Runner::listTests() const {
   unsigned int count = testCount();
   for (unsigned int index = 0; index < count; ++index) {
-	printf("%s\n", testNameAt(index).c_str());
+    printf("%s\n", testNameAt(index).c_str());
   }
 }
 
@@ -324,36 +320,36 @@ int Runner::runCommandLine(int argc, const char* argv[]) const {
   // typedef std::deque<std::string> TestNames;
   Runner subrunner;
   for (int index = 1; index < argc; ++index) {
-	std::string opt = argv[index];
-	if (opt == "--list-tests") {
-	  listTests();
-	  return 0;
-	} else if (opt == "--test-auto") {
-	  preventDialogOnCrash();
-	} else if (opt == "--test") {
-	  ++index;
-	  if (index < argc) {
-		unsigned int testNameIndex;
-		if (testIndex(argv[index], testNameIndex)) {
-		  subrunner.add(tests_[testNameIndex]);
-		} else {
-		  fprintf(stderr, "Test '%s' does not exist!\n", argv[index]);
-		  return 2;
-		}
-	  } else {
-		print_usage(argv[0]);
-		return 2;
-	  }
-	} else {
-	  print_usage(argv[0]);
-	  return 2;
-	}
+    std::string opt = argv[index];
+    if (opt == "--list-tests") {
+      listTests();
+      return 0;
+    } else if (opt == "--test-auto") {
+      preventDialogOnCrash();
+    } else if (opt == "--test") {
+      ++index;
+      if (index < argc) {
+        unsigned int testNameIndex;
+        if (testIndex(argv[index], testNameIndex)) {
+          subrunner.add(tests_[testNameIndex]);
+        } else {
+          fprintf(stderr, "Test '%s' does not exist!\n", argv[index]);
+          return 2;
+        }
+      } else {
+        print_usage(argv[0]);
+        return 2;
+      }
+    } else {
+      print_usage(argv[0]);
+      return 2;
+    }
   }
   bool succeeded;
   if (subrunner.testCount() > 0) {
-	succeeded = subrunner.runAllTest(subrunner.testCount() > 1);
+    succeeded = subrunner.runAllTest(subrunner.testCount() > 1);
   } else {
-	succeeded = runAllTest(true);
+    succeeded = runAllTest(true);
   }
   return succeeded ? 0 : 1;
 }
@@ -368,19 +364,19 @@ msvcrtSilentReportHook(int reportType, char* message, int* /*returnValue*/) {
   // application to terminate using abort() after display
   // the message on stderr.
   if (reportType == _CRT_ERROR || reportType == _CRT_ASSERT) {
-	// calling abort() cause the ReportHook to be called
-	// The following is used to detect this case and let's the
-	// error handler fallback on its default behaviour (
-	// display a warning message)
-	static volatile bool isAborting = false;
-	if (isAborting) {
-	  return TRUE;
-	}
-	isAborting = true;
+    // calling abort() cause the ReportHook to be called
+    // The following is used to detect this case and let's the
+    // error handler fallback on its default behaviour (
+    // display a warning message)
+    static volatile bool isAborting = false;
+    if (isAborting) {
+      return TRUE;
+    }
+    isAborting = true;
 
-	fprintf(stderr, "CRT Error/Assert:\n%s\n", message);
-	fflush(stderr);
-	abort();
+    fprintf(stderr, "CRT Error/Assert:\n%s\n", message);
+    fflush(stderr);
+    abort();
   }
   // Let's other reportType (_CRT_WARNING) be handled as they would by default
   return FALSE;
@@ -403,37 +399,37 @@ void Runner::preventDialogOnCrash() {
   // Prevents the system from popping a dialog for debugging if the
   // application fails due to invalid memory access.
   SetErrorMode(SEM_FAILCRITICALERRORS | SEM_NOGPFAULTERRORBOX |
-			   SEM_NOOPENFILEERRORBOX);
+               SEM_NOOPENFILEERRORBOX);
 #endif // if defined(_WIN32)
 }
 
 void Runner::print_usage(const char* appName) {
   printf("Usage: %s [options]\n"
-		 "\n"
-		 "If --test is not specified, then all the test cases be run.\n"
-		 "\n"
-		 "Valid options:\n"
-		 "--list-tests: print the name of all test cases on the standard\n"
-		 "              output and exit.\n"
-		 "--test TESTNAME: executes the test case with the specified name.\n"
-		 "                 May be repeated.\n"
-		 "--test-auto: prevent dialog prompting for debugging on crash.\n",
-		 appName);
+         "\n"
+         "If --test is not specified, then all the test cases be run.\n"
+         "\n"
+         "Valid options:\n"
+         "--list-tests: print the name of all test cases on the standard\n"
+         "              output and exit.\n"
+         "--test TESTNAME: executes the test case with the specified name.\n"
+         "                 May be repeated.\n"
+         "--test-auto: prevent dialog prompting for debugging on crash.\n",
+         appName);
 }
 
 // Assertion functions
 // //////////////////////////////////////////////////////////////////
 
 TestResult& checkStringEqual(TestResult& result,
-							 std::string const & expected,
-							 std::string const & actual,
-							 const char* file,
-							 unsigned int line,
-							 const char* expr) {
+                             std::string const & expected,
+                             std::string const & actual,
+                             const char* file,
+                             unsigned int line,
+                             const char* expr) {
   if (expected != actual) {
-	result.addFailure(file, line, expr);
-	result << "Expected: '" << expected << "'\n";
-	result << "Actual  : '" << actual << "'";
+    result.addFailure(file, line, expr);
+    result << "Expected: '" << expected << "'\n";
+    result << "Actual  : '" << actual << "'";
   }
   return result;
 }

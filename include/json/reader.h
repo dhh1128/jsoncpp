@@ -4,10 +4,8 @@
 #ifndef _c2afc98584374718aea026a78911def9
 #define _c2afc98584374718aea026a78911def9
 
-#if !defined(JSON_IS_AMALGAMATION)
 #include "features.h"
 #include "value.h"
-#endif // if !defined(JSON_IS_AMALGAMATION)
 #include <deque>
 #include <iosfwd>
 #include <stack>
@@ -39,9 +37,9 @@ public:
    *
    */
   struct structured_error {
-	size_t offset_start;
-	size_t offset_limit;
-	std::string message;
+    size_t offset_start;
+    size_t offset_limit;
+    std::string message;
   };
 
   /** \brief Constructs a reader allowing all features
@@ -90,9 +88,9 @@ public:
    error occurred.
    */
   bool parse(const char* begin_doc,
-			 const char* end_doc,
-			 value& root,
-			 bool collect_comments = true);
+             const char* end_doc,
+             value& root,
+             bool collect_comments = true);
 
   /// \brief Parse from input stream.
   /// \see json::operator>>(std::istream&, json::value&).
@@ -142,34 +140,34 @@ public:
 
 private:
   enum token_type {
-	tt_end_of_stream = 0,
-	tt_object_begin,
-	tt_object_end,
-	tt_array_begin,
-	tt_array_end,
-	tt_string,
-	tt_number,
-	tt_true,
-	tt_false,
-	tt_null,
-	tt_array_separator,
-	tt_member_separator,
-	tt_comment,
-	tt_error
+    tt_end_of_stream = 0,
+    tt_object_begin,
+    tt_object_end,
+    tt_array_begin,
+    tt_array_end,
+    tt_string,
+    tt_number,
+    tt_true,
+    tt_false,
+    tt_null,
+    tt_array_separator,
+    tt_member_separator,
+    tt_comment,
+    tt_error
   };
 
   class token {
   public:
-	token_type type_;
-	location_t start_;
-	location_t end_;
+    token_type type_;
+    location_t start_;
+    location_t end_;
   };
 
   class ErrorInfo {
   public:
-	token token_;
-	std::string message_;
-	location_t extra_;
+    token token_;
+    std::string message_;
+    location_t extra_;
   };
 
   typedef std::deque<ErrorInfo> errors;
@@ -192,18 +190,18 @@ private:
   bool decode_double(token& token);
   bool decode_double(token& token, value& decoded);
   bool decode_unicode_codepoint(token& token,
-							  location_t& current,
-							  location_t end,
-							  unsigned int& unicode);
+                              location_t& current,
+                              location_t end,
+                              unsigned int& unicode);
   bool decode_unicode_escape_sequence(token& token,
-								   location_t& current,
-								   location_t end,
-								   unsigned int& unicode);
+                                   location_t& current,
+                                   location_t end,
+                                   unsigned int& unicode);
   bool add_error(std::string const & message, token& token, location_t extra = 0);
   bool recover_from_error(token_type skip_until_token);
   bool add_error_and_recover(std::string const & message,
-						  token& token,
-						  token_type skip_until_token);
+                          token& token,
+                          token_type skip_until_token);
   void skip_until_space();
   value& current_value();
   char get_next_char();
@@ -249,16 +247,16 @@ public:
    error occurred.
    */
   virtual bool parse(
-	  char const* begin_doc, char const* end_doc,
-	  value* root, std::string* errs) = 0;
+      char const* begin_doc, char const* end_doc,
+      value* root, std::string* errs) = 0;
 
   class factory {
   public:
-	virtual ~factory() {}
-	/** \brief Allocate a char_reader via operator new().
-	 * \throw std::exception if something goes wrong (e.g. invalid settings)
-	 */
-	virtual char_reader* newCharReader() const = 0;
+    virtual ~factory() {}
+    /** \brief Allocate a char_reader via operator new().
+     * \throw std::exception if something goes wrong (e.g. invalid settings)
+     */
+    virtual char_reader* newCharReader() const = 0;
   };  // factory
 };  // char_reader
 
@@ -279,38 +277,38 @@ public:
   // Note: We use a json::value so that we can add data-members to this class
   // without a major version bump.
   /** Configuration of this builder.
-	These are case-sensitive.
-	Available settings (case-sensitive):
-	- `"collect_comments": false or true`
-	  - true to collect comment and allow writing them
-		back during serialization, false to discard comments.
-		This parameter is ignored if allowComments is false.
-	- `"allowComments": false or true`
-	  - true if comments are allowed.
-	- `"strictRoot": false or true`
-	  - true if root must be either an array or an object value
-	- `"allowDroppedNullPlaceholders": false or true`
-	  - true if dropped null placeholders are allowed. (See stream_writer_builder.)
-	- `"allowNumericKeys": false or true`
-	  - true if numeric object keys are allowed.
-	- `"allowSingleQuotes": false or true`
-	  - true if '' are allowed for strings (both keys and values)
-	- `"stackLimit": integer`
-	  - Exceeding stackLimit (recursive depth of `read_value()`) will
-		cause an exception.
-	  - This is a security issue (seg-faults caused by deeply nested JSON),
-		so the default is low.
-	- `"failIfExtra": false or true`
-	  - If true, `parse()` returns false when extra non-whitespace trails
-		the JSON value in the input string.
-	- `"rejectDupKeys": false or true`
-	  - If true, `parse()` returns false when a key is duplicated within an object.
+    These are case-sensitive.
+    Available settings (case-sensitive):
+    - `"collect_comments": false or true`
+      - true to collect comment and allow writing them
+        back during serialization, false to discard comments.
+        This parameter is ignored if allowComments is false.
+    - `"allowComments": false or true`
+      - true if comments are allowed.
+    - `"strictRoot": false or true`
+      - true if root must be either an array or an object value
+    - `"allowDroppedNullPlaceholders": false or true`
+      - true if dropped null placeholders are allowed. (See stream_writer_builder.)
+    - `"allowNumericKeys": false or true`
+      - true if numeric object keys are allowed.
+    - `"allowSingleQuotes": false or true`
+      - true if '' are allowed for strings (both keys and values)
+    - `"stackLimit": integer`
+      - Exceeding stackLimit (recursive depth of `read_value()`) will
+        cause an exception.
+      - This is a security issue (seg-faults caused by deeply nested JSON),
+        so the default is low.
+    - `"failIfExtra": false or true`
+      - If true, `parse()` returns false when extra non-whitespace trails
+        the JSON value in the input string.
+    - `"rejectDupKeys": false or true`
+      - If true, `parse()` returns false when a key is duplicated within an object.
 
-	You can examine 'settings_` yourself
-	to see the defaults. You can also write and read them just like any
-	JSON value.
-	\sa setDefaults()
-	*/
+    You can examine 'settings_` yourself
+    to see the defaults. You can also write and read them just like any
+    JSON value.
+    \sa setDefaults()
+    */
   json::value settings_;
 
   char_reader_builder();
@@ -346,9 +344,9 @@ public:
   * is convenient.
   */
 bool JSON_API parseFromStream(
-	char_reader::factory const&,
-	std::istream&,
-	value* root, std::string* errs);
+    char_reader::factory const&,
+    std::istream&,
+    value* root, std::string* errs);
 
 /** \brief Read from 'sin' into 'root'.
 
@@ -365,9 +363,9 @@ bool JSON_API parseFromStream(
  \verbatim
  {
  "dir": {
-	 "file": {
-	 // The input stream JSON would be nested here.
-	 }
+     "file": {
+     // The input stream JSON would be nested here.
+     }
  }
  }
  \endverbatim

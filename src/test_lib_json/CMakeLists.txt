@@ -2,7 +2,7 @@
 
 IF(JSONCPP_LIB_BUILD_SHARED)
   ADD_DEFINITIONS( -DJSON_DLL )
-ENDIF(JSONCPP_LIB_BUILD_SHARED)
+ENDIF()
 
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11")
 
@@ -15,9 +15,9 @@ ADD_EXECUTABLE( jsoncpp_test
 
 IF(JSONCPP_LIB_BUILD_SHARED)
     TARGET_LINK_LIBRARIES(jsoncpp_test jsoncpp_lib)
-ELSE(JSONCPP_LIB_BUILD_SHARED)
+ELSE()
     TARGET_LINK_LIBRARIES(jsoncpp_test jsoncpp_lib_static)
-ENDIF(JSONCPP_LIB_BUILD_SHARED)
+ENDIF()
 
 # another way to solve issue #90
 #set_target_properties(jsoncpp_test PROPERTIES COMPILE_FLAGS -ffloat-store)
@@ -37,7 +37,7 @@ IF(JSONCPP_WITH_POST_BUILD_UNITTEST)
         ADD_CUSTOM_COMMAND( TARGET jsoncpp_test
                             POST_BUILD
                             COMMAND $<TARGET_FILE:jsoncpp_test>)
-    ENDIF(JSONCPP_LIB_BUILD_SHARED)
-ENDIF(JSONCPP_WITH_POST_BUILD_UNITTEST)
+    ENDIF()
+ENDIF()
 
 SET_TARGET_PROPERTIES(jsoncpp_test PROPERTIES OUTPUT_NAME jsoncpp_test)

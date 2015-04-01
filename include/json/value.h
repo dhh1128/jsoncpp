@@ -4,9 +4,7 @@
 #ifndef _feb06e75ac584e1ea52502c12e8cad61
 #define _feb06e75ac584e1ea52502c12e8cad61
 
-#if !defined(JSON_IS_AMALGAMATION)
 #include "forwards.h"
-#endif // if !defined(JSON_IS_AMALGAMATION)
 
 #include <string>
 #include <vector>
@@ -170,37 +168,37 @@ private:
 #ifndef JSONCPP_DOC_EXCLUDE_IMPLEMENTATION
   class czstring {
   public:
-	enum duplication_policy {
-	  no_duplication = 0,
-	  duplicate,
-	  duplicate_on_copy
-	};
-	czstring(array_index index);
-	czstring(char const* str, unsigned length, duplication_policy allocate);
-	czstring(czstring const& other);
-	~czstring();
-	czstring& operator=(czstring other);
-	bool operator<(czstring const& other) const;
-	bool operator==(czstring const& other) const;
-	array_index index() const;
-	//const char* c_str() const; ///< \deprecated
-	char const* data() const;
-	unsigned length() const;
-	bool is_static_string() const;
+    enum duplication_policy {
+      no_duplication = 0,
+      duplicate,
+      duplicate_on_copy
+    };
+    czstring(array_index index);
+    czstring(char const* str, unsigned length, duplication_policy allocate);
+    czstring(czstring const& other);
+    ~czstring();
+    czstring& operator=(czstring other);
+    bool operator<(czstring const& other) const;
+    bool operator==(czstring const& other) const;
+    array_index index() const;
+    //const char* c_str() const; ///< \deprecated
+    char const* data() const;
+    unsigned length() const;
+    bool is_static_string() const;
 
   private:
-	void swap(czstring& other);
+    void swap(czstring& other);
 
-	struct string_storage {
-	  duplication_policy policy_: 2;
-	  unsigned length_: 30; // 1GB max
-	};
+    struct string_storage {
+      duplication_policy policy_: 2;
+      unsigned length_: 30; // 1GB max
+    };
 
-	char const* cstr_;  // actually, a prefixed string, unless policy is noDup
-	union {
-	  array_index index_;
-	  string_storage storage_;
-	};
+    char const* cstr_;  // actually, a prefixed string, unless policy is noDup
+    union {
+      array_index index_;
+      string_storage storage_;
+    };
   };
 
 public:
@@ -214,13 +212,13 @@ public:
 public:
   /** \brief Create a default value of the given type.
 
-	This is a very useful constructor.
-	To create an empty array, pass vt_array.
-	To create an empty object, pass vt_object.
-	Another value can then be set to this one by assignment.
+    This is a very useful constructor.
+    To create an empty array, pass vt_array.
+    To create an empty object, pass vt_object.
+    Another value can then be set to this one by assignment.
 This is useful since clear() and resize() will not alter types.
 
-	Examples:
+    Examples:
 \code
 json::value null_value; // null
 json::value arr_value(json::vt_array); // []
@@ -284,7 +282,7 @@ json::value obj_value(json::vt_object); // {}
    *  \return false if !string. (Seg-fault if str or end are NULL.)
    */
   bool get_string(
-	  char const** str, char const** end) const;
+      char const** str, char const** end) const;
   int32_t as_int() const;
   uint32_t as_uint() const;
 #if defined(JSON_HAS_INT64)
@@ -434,18 +432,18 @@ json::value obj_value(json::vt_object); // {}
   bool remove_member(const char* key, value* removed);
   /** \brief Remove the named map member.
 
-	  Update 'removed' iff removed.
-	  \param key may contain embedded nulls.
-	  \return true iff removed (no exceptions)
+      Update 'removed' iff removed.
+      \param key may contain embedded nulls.
+      \return true iff removed (no exceptions)
   */
   bool remove_member(std::string const& key, value* removed);
   /// Same as remove_member(std::string const& key, value* removed)
   bool remove_member(const char* key, const char* end, value* removed);
   /** \brief Remove the indexed array element.
 
-	  O(n) expensive operations.
-	  Update 'removed' iff removed.
-	  \return true iff removed (no exceptions)
+      O(n) expensive operations.
+      Update 'removed' iff removed.
+      \return true iff removed (no exceptions)
   */
   bool remove_index(array_index i, value* removed);
 
@@ -497,12 +495,12 @@ private:
   value& resolve_reference(const char* key, const char* end);
 
   struct comment_info {
-	comment_info();
-	~comment_info();
+    comment_info();
+    ~comment_info();
 
-	void set_comment(const char* text, size_t len);
+    void set_comment(const char* text, size_t len);
 
-	char* comment_;
+    char* comment_;
   };
 
   // struct MemberNamesTransform
@@ -515,16 +513,16 @@ private:
   //};
 
   union ValueHolder {
-	largest_int_t int_;
-	largest_uint_t uint_;
-	double real_;
-	bool bool_;
-	char* string_;  // actually ptr to unsigned, followed by str, unless !allocated_
-	object_values* map_;
+    largest_int_t int_;
+    largest_uint_t uint_;
+    double real_;
+    bool bool_;
+    char* string_;  // actually ptr to unsigned, followed by str, unless !allocated_
+    object_values* map_;
   } value_;
   value_type type_ : 8;
   unsigned int allocated_ : 1; // Notes: if declared as bool, bitfield is useless.
-							   // If not allocated_, string_ must be null-terminated.
+                               // If not allocated_, string_ must be null-terminated.
   comment_info* comments_;
 
   // [start, limit) byte offsets in the source JSON text from which this value
@@ -547,9 +545,9 @@ public:
 
 private:
   enum Kind {
-	kindNone = 0,
-	kindIndex,
-	kindKey
+    kindNone = 0,
+    kindIndex,
+    kindKey
   };
   std::string key_;
   array_index index_;
@@ -570,11 +568,11 @@ private:
 class JSON_API path {
 public:
   path(std::string const & path,
-	   const path_argument& a1 = path_argument(),
-	   const path_argument& a2 = path_argument(),
-	   const path_argument& a3 = path_argument(),
-	   const path_argument& a4 = path_argument(),
-	   const path_argument& a5 = path_argument());
+       const path_argument& a1 = path_argument(),
+       const path_argument& a2 = path_argument(),
+       const path_argument& a3 = path_argument(),
+       const path_argument& a4 = path_argument(),
+       const path_argument& a5 = path_argument());
 
   value const & resolve(value const & root) const;
   value resolve(value const & root, value const & default_value) const;
@@ -588,9 +586,9 @@ private:
 
   void makePath(std::string const & path, const InArgs& in);
   void addPathInArg(std::string const & path,
-					const InArgs& in,
-					InArgs::const_iterator& itInArg,
-					path_argument::Kind kind);
+                    const InArgs& in,
+                    InArgs::const_iterator& itInArg,
+                    path_argument::Kind kind);
   void invalidPath(std::string const & path, int location);
 
   Args args_;
@@ -614,7 +612,7 @@ public:
   bool operator!=(const SelfType& other) const { return !isEqual(other); }
 
   difference_type operator-(const SelfType& other) const {
-	return other.computeDistance(*this);
+    return other.computeDistance(*this);
   }
 
   /// Return either the index or the member name of the referenced value as a
@@ -682,25 +680,25 @@ public:
   SelfType& operator=(const value_iterator_base& other);
 
   SelfType operator++(int) {
-	SelfType temp(*this);
-	++*this;
-	return temp;
+    SelfType temp(*this);
+    ++*this;
+    return temp;
   }
 
   SelfType operator--(int) {
-	SelfType temp(*this);
-	--*this;
-	return temp;
+    SelfType temp(*this);
+    --*this;
+    return temp;
   }
 
   SelfType& operator--() {
-	decrement();
-	return *this;
+    decrement();
+    return *this;
   }
 
   SelfType& operator++() {
-	increment();
-	return *this;
+    increment();
+    return *this;
   }
 
   reference operator*() const { return deref(); }
@@ -733,25 +731,25 @@ public:
   SelfType& operator=(const SelfType& other);
 
   SelfType operator++(int) {
-	SelfType temp(*this);
-	++*this;
-	return temp;
+    SelfType temp(*this);
+    ++*this;
+    return temp;
   }
 
   SelfType operator--(int) {
-	SelfType temp(*this);
-	--*this;
-	return temp;
+    SelfType temp(*this);
+    --*this;
+    return temp;
   }
 
   SelfType& operator--() {
-	decrement();
-	return *this;
+    decrement();
+    return *this;
   }
 
   SelfType& operator++() {
-	increment();
-	return *this;
+    increment();
+    return *this;
   }
 
   reference operator*() const { return deref(); }

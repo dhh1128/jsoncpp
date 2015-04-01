@@ -1,12 +1,10 @@
 // Derived from public-domain/MIT-licensed code at
 // https://github.com/open-source-parsers/jsoncpp. Thanks, Baptiste Lepilleur!
 
-#if !defined(JSON_IS_AMALGAMATION)
 #include <json/assertions.h>
 #include <json/reader.h>
 #include <json/value.h>
 #include "json_tool.h"
-#endif // if !defined(JSON_IS_AMALGAMATION)
 #include <utility>
 #include <cstdio>
 #include <cassert>
@@ -40,8 +38,8 @@ typedef std::auto_ptr<char_reader>   CharReaderPtr;
 // ////////////////////////////////
 
 features::features()
-	: allow_comments_(true), strict_root_(false),
-	  allow_dropped_null_placeholders_(false), allow_numeric_keys_(false) {}
+    : allow_comments_(true), strict_root_(false),
+      allow_dropped_null_placeholders_(false), allow_numeric_keys_(false) {}
 
 features features::all() { return features(); }
 
@@ -59,8 +57,8 @@ features features::strict_mode() {
 
 static bool contains_new_line(reader::location_t begin, reader::location_t end) {
   for (; begin < end; ++begin)
-	if (*begin == '\n' || *begin == '\r')
-	  return true;
+    if (*begin == '\n' || *begin == '\r')
+      return true;
   return false;
 }
 
@@ -68,13 +66,13 @@ static bool contains_new_line(reader::location_t begin, reader::location_t end) 
 // //////////////////////////////////////////////////////////////////
 
 reader::reader()
-	: errors_(), document_(), begin_(), end_(), current_(), last_value_end_(),
-	  last_value_(), comments_before_(), features_(features::all()),
-	  collect_comments_() {}
+    : errors_(), document_(), begin_(), end_(), current_(), last_value_end_(),
+      last_value_(), comments_before_(), features_(features::all()),
+      collect_comments_() {}
 
 reader::reader(const features& features)
-	: errors_(), document_(), begin_(), end_(), current_(), last_value_end_(),
-	  last_value_(), comments_before_(), features_(features), collect_comments_() {
+    : errors_(), document_(), begin_(), end_(), current_(), last_value_end_(),
+      last_value_(), comments_before_(), features_(features), collect_comments_() {
 }
 
 bool
@@ -99,11 +97,11 @@ bool reader::parse(std::istream& sin, value& root, bool collect_comments) {
 }
 
 bool reader::parse(const char* begin_doc,
-				   const char* end_doc,
-				   value& root,
-				   bool collect_comments) {
+                   const char* end_doc,
+                   value& root,
+                   bool collect_comments) {
   if (!features_.allow_comments_) {
-	collect_comments = false;
+    collect_comments = false;
   }
 
   begin_ = begin_doc;
@@ -115,7 +113,7 @@ bool reader::parse(const char* begin_doc,
   comments_before_ = "";
   errors_.clear();
   while (!nodes_.empty())
-	nodes_.pop();
+    nodes_.pop();
   nodes_.push(&root);
 
   stackDepth_g = 0;  // Yes, this is bad coding, but options are limited.
@@ -123,19 +121,19 @@ bool reader::parse(const char* begin_doc,
   token token;
   skip_comment_tokens(token);
   if (collect_comments_ && !comments_before_.empty())
-	root.set_comment(comments_before_, comment_after);
+    root.set_comment(comments_before_, comment_after);
   if (features_.strict_root_) {
-	if (!root.is_array() && !root.is_object()) {
-	  // Set error location to start of doc, ideally should be first token found
-	  // in doc
-	  token.type_ = tt_error;
-	  token.start_ = begin_doc;
-	  token.end_ = end_doc;
-	  add_error(
-		  "A valid JSON document must be either an array or an object value.",
-		  token);
-	  return false;
-	}
+    if (!root.is_array() && !root.is_object()) {
+      // Set error location to start of doc, ideally should be first token found
+      // in doc
+      token.type_ = tt_error;
+      token.start_ = begin_doc;
+      token.end_ = end_doc;
+      add_error(
+          "A valid JSON document must be either an array or an object value.",
+          token);
+      return false;
+    }
   }
   return successful;
 }
@@ -153,71 +151,71 @@ bool reader::read_value() {
   bool successful = true;
 
   if (collect_comments_ && !comments_before_.empty()) {
-	current_value().set_comment(comments_before_, comment_before);
-	comments_before_ = "";
+    current_value().set_comment(comments_before_, comment_before);
+    comments_before_ = "";
   }
 
   switch (token.type_) {
   case tt_object_begin:
-	successful = read_object(token);
-	current_value().set_offset_limit(current_ - begin_);
-	break;
+    successful = read_object(token);
+    current_value().set_offset_limit(current_ - begin_);
+    break;
   case tt_array_begin:
-	successful = read_array(token);
-	current_value().set_offset_limit(current_ - begin_);
-	break;
+    successful = read_array(token);
+    current_value().set_offset_limit(current_ - begin_);
+    break;
   case tt_number:
-	successful = decode_number(token);
-	break;
+    successful = decode_number(token);
+    break;
   case tt_string:
-	successful = decode_string(token);
-	break;
+    successful = decode_string(token);
+    break;
   case tt_true:
-	{
-	value v(true);
-	current_value().swap_payload(v);
-	current_value().set_offset_start(token.start_ - begin_);
-	current_value().set_offset_limit(token.end_ - begin_);
-	}
-	break;
+    {
+    value v(true);
+    current_value().swap_payload(v);
+    current_value().set_offset_start(token.start_ - begin_);
+    current_value().set_offset_limit(token.end_ - begin_);
+    }
+    break;
   case tt_false:
-	{
-	value v(false);
-	current_value().swap_payload(v);
-	current_value().set_offset_start(token.start_ - begin_);
-	current_value().set_offset_limit(token.end_ - begin_);
-	}
-	break;
+    {
+    value v(false);
+    current_value().swap_payload(v);
+    current_value().set_offset_start(token.start_ - begin_);
+    current_value().set_offset_limit(token.end_ - begin_);
+    }
+    break;
   case tt_null:
-	{
-	value v;
-	current_value().swap_payload(v);
-	current_value().set_offset_start(token.start_ - begin_);
-	current_value().set_offset_limit(token.end_ - begin_);
-	}
-	break;
+    {
+    value v;
+    current_value().swap_payload(v);
+    current_value().set_offset_start(token.start_ - begin_);
+    current_value().set_offset_limit(token.end_ - begin_);
+    }
+    break;
   case tt_array_separator:
   case tt_object_end:
   case tt_array_end:
-	if (features_.allow_dropped_null_placeholders_) {
-	  // "Un-read" the current token and mark the current value as a null
-	  // token.
-	  current_--;
-	  value v;
-	  current_value().swap_payload(v);
-	  current_value().set_offset_start(current_ - begin_ - 1);
-	  current_value().set_offset_limit(current_ - begin_);
-	  break;
-	} // Else, fall through...
+    if (features_.allow_dropped_null_placeholders_) {
+      // "Un-read" the current token and mark the current value as a null
+      // token.
+      current_--;
+      value v;
+      current_value().swap_payload(v);
+      current_value().set_offset_start(current_ - begin_ - 1);
+      current_value().set_offset_limit(current_ - begin_);
+      break;
+    } // Else, fall through...
   default:
-	current_value().set_offset_start(token.start_ - begin_);
-	current_value().set_offset_limit(token.end_ - begin_);
-	return add_error("Syntax error: value, object or array expected.", token);
+    current_value().set_offset_start(token.start_ - begin_);
+    current_value().set_offset_limit(token.end_ - begin_);
+    return add_error("Syntax error: value, object or array expected.", token);
   }
 
   if (collect_comments_) {
-	last_value_end_ = current_;
-	last_value_ = &current_value();
+    last_value_end_ = current_;
+    last_value_ = &current_value();
   }
 
   --stackDepth_g;
@@ -226,11 +224,11 @@ bool reader::read_value() {
 
 void reader::skip_comment_tokens(token& token) {
   if (features_.allow_comments_) {
-	do {
-	  read_token(token);
-	} while (token.type_ == tt_comment);
+    do {
+      read_token(token);
+    } while (token.type_ == tt_comment);
   } else {
-	read_token(token);
+    read_token(token);
   }
 }
 
@@ -241,25 +239,25 @@ bool reader::read_token(token& token) {
   bool ok = true;
   switch (c) {
   case '{':
-	token.type_ = tt_object_begin;
-	break;
+    token.type_ = tt_object_begin;
+    break;
   case '}':
-	token.type_ = tt_object_end;
-	break;
+    token.type_ = tt_object_end;
+    break;
   case '[':
-	token.type_ = tt_array_begin;
-	break;
+    token.type_ = tt_array_begin;
+    break;
   case ']':
-	token.type_ = tt_array_end;
-	break;
+    token.type_ = tt_array_end;
+    break;
   case '"':
-	token.type_ = tt_string;
-	ok = read_string();
-	break;
+    token.type_ = tt_string;
+    ok = read_string();
+    break;
   case '/':
-	token.type_ = tt_comment;
-	ok = read_comment();
-	break;
+    token.type_ = tt_comment;
+    ok = read_comment();
+    break;
   case '0':
   case '1':
   case '2':
@@ -271,57 +269,57 @@ bool reader::read_token(token& token) {
   case '8':
   case '9':
   case '-':
-	token.type_ = tt_number;
-	read_number();
-	break;
+    token.type_ = tt_number;
+    read_number();
+    break;
   case 't':
-	token.type_ = tt_true;
-	ok = match("rue", 3);
-	break;
+    token.type_ = tt_true;
+    ok = match("rue", 3);
+    break;
   case 'f':
-	token.type_ = tt_false;
-	ok = match("alse", 4);
-	break;
+    token.type_ = tt_false;
+    ok = match("alse", 4);
+    break;
   case 'n':
-	token.type_ = tt_null;
-	ok = match("ull", 3);
-	break;
+    token.type_ = tt_null;
+    ok = match("ull", 3);
+    break;
   case ',':
-	token.type_ = tt_array_separator;
-	break;
+    token.type_ = tt_array_separator;
+    break;
   case ':':
-	token.type_ = tt_member_separator;
-	break;
+    token.type_ = tt_member_separator;
+    break;
   case 0:
-	token.type_ = tt_end_of_stream;
-	break;
+    token.type_ = tt_end_of_stream;
+    break;
   default:
-	ok = false;
-	break;
+    ok = false;
+    break;
   }
   if (!ok)
-	token.type_ = tt_error;
+    token.type_ = tt_error;
   token.end_ = current_;
   return true;
 }
 
 void reader::skip_spaces() {
   while (current_ != end_) {
-	char c = *current_;
-	if (c == ' ' || c == '\t' || c == '\r' || c == '\n')
-	  ++current_;
-	else
-	  break;
+    char c = *current_;
+    if (c == ' ' || c == '\t' || c == '\r' || c == '\n')
+      ++current_;
+    else
+      break;
   }
 }
 
 bool reader::match(location_t pattern, int pattern_length) {
   if (end_ - current_ < pattern_length)
-	return false;
+    return false;
   int index = pattern_length;
   while (index--)
-	if (current_[index] != pattern[index])
-	  return false;
+    if (current_[index] != pattern[index])
+      return false;
   current_ += pattern_length;
   return true;
 }
@@ -331,20 +329,20 @@ bool reader::read_comment() {
   char c = get_next_char();
   bool successful = false;
   if (c == '*')
-	successful = read_c_style_comment();
+    successful = read_c_style_comment();
   else if (c == '/')
-	successful = read_cpp_style_comment();
+    successful = read_cpp_style_comment();
   if (!successful)
-	return false;
+    return false;
 
   if (collect_comments_) {
-	comment_placement placement = comment_before;
-	if (last_value_end_ && !contains_new_line(last_value_end_, commentBegin)) {
-	  if (c != '*' || !contains_new_line(commentBegin, current_))
-		placement = comment_after_on_same_line;
-	}
+    comment_placement placement = comment_before;
+    if (last_value_end_ && !contains_new_line(last_value_end_, commentBegin)) {
+      if (c != '*' || !contains_new_line(commentBegin, current_))
+        placement = comment_after_on_same_line;
+    }
 
-	add_comment(commentBegin, current_, placement);
+    add_comment(commentBegin, current_, placement);
   }
   return true;
 }
@@ -354,16 +352,16 @@ static std::string normalize_eol(reader::location_t begin, reader::location_t en
   normalized.reserve(end - begin);
   reader::location_t current = begin;
   while (current != end) {
-	char c = *current++;
-	if (c == '\r') {
-	  if (current != end && *current == '\n')
-		 // convert dos EOL
-		 ++current;
-	  // convert Mac EOL
-	  normalized += '\n';
-	} else {
-	  normalized += c;
-	}
+    char c = *current++;
+    if (c == '\r') {
+      if (current != end && *current == '\n')
+         // convert dos EOL
+         ++current;
+      // convert Mac EOL
+      normalized += '\n';
+    } else {
+      normalized += c;
+    }
   }
   return normalized;
 }
@@ -373,34 +371,34 @@ reader::add_comment(location_t begin, location_t end, comment_placement placemen
   assert(collect_comments_);
   std::string const & normalized = normalize_eol(begin, end);
   if (placement == comment_after_on_same_line) {
-	assert(last_value_ != 0);
-	last_value_->set_comment(normalized, placement);
+    assert(last_value_ != 0);
+    last_value_->set_comment(normalized, placement);
   } else {
-	comments_before_ += normalized;
+    comments_before_ += normalized;
   }
 }
 
 bool reader::read_c_style_comment() {
   while (current_ != end_) {
-	char c = get_next_char();
-	if (c == '*' && *current_ == '/')
-	  break;
+    char c = get_next_char();
+    if (c == '*' && *current_ == '/')
+      break;
   }
   return get_next_char() == '/';
 }
 
 bool reader::read_cpp_style_comment() {
   while (current_ != end_) {
-	char c = get_next_char();
-	if (c == '\n')
-	  break;
-	if (c == '\r') {
-	  // Consume DOS EOL. It will be normalized in add_comment.
-	  if (current_ != end_ && *current_ == '\n')
-		get_next_char();
-	  // Break on Moc OS 9 EOL.
-	  break;
-	}
+    char c = get_next_char();
+    if (c == '\n')
+      break;
+    if (c == '\r') {
+      // Consume DOS EOL. It will be normalized in add_comment.
+      if (current_ != end_ && *current_ == '\n')
+        get_next_char();
+      // Break on Moc OS 9 EOL.
+      break;
+    }
   }
   return true;
 }
@@ -410,31 +408,31 @@ void reader::read_number() {
   char c = '0'; // stopgap for already consumed character
   // integral part
   while (c >= '0' && c <= '9')
-	c = (current_ = p) < end_ ? *p++ : 0;
+    c = (current_ = p) < end_ ? *p++ : 0;
   // fractional part
   if (c == '.') {
-	c = (current_ = p) < end_ ? *p++ : 0;
-	while (c >= '0' && c <= '9')
-	  c = (current_ = p) < end_ ? *p++ : 0;
+    c = (current_ = p) < end_ ? *p++ : 0;
+    while (c >= '0' && c <= '9')
+      c = (current_ = p) < end_ ? *p++ : 0;
   }
   // exponential part
   if (c == 'e' || c == 'E') {
-	c = (current_ = p) < end_ ? *p++ : 0;
-	if (c == '+' || c == '-')
-	  c = (current_ = p) < end_ ? *p++ : 0;
-	while (c >= '0' && c <= '9')
-	  c = (current_ = p) < end_ ? *p++ : 0;
+    c = (current_ = p) < end_ ? *p++ : 0;
+    if (c == '+' || c == '-')
+      c = (current_ = p) < end_ ? *p++ : 0;
+    while (c >= '0' && c <= '9')
+      c = (current_ = p) < end_ ? *p++ : 0;
   }
 }
 
 bool reader::read_string() {
   char c = 0;
   while (current_ != end_) {
-	c = get_next_char();
-	if (c == '\\')
-	  get_next_char();
-	else if (c == '"')
-	  break;
+    c = get_next_char();
+    if (c == '\\')
+      get_next_char();
+    else if (c == '"')
+      break;
   }
   return c == '"';
 }
@@ -446,53 +444,53 @@ bool reader::read_object(token& tokenStart) {
   current_value().swap_payload(init);
   current_value().set_offset_start(tokenStart.start_ - begin_);
   while (read_token(tokenName)) {
-	bool initialTokenOk = true;
-	while (tokenName.type_ == tt_comment && initialTokenOk)
-	  initialTokenOk = read_token(tokenName);
-	if (!initialTokenOk)
-	  break;
-	if (tokenName.type_ == tt_object_end && name.empty()) // empty object
-	  return true;
-	name = "";
-	if (tokenName.type_ == tt_string) {
-	  if (!decode_string(tokenName, name))
-		return recover_from_error(tt_object_end);
-	} else if (tokenName.type_ == tt_number && features_.allow_numeric_keys_) {
-	  value numberName;
-	  if (!decode_number(tokenName, numberName))
-		return recover_from_error(tt_object_end);
-	  name = numberName.as_string();
-	} else {
-	  break;
-	}
+    bool initialTokenOk = true;
+    while (tokenName.type_ == tt_comment && initialTokenOk)
+      initialTokenOk = read_token(tokenName);
+    if (!initialTokenOk)
+      break;
+    if (tokenName.type_ == tt_object_end && name.empty()) // empty object
+      return true;
+    name = "";
+    if (tokenName.type_ == tt_string) {
+      if (!decode_string(tokenName, name))
+        return recover_from_error(tt_object_end);
+    } else if (tokenName.type_ == tt_number && features_.allow_numeric_keys_) {
+      value numberName;
+      if (!decode_number(tokenName, numberName))
+        return recover_from_error(tt_object_end);
+      name = numberName.as_string();
+    } else {
+      break;
+    }
 
-	token colon;
-	if (!read_token(colon) || colon.type_ != tt_member_separator) {
-	  return add_error_and_recover(
-		  "Missing ':' after object member name", colon, tt_object_end);
-	}
-	value& value = current_value()[name];
-	nodes_.push(&value);
-	bool ok = read_value();
-	nodes_.pop();
-	if (!ok) // error already set
-	  return recover_from_error(tt_object_end);
+    token colon;
+    if (!read_token(colon) || colon.type_ != tt_member_separator) {
+      return add_error_and_recover(
+          "Missing ':' after object member name", colon, tt_object_end);
+    }
+    value& value = current_value()[name];
+    nodes_.push(&value);
+    bool ok = read_value();
+    nodes_.pop();
+    if (!ok) // error already set
+      return recover_from_error(tt_object_end);
 
-	token comma;
-	if (!read_token(comma) ||
-		(comma.type_ != tt_object_end && comma.type_ != tt_array_separator &&
-		 comma.type_ != tt_comment)) {
-	  return add_error_and_recover(
-		  "Missing ',' or '}' in object declaration", comma, tt_object_end);
-	}
-	bool finalizeTokenOk = true;
-	while (comma.type_ == tt_comment && finalizeTokenOk)
-	  finalizeTokenOk = read_token(comma);
-	if (comma.type_ == tt_object_end)
-	  return true;
+    token comma;
+    if (!read_token(comma) ||
+        (comma.type_ != tt_object_end && comma.type_ != tt_array_separator &&
+         comma.type_ != tt_comment)) {
+      return add_error_and_recover(
+          "Missing ',' or '}' in object declaration", comma, tt_object_end);
+    }
+    bool finalizeTokenOk = true;
+    while (comma.type_ == tt_comment && finalizeTokenOk)
+      finalizeTokenOk = read_token(comma);
+    if (comma.type_ == tt_object_end)
+      return true;
   }
   return add_error_and_recover(
-	  "Missing '}' or object member name", tokenName, tt_object_end);
+      "Missing '}' or object member name", tokenName, tt_object_end);
 }
 
 bool reader::read_array(token& tokenStart) {
@@ -502,33 +500,33 @@ bool reader::read_array(token& tokenStart) {
   skip_spaces();
   if (*current_ == ']') // empty array
   {
-	token endArray;
-	read_token(endArray);
-	return true;
+    token endArray;
+    read_token(endArray);
+    return true;
   }
   int index = 0;
   for (;;) {
-	value& value = current_value()[index++];
-	nodes_.push(&value);
-	bool ok = read_value();
-	nodes_.pop();
-	if (!ok) // error already set
-	  return recover_from_error(tt_array_end);
+    value& value = current_value()[index++];
+    nodes_.push(&value);
+    bool ok = read_value();
+    nodes_.pop();
+    if (!ok) // error already set
+      return recover_from_error(tt_array_end);
 
-	token token;
-	// Accept Comment after last item in the array.
-	ok = read_token(token);
-	while (token.type_ == tt_comment && ok) {
-	  ok = read_token(token);
-	}
-	bool badTokenType =
-		(token.type_ != tt_array_separator && token.type_ != tt_array_end);
-	if (!ok || badTokenType) {
-	  return add_error_and_recover(
-		  "Missing ',' or ']' in array declaration", token, tt_array_end);
-	}
-	if (token.type_ == tt_array_end)
-	  break;
+    token token;
+    // Accept Comment after last item in the array.
+    ok = read_token(token);
+    while (token.type_ == tt_comment && ok) {
+      ok = read_token(token);
+    }
+    bool badTokenType =
+        (token.type_ != tt_array_separator && token.type_ != tt_array_end);
+    if (!ok || badTokenType) {
+      return add_error_and_recover(
+          "Missing ',' or ']' in array declaration", token, tt_array_end);
+    }
+    if (token.type_ == tt_array_end)
+      break;
   }
   return true;
 }
@@ -536,7 +534,7 @@ bool reader::read_array(token& tokenStart) {
 bool reader::decode_number(token& token) {
   value decoded;
   if (!decode_number(token, decoded))
-	return false;
+    return false;
   current_value().swap_payload(decoded);
   current_value().set_offset_start(token.start_ - begin_);
   current_value().set_offset_limit(token.end_ - begin_);
@@ -550,43 +548,43 @@ bool reader::decode_number(token& token, value& decoded) {
   location_t current = token.start_;
   bool isNegative = *current == '-';
   if (isNegative)
-	++current;
+    ++current;
   // TODO: Help the compiler do the div and mod at compile time or get rid of them.
   value::largest_uint_t maxIntegerValue =
-	  isNegative ? value::largest_uint_t(-value::min_largest_int)
-				 : value::max_largest_uint;
+      isNegative ? value::largest_uint_t(-value::min_largest_int)
+                 : value::max_largest_uint;
   value::largest_uint_t threshold = maxIntegerValue / 10;
   value::largest_uint_t value = 0;
   while (current < token.end_) {
-	char c = *current++;
-	if (c < '0' || c > '9')
-	  return decode_double(token, decoded);
-	uint32_t digit(c - '0');
-	if (value >= threshold) {
-	  // We've hit or exceeded the max value divided by 10 (rounded down). If
-	  // a) we've only just touched the limit, b) this is the last digit, and
-	  // c) it's small enough to fit in that rounding delta, we're okay.
-	  // Otherwise treat this number as a double to avoid overflow.
-	  if (value > threshold || current != token.end_ ||
-		  digit > maxIntegerValue % 10) {
-		return decode_double(token, decoded);
-	  }
-	}
-	value = value * 10 + digit;
+    char c = *current++;
+    if (c < '0' || c > '9')
+      return decode_double(token, decoded);
+    uint32_t digit(c - '0');
+    if (value >= threshold) {
+      // We've hit or exceeded the max value divided by 10 (rounded down). If
+      // a) we've only just touched the limit, b) this is the last digit, and
+      // c) it's small enough to fit in that rounding delta, we're okay.
+      // Otherwise treat this number as a double to avoid overflow.
+      if (value > threshold || current != token.end_ ||
+          digit > maxIntegerValue % 10) {
+        return decode_double(token, decoded);
+      }
+    }
+    value = value * 10 + digit;
   }
   if (isNegative)
-	decoded = -value::largest_int_t(value);
+    decoded = -value::largest_int_t(value);
   else if (value <= value::largest_uint_t(value::max_int))
-	decoded = value::largest_int_t(value);
+    decoded = value::largest_int_t(value);
   else
-	decoded = value;
+    decoded = value;
   return true;
 }
 
 bool reader::decode_double(token& token) {
   value decoded;
   if (!decode_double(token, decoded))
-	return false;
+    return false;
   current_value().swap_payload(decoded);
   current_value().set_offset_start(token.start_ - begin_);
   current_value().set_offset_limit(token.end_ - begin_);
@@ -601,7 +599,7 @@ bool reader::decode_double(token& token, value& decoded) {
 
   // Sanity check to avoid buffer overflow exploits.
   if (length < 0) {
-	return add_error("Unable to parse token length", token);
+    return add_error("Unable to parse token length", token);
   }
 
   // Avoid using a string constant for the format control string given to
@@ -612,19 +610,19 @@ bool reader::decode_double(token& token, value& decoded) {
   char format[] = "%lf";
 
   if (length <= bufferSize) {
-	char buffer[bufferSize + 1];
-	memcpy(buffer, token.start_, length);
-	buffer[length] = 0;
-	count = sscanf(buffer, format, &value);
+    char buffer[bufferSize + 1];
+    memcpy(buffer, token.start_, length);
+    buffer[length] = 0;
+    count = sscanf(buffer, format, &value);
   } else {
-	std::string buffer(token.start_, token.end_);
-	count = sscanf(buffer.c_str(), format, &value);
+    std::string buffer(token.start_, token.end_);
+    count = sscanf(buffer.c_str(), format, &value);
   }
 
   if (count != 1)
-	return add_error("'" + std::string(token.start_, token.end_) +
-						"' is not a number.",
-					token);
+    return add_error("'" + std::string(token.start_, token.end_) +
+                        "' is not a number.",
+                    token);
   decoded = value;
   return true;
 }
@@ -632,7 +630,7 @@ bool reader::decode_double(token& token, value& decoded) {
 bool reader::decode_string(token& token) {
   std::string decoded_string;
   if (!decode_string(token, decoded_string))
-	return false;
+    return false;
   value decoded(decoded_string);
   current_value().swap_payload(decoded);
   current_value().set_offset_start(token.start_ - begin_);
@@ -645,107 +643,107 @@ bool reader::decode_string(token& token, std::string& decoded) {
   location_t current = token.start_ + 1; // skip '"'
   location_t end = token.end_ - 1;       // do not include '"'
   while (current != end) {
-	char c = *current++;
-	if (c == '"')
-	  break;
-	else if (c == '\\') {
-	  if (current == end)
-		return add_error("Empty escape sequence in string", token, current);
-	  char escape = *current++;
-	  switch (escape) {
-	  case '"':
-		decoded += '"';
-		break;
-	  case '/':
-		decoded += '/';
-		break;
-	  case '\\':
-		decoded += '\\';
-		break;
-	  case 'b':
-		decoded += '\b';
-		break;
-	  case 'f':
-		decoded += '\f';
-		break;
-	  case 'n':
-		decoded += '\n';
-		break;
-	  case 'r':
-		decoded += '\r';
-		break;
-	  case 't':
-		decoded += '\t';
-		break;
-	  case 'u': {
-		unsigned int unicode;
-		if (!decode_unicode_codepoint(token, current, end, unicode))
-		  return false;
-		decoded += codePointToUTF8(unicode);
-	  } break;
-	  default:
-		return add_error("Bad escape sequence in string", token, current);
-	  }
-	} else {
-	  decoded += c;
-	}
+    char c = *current++;
+    if (c == '"')
+      break;
+    else if (c == '\\') {
+      if (current == end)
+        return add_error("Empty escape sequence in string", token, current);
+      char escape = *current++;
+      switch (escape) {
+      case '"':
+        decoded += '"';
+        break;
+      case '/':
+        decoded += '/';
+        break;
+      case '\\':
+        decoded += '\\';
+        break;
+      case 'b':
+        decoded += '\b';
+        break;
+      case 'f':
+        decoded += '\f';
+        break;
+      case 'n':
+        decoded += '\n';
+        break;
+      case 'r':
+        decoded += '\r';
+        break;
+      case 't':
+        decoded += '\t';
+        break;
+      case 'u': {
+        unsigned int unicode;
+        if (!decode_unicode_codepoint(token, current, end, unicode))
+          return false;
+        decoded += codePointToUTF8(unicode);
+      } break;
+      default:
+        return add_error("Bad escape sequence in string", token, current);
+      }
+    } else {
+      decoded += c;
+    }
   }
   return true;
 }
 
 bool reader::decode_unicode_codepoint(token& token,
-									location_t& current,
-									location_t end,
-									unsigned int& unicode) {
+                                    location_t& current,
+                                    location_t end,
+                                    unsigned int& unicode) {
 
   if (!decode_unicode_escape_sequence(token, current, end, unicode))
-	return false;
+    return false;
   if (unicode >= 0xD800 && unicode <= 0xDBFF) {
-	// surrogate pairs
-	if (end - current < 6)
-	  return add_error(
-		  "additional six characters expected to parse unicode surrogate pair.",
-		  token,
-		  current);
-	unsigned int surrogatePair;
-	if (*(current++) == '\\' && *(current++) == 'u') {
-	  if (decode_unicode_escape_sequence(token, current, end, surrogatePair)) {
-		unicode = 0x10000 + ((unicode & 0x3FF) << 10) + (surrogatePair & 0x3FF);
-	  } else
-		return false;
-	} else
-	  return add_error("expecting another \\u token to begin the second half of "
-					  "a unicode surrogate pair",
-					  token,
-					  current);
+    // surrogate pairs
+    if (end - current < 6)
+      return add_error(
+          "additional six characters expected to parse unicode surrogate pair.",
+          token,
+          current);
+    unsigned int surrogatePair;
+    if (*(current++) == '\\' && *(current++) == 'u') {
+      if (decode_unicode_escape_sequence(token, current, end, surrogatePair)) {
+        unicode = 0x10000 + ((unicode & 0x3FF) << 10) + (surrogatePair & 0x3FF);
+      } else
+        return false;
+    } else
+      return add_error("expecting another \\u token to begin the second half of "
+                      "a unicode surrogate pair",
+                      token,
+                      current);
   }
   return true;
 }
 
 bool reader::decode_unicode_escape_sequence(token& token,
-										 location_t& current,
-										 location_t end,
-										 unsigned int& unicode) {
+                                         location_t& current,
+                                         location_t end,
+                                         unsigned int& unicode) {
   if (end - current < 4)
-	return add_error(
-		"Bad unicode escape sequence in string: four digits expected.",
-		token,
-		current);
+    return add_error(
+        "Bad unicode escape sequence in string: four digits expected.",
+        token,
+        current);
   unicode = 0;
   for (int index = 0; index < 4; ++index) {
-	char c = *current++;
-	unicode *= 16;
-	if (c >= '0' && c <= '9')
-	  unicode += c - '0';
-	else if (c >= 'a' && c <= 'f')
-	  unicode += c - 'a' + 10;
-	else if (c >= 'A' && c <= 'F')
-	  unicode += c - 'A' + 10;
-	else
-	  return add_error(
-		  "Bad unicode escape sequence in string: hexadecimal digit expected.",
-		  token,
-		  current);
+    char c = *current++;
+    unicode *= 16;
+    if (c >= '0' && c <= '9')
+      unicode += c - '0';
+    else if (c >= 'a' && c <= 'f')
+      unicode += c - 'a' + 10;
+    else if (c >= 'A' && c <= 'F')
+      unicode += c - 'A' + 10;
+    else
+      return add_error(
+          "Bad unicode escape sequence in string: hexadecimal digit expected.",
+          token,
+          current);
   }
   return true;
 }
@@ -764,18 +762,18 @@ bool reader::recover_from_error(token_type skip_until_token) {
   int error_count = int(errors_.size());
   token skip;
   for (;;) {
-	if (!read_token(skip))
-	  errors_.resize(error_count); // discard errors caused by recovery
-	if (skip.type_ == skip_until_token || skip.type_ == tt_end_of_stream)
-	  break;
+    if (!read_token(skip))
+      errors_.resize(error_count); // discard errors caused by recovery
+    if (skip.type_ == skip_until_token || skip.type_ == tt_end_of_stream)
+      break;
   }
   errors_.resize(error_count);
   return false;
 }
 
 bool reader::add_error_and_recover(std::string const & message,
-								token& token,
-								token_type skip_until_token) {
+                                token& token,
+                                token_type skip_until_token) {
   add_error(message, token);
   return recover_from_error(skip_until_token);
 }
@@ -784,27 +782,27 @@ value& reader::current_value() { return *(nodes_.top()); }
 
 char reader::get_next_char() {
   if (current_ == end_)
-	return 0;
+    return 0;
   return *current_++;
 }
 
 void reader::get_location_line_and_column(location_t location,
-									  int& line,
-									  int& column) const {
+                                      int& line,
+                                      int& column) const {
   location_t current = begin_;
   location_t last_line_start = current;
   line = 0;
   while (current < location && current != end_) {
-	char c = *current++;
-	if (c == '\r') {
-	  if (*current == '\n')
-		++current;
-	  last_line_start = current;
-	  ++line;
-	} else if (c == '\n') {
-	  last_line_start = current;
-	  ++line;
-	}
+    char c = *current++;
+    if (c == '\r') {
+      if (*current == '\n')
+        ++current;
+      last_line_start = current;
+      ++line;
+    } else if (c == '\n') {
+      last_line_start = current;
+      ++line;
+    }
   }
   // column & line start at 1
   column = int(location - last_line_start) + 1;
@@ -830,15 +828,15 @@ std::string reader::get_location_line_and_column(location_t location) const {
 std::string reader::get_formatted_messages() const {
   std::string formattedMessage;
   for (errors::const_iterator itError = errors_.begin();
-	   itError != errors_.end();
-	   ++itError) {
-	const ErrorInfo& error = *itError;
-	formattedMessage +=
-		"* " + get_location_line_and_column(error.token_.start_) + "\n";
-	formattedMessage += "  " + error.message_ + "\n";
-	if (error.extra_)
-	  formattedMessage +=
-		  "See " + get_location_line_and_column(error.extra_) + " for detail.\n";
+       itError != errors_.end();
+       ++itError) {
+    const ErrorInfo& error = *itError;
+    formattedMessage +=
+        "* " + get_location_line_and_column(error.token_.start_) + "\n";
+    formattedMessage += "  " + error.message_ + "\n";
+    if (error.extra_)
+      formattedMessage +=
+          "See " + get_location_line_and_column(error.extra_) + " for detail.\n";
   }
   return formattedMessage;
 }
@@ -846,14 +844,14 @@ std::string reader::get_formatted_messages() const {
 std::vector<reader::structured_error> reader::get_structured_errors() const {
   std::vector<reader::structured_error> allErrors;
   for (errors::const_iterator itError = errors_.begin();
-	   itError != errors_.end();
-	   ++itError) {
-	const ErrorInfo& error = *itError;
-	reader::structured_error structured;
-	structured.offset_start = error.token_.start_ - begin_;
-	structured.offset_limit = error.token_.end_ - begin_;
-	structured.message = error.message_;
-	allErrors.push_back(structured);
+       itError != errors_.end();
+       ++itError) {
+    const ErrorInfo& error = *itError;
+    reader::structured_error structured;
+    structured.offset_start = error.token_.start_ - begin_;
+    structured.offset_limit = error.token_.end_ - begin_;
+    structured.message = error.message_;
+    allErrors.push_back(structured);
   }
   return allErrors;
 }
@@ -861,8 +859,8 @@ std::vector<reader::structured_error> reader::get_structured_errors() const {
 bool reader::push_error(value const & value, std::string const & message) {
   size_t length = end_ - begin_;
   if(value.get_offset_start() > length
-	|| value.get_offset_limit() > length)
-	return false;
+    || value.get_offset_limit() > length)
+    return false;
   token token;
   token.type_ = tt_error;
   token.start_ = begin_ + value.get_offset_start();
@@ -878,9 +876,9 @@ bool reader::push_error(value const & value, std::string const & message) {
 bool reader::push_error(class value const & value, std::string const & message, class value const & extra) {
   size_t length = end_ - begin_;
   if(value.get_offset_start() > length
-	|| value.get_offset_limit() > length
-	|| extra.get_offset_limit() > length)
-	return false;
+    || value.get_offset_limit() > length
+    || extra.get_offset_limit() > length)
+    return false;
   token token;
   token.type_ = tt_error;
   token.start_ = begin_ + value.get_offset_start();
@@ -916,10 +914,10 @@ public:
 // ////////////////////////////////
 
 our_features::our_features()
-	: allow_comments_(true), strict_root_(false)
-	, allow_dropped_null_placeholders_(false), allow_numeric_keys_(false)
-	, allow_single_quotes_(false)
-	, fail_if_extra_(false)
+    : allow_comments_(true), strict_root_(false)
+    , allow_dropped_null_placeholders_(false), allow_numeric_keys_(false)
+    , allow_single_quotes_(false)
+    , fail_if_extra_(false)
 {
 }
 
@@ -933,16 +931,16 @@ class our_reader {
 public:
   typedef const char* location_t;
   struct structured_error {
-	size_t offset_start;
-	size_t offset_limit;
-	std::string message;
+    size_t offset_start;
+    size_t offset_limit;
+    std::string message;
   };
 
   our_reader(our_features const& features);
   bool parse(const char* begin_doc,
-			 const char* end_doc,
-			 value& root,
-			 bool collect_comments = true);
+             const char* end_doc,
+             value& root,
+             bool collect_comments = true);
   std::string get_formatted_messages() const;
   std::vector<structured_error> get_structured_errors() const;
   bool push_error(value const &, std::string const & message);
@@ -954,34 +952,34 @@ private:
   void operator=(our_reader const&);  // no impl
 
   enum token_type {
-	tt_end_of_stream = 0,
-	tt_object_begin,
-	tt_object_end,
-	tt_array_begin,
-	tt_array_end,
-	tt_string,
-	tt_number,
-	tt_true,
-	tt_false,
-	tt_null,
-	tt_array_separator,
-	tt_member_separator,
-	tt_comment,
-	tt_error
+    tt_end_of_stream = 0,
+    tt_object_begin,
+    tt_object_end,
+    tt_array_begin,
+    tt_array_end,
+    tt_string,
+    tt_number,
+    tt_true,
+    tt_false,
+    tt_null,
+    tt_array_separator,
+    tt_member_separator,
+    tt_comment,
+    tt_error
   };
 
   class token {
   public:
-	token_type type_;
-	location_t start_;
-	location_t end_;
+    token_type type_;
+    location_t start_;
+    location_t end_;
   };
 
   class ErrorInfo {
   public:
-	token token_;
-	std::string message_;
-	location_t extra_;
+    token token_;
+    std::string message_;
+    location_t extra_;
   };
 
   typedef std::deque<ErrorInfo> errors;
@@ -1005,18 +1003,18 @@ private:
   bool decode_double(token& token);
   bool decode_double(token& token, value& decoded);
   bool decode_unicode_codepoint(token& token,
-							  location_t& current,
-							  location_t end,
-							  unsigned int& unicode);
+                              location_t& current,
+                              location_t end,
+                              unsigned int& unicode);
   bool decode_unicode_escape_sequence(token& token,
-								   location_t& current,
-								   location_t end,
-								   unsigned int& unicode);
+                                   location_t& current,
+                                   location_t end,
+                                   unsigned int& unicode);
   bool add_error(std::string const & message, token& token, location_t extra = 0);
   bool recover_from_error(token_type skip_until_token);
   bool add_error_and_recover(std::string const & message,
-						  token& token,
-						  token_type skip_until_token);
+                          token& token,
+                          token_type skip_until_token);
   void skip_until_space();
   value& current_value();
   char get_next_char();
@@ -1045,16 +1043,16 @@ private:
 // complete copy of Read impl, for our_reader
 
 our_reader::our_reader(our_features const& features)
-	: errors_(), document_(), begin_(), end_(), current_(), last_value_end_(),
-	  last_value_(), comments_before_(), features_(features), collect_comments_() {
+    : errors_(), document_(), begin_(), end_(), current_(), last_value_end_(),
+      last_value_(), comments_before_(), features_(features), collect_comments_() {
 }
 
 bool our_reader::parse(const char* begin_doc,
-				   const char* end_doc,
-				   value& root,
-				   bool collect_comments) {
+                   const char* end_doc,
+                   value& root,
+                   bool collect_comments) {
   if (!features_.allow_comments_) {
-	collect_comments = false;
+    collect_comments = false;
   }
 
   begin_ = begin_doc;
@@ -1066,7 +1064,7 @@ bool our_reader::parse(const char* begin_doc,
   comments_before_ = "";
   errors_.clear();
   while (!nodes_.empty())
-	nodes_.pop();
+    nodes_.pop();
   nodes_.push(&root);
 
   stack_depth_ = 0;
@@ -1074,25 +1072,25 @@ bool our_reader::parse(const char* begin_doc,
   token token;
   skip_comment_tokens(token);
   if (features_.fail_if_extra_) {
-	if (token.type_ != tt_error && token.type_ != tt_end_of_stream) {
-	  add_error("Extra non-whitespace after JSON value.", token);
-	  return false;
-	}
+    if (token.type_ != tt_error && token.type_ != tt_end_of_stream) {
+      add_error("Extra non-whitespace after JSON value.", token);
+      return false;
+    }
   }
   if (collect_comments_ && !comments_before_.empty())
-	root.set_comment(comments_before_, comment_after);
+    root.set_comment(comments_before_, comment_after);
   if (features_.strict_root_) {
-	if (!root.is_array() && !root.is_object()) {
-	  // Set error location to start of doc, ideally should be first token found
-	  // in doc
-	  token.type_ = tt_error;
-	  token.start_ = begin_doc;
-	  token.end_ = end_doc;
-	  add_error(
-		  "A valid JSON document must be either an array or an object value.",
-		  token);
-	  return false;
-	}
+    if (!root.is_array() && !root.is_object()) {
+      // Set error location to start of doc, ideally should be first token found
+      // in doc
+      token.type_ = tt_error;
+      token.start_ = begin_doc;
+      token.end_ = end_doc;
+      add_error(
+          "A valid JSON document must be either an array or an object value.",
+          token);
+      return false;
+    }
   }
   return successful;
 }
@@ -1105,71 +1103,71 @@ bool our_reader::read_value() {
   bool successful = true;
 
   if (collect_comments_ && !comments_before_.empty()) {
-	current_value().set_comment(comments_before_, comment_before);
-	comments_before_ = "";
+    current_value().set_comment(comments_before_, comment_before);
+    comments_before_ = "";
   }
 
   switch (token.type_) {
   case tt_object_begin:
-	successful = read_object(token);
-	current_value().set_offset_limit(current_ - begin_);
-	break;
+    successful = read_object(token);
+    current_value().set_offset_limit(current_ - begin_);
+    break;
   case tt_array_begin:
-	successful = read_array(token);
-	current_value().set_offset_limit(current_ - begin_);
-	break;
+    successful = read_array(token);
+    current_value().set_offset_limit(current_ - begin_);
+    break;
   case tt_number:
-	successful = decode_number(token);
-	break;
+    successful = decode_number(token);
+    break;
   case tt_string:
-	successful = decode_string(token);
-	break;
+    successful = decode_string(token);
+    break;
   case tt_true:
-	{
-	value v(true);
-	current_value().swap_payload(v);
-	current_value().set_offset_start(token.start_ - begin_);
-	current_value().set_offset_limit(token.end_ - begin_);
-	}
-	break;
+    {
+    value v(true);
+    current_value().swap_payload(v);
+    current_value().set_offset_start(token.start_ - begin_);
+    current_value().set_offset_limit(token.end_ - begin_);
+    }
+    break;
   case tt_false:
-	{
-	value v(false);
-	current_value().swap_payload(v);
-	current_value().set_offset_start(token.start_ - begin_);
-	current_value().set_offset_limit(token.end_ - begin_);
-	}
-	break;
+    {
+    value v(false);
+    current_value().swap_payload(v);
+    current_value().set_offset_start(token.start_ - begin_);
+    current_value().set_offset_limit(token.end_ - begin_);
+    }
+    break;
   case tt_null:
-	{
-	value v;
-	current_value().swap_payload(v);
-	current_value().set_offset_start(token.start_ - begin_);
-	current_value().set_offset_limit(token.end_ - begin_);
-	}
-	break;
+    {
+    value v;
+    current_value().swap_payload(v);
+    current_value().set_offset_start(token.start_ - begin_);
+    current_value().set_offset_limit(token.end_ - begin_);
+    }
+    break;
   case tt_array_separator:
   case tt_object_end:
   case tt_array_end:
-	if (features_.allow_dropped_null_placeholders_) {
-	  // "Un-read" the current token and mark the current value as a null
-	  // token.
-	  current_--;
-	  value v;
-	  current_value().swap_payload(v);
-	  current_value().set_offset_start(current_ - begin_ - 1);
-	  current_value().set_offset_limit(current_ - begin_);
-	  break;
-	} // else, fall through ...
+    if (features_.allow_dropped_null_placeholders_) {
+      // "Un-read" the current token and mark the current value as a null
+      // token.
+      current_--;
+      value v;
+      current_value().swap_payload(v);
+      current_value().set_offset_start(current_ - begin_ - 1);
+      current_value().set_offset_limit(current_ - begin_);
+      break;
+    } // else, fall through ...
   default:
-	current_value().set_offset_start(token.start_ - begin_);
-	current_value().set_offset_limit(token.end_ - begin_);
-	return add_error("Syntax error: value, object or array expected.", token);
+    current_value().set_offset_start(token.start_ - begin_);
+    current_value().set_offset_limit(token.end_ - begin_);
+    return add_error("Syntax error: value, object or array expected.", token);
   }
 
   if (collect_comments_) {
-	last_value_end_ = current_;
-	last_value_ = &current_value();
+    last_value_end_ = current_;
+    last_value_ = &current_value();
   }
 
   --stack_depth_;
@@ -1178,11 +1176,11 @@ bool our_reader::read_value() {
 
 void our_reader::skip_comment_tokens(token& token) {
   if (features_.allow_comments_) {
-	do {
-	  read_token(token);
-	} while (token.type_ == tt_comment);
+    do {
+      read_token(token);
+    } while (token.type_ == tt_comment);
   } else {
-	read_token(token);
+    read_token(token);
   }
 }
 
@@ -1193,31 +1191,31 @@ bool our_reader::read_token(token& token) {
   bool ok = true;
   switch (c) {
   case '{':
-	token.type_ = tt_object_begin;
-	break;
+    token.type_ = tt_object_begin;
+    break;
   case '}':
-	token.type_ = tt_object_end;
-	break;
+    token.type_ = tt_object_end;
+    break;
   case '[':
-	token.type_ = tt_array_begin;
-	break;
+    token.type_ = tt_array_begin;
+    break;
   case ']':
-	token.type_ = tt_array_end;
-	break;
+    token.type_ = tt_array_end;
+    break;
   case '"':
-	token.type_ = tt_string;
-	ok = read_string();
-	break;
+    token.type_ = tt_string;
+    ok = read_string();
+    break;
   case '\'':
-	if (features_.allow_single_quotes_) {
-	token.type_ = tt_string;
-	ok = readStringSingleQuote();
-	break;
-	} // else continue
+    if (features_.allow_single_quotes_) {
+    token.type_ = tt_string;
+    ok = readStringSingleQuote();
+    break;
+    } // else continue
   case '/':
-	token.type_ = tt_comment;
-	ok = read_comment();
-	break;
+    token.type_ = tt_comment;
+    ok = read_comment();
+    break;
   case '0':
   case '1':
   case '2':
@@ -1229,57 +1227,57 @@ bool our_reader::read_token(token& token) {
   case '8':
   case '9':
   case '-':
-	token.type_ = tt_number;
-	read_number();
-	break;
+    token.type_ = tt_number;
+    read_number();
+    break;
   case 't':
-	token.type_ = tt_true;
-	ok = match("rue", 3);
-	break;
+    token.type_ = tt_true;
+    ok = match("rue", 3);
+    break;
   case 'f':
-	token.type_ = tt_false;
-	ok = match("alse", 4);
-	break;
+    token.type_ = tt_false;
+    ok = match("alse", 4);
+    break;
   case 'n':
-	token.type_ = tt_null;
-	ok = match("ull", 3);
-	break;
+    token.type_ = tt_null;
+    ok = match("ull", 3);
+    break;
   case ',':
-	token.type_ = tt_array_separator;
-	break;
+    token.type_ = tt_array_separator;
+    break;
   case ':':
-	token.type_ = tt_member_separator;
-	break;
+    token.type_ = tt_member_separator;
+    break;
   case 0:
-	token.type_ = tt_end_of_stream;
-	break;
+    token.type_ = tt_end_of_stream;
+    break;
   default:
-	ok = false;
-	break;
+    ok = false;
+    break;
   }
   if (!ok)
-	token.type_ = tt_error;
+    token.type_ = tt_error;
   token.end_ = current_;
   return true;
 }
 
 void our_reader::skip_spaces() {
   while (current_ != end_) {
-	char c = *current_;
-	if (c == ' ' || c == '\t' || c == '\r' || c == '\n')
-	  ++current_;
-	else
-	  break;
+    char c = *current_;
+    if (c == ' ' || c == '\t' || c == '\r' || c == '\n')
+      ++current_;
+    else
+      break;
   }
 }
 
 bool our_reader::match(location_t pattern, int pattern_length) {
   if (end_ - current_ < pattern_length)
-	return false;
+    return false;
   int index = pattern_length;
   while (index--)
-	if (current_[index] != pattern[index])
-	  return false;
+    if (current_[index] != pattern[index])
+      return false;
   current_ += pattern_length;
   return true;
 }
@@ -1289,20 +1287,20 @@ bool our_reader::read_comment() {
   char c = get_next_char();
   bool successful = false;
   if (c == '*')
-	successful = read_c_style_comment();
+    successful = read_c_style_comment();
   else if (c == '/')
-	successful = read_cpp_style_comment();
+    successful = read_cpp_style_comment();
   if (!successful)
-	return false;
+    return false;
 
   if (collect_comments_) {
-	comment_placement placement = comment_before;
-	if (last_value_end_ && !contains_new_line(last_value_end_, commentBegin)) {
-	  if (c != '*' || !contains_new_line(commentBegin, current_))
-		placement = comment_after_on_same_line;
-	}
+    comment_placement placement = comment_before;
+    if (last_value_end_ && !contains_new_line(last_value_end_, commentBegin)) {
+      if (c != '*' || !contains_new_line(commentBegin, current_))
+        placement = comment_after_on_same_line;
+    }
 
-	add_comment(commentBegin, current_, placement);
+    add_comment(commentBegin, current_, placement);
   }
   return true;
 }
@@ -1312,34 +1310,34 @@ our_reader::add_comment(location_t begin, location_t end, comment_placement plac
   assert(collect_comments_);
   std::string const & normalized = normalize_eol(begin, end);
   if (placement == comment_after_on_same_line) {
-	assert(last_value_ != 0);
-	last_value_->set_comment(normalized, placement);
+    assert(last_value_ != 0);
+    last_value_->set_comment(normalized, placement);
   } else {
-	comments_before_ += normalized;
+    comments_before_ += normalized;
   }
 }
 
 bool our_reader::read_c_style_comment() {
   while (current_ != end_) {
-	char c = get_next_char();
-	if (c == '*' && *current_ == '/')
-	  break;
+    char c = get_next_char();
+    if (c == '*' && *current_ == '/')
+      break;
   }
   return get_next_char() == '/';
 }
 
 bool our_reader::read_cpp_style_comment() {
   while (current_ != end_) {
-	char c = get_next_char();
-	if (c == '\n')
-	  break;
-	if (c == '\r') {
-	  // Consume DOS EOL. It will be normalized in add_comment.
-	  if (current_ != end_ && *current_ == '\n')
-		get_next_char();
-	  // Break on Moc OS 9 EOL.
-	  break;
-	}
+    char c = get_next_char();
+    if (c == '\n')
+      break;
+    if (c == '\r') {
+      // Consume DOS EOL. It will be normalized in add_comment.
+      if (current_ != end_ && *current_ == '\n')
+        get_next_char();
+      // Break on Moc OS 9 EOL.
+      break;
+    }
   }
   return true;
 }
@@ -1349,30 +1347,30 @@ void our_reader::read_number() {
   char c = '0'; // stopgap for already consumed character
   // integral part
   while (c >= '0' && c <= '9')
-	c = (current_ = p) < end_ ? *p++ : 0;
+    c = (current_ = p) < end_ ? *p++ : 0;
   // fractional part
   if (c == '.') {
-	c = (current_ = p) < end_ ? *p++ : 0;
-	while (c >= '0' && c <= '9')
-	  c = (current_ = p) < end_ ? *p++ : 0;
+    c = (current_ = p) < end_ ? *p++ : 0;
+    while (c >= '0' && c <= '9')
+      c = (current_ = p) < end_ ? *p++ : 0;
   }
   // exponential part
   if (c == 'e' || c == 'E') {
-	c = (current_ = p) < end_ ? *p++ : 0;
-	if (c == '+' || c == '-')
-	  c = (current_ = p) < end_ ? *p++ : 0;
-	while (c >= '0' && c <= '9')
-	  c = (current_ = p) < end_ ? *p++ : 0;
+    c = (current_ = p) < end_ ? *p++ : 0;
+    if (c == '+' || c == '-')
+      c = (current_ = p) < end_ ? *p++ : 0;
+    while (c >= '0' && c <= '9')
+      c = (current_ = p) < end_ ? *p++ : 0;
   }
 }
 bool our_reader::read_string() {
   char c = 0;
   while (current_ != end_) {
-	c = get_next_char();
-	if (c == '\\')
-	  get_next_char();
-	else if (c == '"')
-	  break;
+    c = get_next_char();
+    if (c == '\\')
+      get_next_char();
+    else if (c == '"')
+      break;
   }
   return c == '"';
 }
@@ -1381,11 +1379,11 @@ bool our_reader::read_string() {
 bool our_reader::readStringSingleQuote() {
   char c = 0;
   while (current_ != end_) {
-	c = get_next_char();
-	if (c == '\\')
-	  get_next_char();
-	else if (c == '\'')
-	  break;
+    c = get_next_char();
+    if (c == '\\')
+      get_next_char();
+    else if (c == '\'')
+      break;
   }
   return c == '\'';
 }
@@ -1397,59 +1395,59 @@ bool our_reader::read_object(token& tokenStart) {
   current_value().swap_payload(init);
   current_value().set_offset_start(tokenStart.start_ - begin_);
   while (read_token(tokenName)) {
-	bool initialTokenOk = true;
-	while (tokenName.type_ == tt_comment && initialTokenOk)
-	  initialTokenOk = read_token(tokenName);
-	if (!initialTokenOk)
-	  break;
-	if (tokenName.type_ == tt_object_end && name.empty()) // empty object
-	  return true;
-	name = "";
-	if (tokenName.type_ == tt_string) {
-	  if (!decode_string(tokenName, name))
-		return recover_from_error(tt_object_end);
-	} else if (tokenName.type_ == tt_number && features_.allow_numeric_keys_) {
-	  value numberName;
-	  if (!decode_number(tokenName, numberName))
-		return recover_from_error(tt_object_end);
-	  name = numberName.as_string();
-	} else {
-	  break;
-	}
+    bool initialTokenOk = true;
+    while (tokenName.type_ == tt_comment && initialTokenOk)
+      initialTokenOk = read_token(tokenName);
+    if (!initialTokenOk)
+      break;
+    if (tokenName.type_ == tt_object_end && name.empty()) // empty object
+      return true;
+    name = "";
+    if (tokenName.type_ == tt_string) {
+      if (!decode_string(tokenName, name))
+        return recover_from_error(tt_object_end);
+    } else if (tokenName.type_ == tt_number && features_.allow_numeric_keys_) {
+      value numberName;
+      if (!decode_number(tokenName, numberName))
+        return recover_from_error(tt_object_end);
+      name = numberName.as_string();
+    } else {
+      break;
+    }
 
-	token colon;
-	if (!read_token(colon) || colon.type_ != tt_member_separator) {
-	  return add_error_and_recover(
-		  "Missing ':' after object member name", colon, tt_object_end);
-	}
-	if (name.length() >= (1U<<30)) throw_runtime_error("keylength >= 2^30");
-	if (features_.reject_dup_keys_ && current_value().is_member(name)) {
-	  std::string msg = "Duplicate key: '" + name + "'";
-	  return add_error_and_recover(
-		  msg, tokenName, tt_object_end);
-	}
-	value& value = current_value()[name];
-	nodes_.push(&value);
-	bool ok = read_value();
-	nodes_.pop();
-	if (!ok) // error already set
-	  return recover_from_error(tt_object_end);
+    token colon;
+    if (!read_token(colon) || colon.type_ != tt_member_separator) {
+      return add_error_and_recover(
+          "Missing ':' after object member name", colon, tt_object_end);
+    }
+    if (name.length() >= (1U<<30)) throw_runtime_error("keylength >= 2^30");
+    if (features_.reject_dup_keys_ && current_value().is_member(name)) {
+      std::string msg = "Duplicate key: '" + name + "'";
+      return add_error_and_recover(
+          msg, tokenName, tt_object_end);
+    }
+    value& value = current_value()[name];
+    nodes_.push(&value);
+    bool ok = read_value();
+    nodes_.pop();
+    if (!ok) // error already set
+      return recover_from_error(tt_object_end);
 
-	token comma;
-	if (!read_token(comma) ||
-		(comma.type_ != tt_object_end && comma.type_ != tt_array_separator &&
-		 comma.type_ != tt_comment)) {
-	  return add_error_and_recover(
-		  "Missing ',' or '}' in object declaration", comma, tt_object_end);
-	}
-	bool finalizeTokenOk = true;
-	while (comma.type_ == tt_comment && finalizeTokenOk)
-	  finalizeTokenOk = read_token(comma);
-	if (comma.type_ == tt_object_end)
-	  return true;
+    token comma;
+    if (!read_token(comma) ||
+        (comma.type_ != tt_object_end && comma.type_ != tt_array_separator &&
+         comma.type_ != tt_comment)) {
+      return add_error_and_recover(
+          "Missing ',' or '}' in object declaration", comma, tt_object_end);
+    }
+    bool finalizeTokenOk = true;
+    while (comma.type_ == tt_comment && finalizeTokenOk)
+      finalizeTokenOk = read_token(comma);
+    if (comma.type_ == tt_object_end)
+      return true;
   }
   return add_error_and_recover(
-	  "Missing '}' or object member name", tokenName, tt_object_end);
+      "Missing '}' or object member name", tokenName, tt_object_end);
 }
 
 bool our_reader::read_array(token& tokenStart) {
@@ -1459,33 +1457,33 @@ bool our_reader::read_array(token& tokenStart) {
   skip_spaces();
   if (*current_ == ']') // empty array
   {
-	token endArray;
-	read_token(endArray);
-	return true;
+    token endArray;
+    read_token(endArray);
+    return true;
   }
   int index = 0;
   for (;;) {
-	value& value = current_value()[index++];
-	nodes_.push(&value);
-	bool ok = read_value();
-	nodes_.pop();
-	if (!ok) // error already set
-	  return recover_from_error(tt_array_end);
+    value& value = current_value()[index++];
+    nodes_.push(&value);
+    bool ok = read_value();
+    nodes_.pop();
+    if (!ok) // error already set
+      return recover_from_error(tt_array_end);
 
-	token token;
-	// Accept Comment after last item in the array.
-	ok = read_token(token);
-	while (token.type_ == tt_comment && ok) {
-	  ok = read_token(token);
-	}
-	bool badTokenType =
-		(token.type_ != tt_array_separator && token.type_ != tt_array_end);
-	if (!ok || badTokenType) {
-	  return add_error_and_recover(
-		  "Missing ',' or ']' in array declaration", token, tt_array_end);
-	}
-	if (token.type_ == tt_array_end)
-	  break;
+    token token;
+    // Accept Comment after last item in the array.
+    ok = read_token(token);
+    while (token.type_ == tt_comment && ok) {
+      ok = read_token(token);
+    }
+    bool badTokenType =
+        (token.type_ != tt_array_separator && token.type_ != tt_array_end);
+    if (!ok || badTokenType) {
+      return add_error_and_recover(
+          "Missing ',' or ']' in array declaration", token, tt_array_end);
+    }
+    if (token.type_ == tt_array_end)
+      break;
   }
   return true;
 }
@@ -1493,7 +1491,7 @@ bool our_reader::read_array(token& tokenStart) {
 bool our_reader::decode_number(token& token) {
   value decoded;
   if (!decode_number(token, decoded))
-	return false;
+    return false;
   current_value().swap_payload(decoded);
   current_value().set_offset_start(token.start_ - begin_);
   current_value().set_offset_limit(token.end_ - begin_);
@@ -1507,43 +1505,43 @@ bool our_reader::decode_number(token& token, value& decoded) {
   location_t current = token.start_;
   bool isNegative = *current == '-';
   if (isNegative)
-	++current;
+    ++current;
   // TODO: Help the compiler do the div and mod at compile time or get rid of them.
   value::largest_uint_t maxIntegerValue =
-	  isNegative ? value::largest_uint_t(-value::min_largest_int)
-				 : value::max_largest_uint;
+      isNegative ? value::largest_uint_t(-value::min_largest_int)
+                 : value::max_largest_uint;
   value::largest_uint_t threshold = maxIntegerValue / 10;
   value::largest_uint_t value = 0;
   while (current < token.end_) {
-	char c = *current++;
-	if (c < '0' || c > '9')
-	  return decode_double(token, decoded);
-	uint32_t digit(c - '0');
-	if (value >= threshold) {
-	  // We've hit or exceeded the max value divided by 10 (rounded down). If
-	  // a) we've only just touched the limit, b) this is the last digit, and
-	  // c) it's small enough to fit in that rounding delta, we're okay.
-	  // Otherwise treat this number as a double to avoid overflow.
-	  if (value > threshold || current != token.end_ ||
-		  digit > maxIntegerValue % 10) {
-		return decode_double(token, decoded);
-	  }
-	}
-	value = value * 10 + digit;
+    char c = *current++;
+    if (c < '0' || c > '9')
+      return decode_double(token, decoded);
+    uint32_t digit(c - '0');
+    if (value >= threshold) {
+      // We've hit or exceeded the max value divided by 10 (rounded down). If
+      // a) we've only just touched the limit, b) this is the last digit, and
+      // c) it's small enough to fit in that rounding delta, we're okay.
+      // Otherwise treat this number as a double to avoid overflow.
+      if (value > threshold || current != token.end_ ||
+          digit > maxIntegerValue % 10) {
+        return decode_double(token, decoded);
+      }
+    }
+    value = value * 10 + digit;
   }
   if (isNegative)
-	decoded = -value::largest_int_t(value);
+    decoded = -value::largest_int_t(value);
   else if (value <= value::largest_uint_t(value::max_int))
-	decoded = value::largest_int_t(value);
+    decoded = value::largest_int_t(value);
   else
-	decoded = value;
+    decoded = value;
   return true;
 }
 
 bool our_reader::decode_double(token& token) {
   value decoded;
   if (!decode_double(token, decoded))
-	return false;
+    return false;
   current_value().swap_payload(decoded);
   current_value().set_offset_start(token.start_ - begin_);
   current_value().set_offset_limit(token.end_ - begin_);
@@ -1558,7 +1556,7 @@ bool our_reader::decode_double(token& token, value& decoded) {
 
   // Sanity check to avoid buffer overflow exploits.
   if (length < 0) {
-	return add_error("Unable to parse token length", token);
+    return add_error("Unable to parse token length", token);
   }
 
   // Avoid using a string constant for the format control string given to
@@ -1569,19 +1567,19 @@ bool our_reader::decode_double(token& token, value& decoded) {
   char format[] = "%lf";
 
   if (length <= bufferSize) {
-	char buffer[bufferSize + 1];
-	memcpy(buffer, token.start_, length);
-	buffer[length] = 0;
-	count = sscanf(buffer, format, &value);
+    char buffer[bufferSize + 1];
+    memcpy(buffer, token.start_, length);
+    buffer[length] = 0;
+    count = sscanf(buffer, format, &value);
   } else {
-	std::string buffer(token.start_, token.end_);
-	count = sscanf(buffer.c_str(), format, &value);
+    std::string buffer(token.start_, token.end_);
+    count = sscanf(buffer.c_str(), format, &value);
   }
 
   if (count != 1)
-	return add_error("'" + std::string(token.start_, token.end_) +
-						"' is not a number.",
-					token);
+    return add_error("'" + std::string(token.start_, token.end_) +
+                        "' is not a number.",
+                    token);
   decoded = value;
   return true;
 }
@@ -1589,7 +1587,7 @@ bool our_reader::decode_double(token& token, value& decoded) {
 bool our_reader::decode_string(token& token) {
   std::string decoded_string;
   if (!decode_string(token, decoded_string))
-	return false;
+    return false;
   value decoded(decoded_string);
   current_value().swap_payload(decoded);
   current_value().set_offset_start(token.start_ - begin_);
@@ -1602,107 +1600,107 @@ bool our_reader::decode_string(token& token, std::string& decoded) {
   location_t current = token.start_ + 1; // skip '"'
   location_t end = token.end_ - 1;       // do not include '"'
   while (current != end) {
-	char c = *current++;
-	if (c == '"')
-	  break;
-	else if (c == '\\') {
-	  if (current == end)
-		return add_error("Empty escape sequence in string", token, current);
-	  char escape = *current++;
-	  switch (escape) {
-	  case '"':
-		decoded += '"';
-		break;
-	  case '/':
-		decoded += '/';
-		break;
-	  case '\\':
-		decoded += '\\';
-		break;
-	  case 'b':
-		decoded += '\b';
-		break;
-	  case 'f':
-		decoded += '\f';
-		break;
-	  case 'n':
-		decoded += '\n';
-		break;
-	  case 'r':
-		decoded += '\r';
-		break;
-	  case 't':
-		decoded += '\t';
-		break;
-	  case 'u': {
-		unsigned int unicode;
-		if (!decode_unicode_codepoint(token, current, end, unicode))
-		  return false;
-		decoded += codePointToUTF8(unicode);
-	  } break;
-	  default:
-		return add_error("Bad escape sequence in string", token, current);
-	  }
-	} else {
-	  decoded += c;
-	}
+    char c = *current++;
+    if (c == '"')
+      break;
+    else if (c == '\\') {
+      if (current == end)
+        return add_error("Empty escape sequence in string", token, current);
+      char escape = *current++;
+      switch (escape) {
+      case '"':
+        decoded += '"';
+        break;
+      case '/':
+        decoded += '/';
+        break;
+      case '\\':
+        decoded += '\\';
+        break;
+      case 'b':
+        decoded += '\b';
+        break;
+      case 'f':
+        decoded += '\f';
+        break;
+      case 'n':
+        decoded += '\n';
+        break;
+      case 'r':
+        decoded += '\r';
+        break;
+      case 't':
+        decoded += '\t';
+        break;
+      case 'u': {
+        unsigned int unicode;
+        if (!decode_unicode_codepoint(token, current, end, unicode))
+          return false;
+        decoded += codePointToUTF8(unicode);
+      } break;
+      default:
+        return add_error("Bad escape sequence in string", token, current);
+      }
+    } else {
+      decoded += c;
+    }
   }
   return true;
 }
 
 bool our_reader::decode_unicode_codepoint(token& token,
-									location_t& current,
-									location_t end,
-									unsigned int& unicode) {
+                                    location_t& current,
+                                    location_t end,
+                                    unsigned int& unicode) {
 
   if (!decode_unicode_escape_sequence(token, current, end, unicode))
-	return false;
+    return false;
   if (unicode >= 0xD800 && unicode <= 0xDBFF) {
-	// surrogate pairs
-	if (end - current < 6)
-	  return add_error(
-		  "additional six characters expected to parse unicode surrogate pair.",
-		  token,
-		  current);
-	unsigned int surrogatePair;
-	if (*(current++) == '\\' && *(current++) == 'u') {
-	  if (decode_unicode_escape_sequence(token, current, end, surrogatePair)) {
-		unicode = 0x10000 + ((unicode & 0x3FF) << 10) + (surrogatePair & 0x3FF);
-	  } else
-		return false;
-	} else
-	  return add_error("expecting another \\u token to begin the second half of "
-					  "a unicode surrogate pair",
-					  token,
-					  current);
+    // surrogate pairs
+    if (end - current < 6)
+      return add_error(
+          "additional six characters expected to parse unicode surrogate pair.",
+          token,
+          current);
+    unsigned int surrogatePair;
+    if (*(current++) == '\\' && *(current++) == 'u') {
+      if (decode_unicode_escape_sequence(token, current, end, surrogatePair)) {
+        unicode = 0x10000 + ((unicode & 0x3FF) << 10) + (surrogatePair & 0x3FF);
+      } else
+        return false;
+    } else
+      return add_error("expecting another \\u token to begin the second half of "
+                      "a unicode surrogate pair",
+                      token,
+                      current);
   }
   return true;
 }
 
 bool our_reader::decode_unicode_escape_sequence(token& token,
-										 location_t& current,
-										 location_t end,
-										 unsigned int& unicode) {
+                                         location_t& current,
+                                         location_t end,
+                                         unsigned int& unicode) {
   if (end - current < 4)
-	return add_error(
-		"Bad unicode escape sequence in string: four digits expected.",
-		token,
-		current);
+    return add_error(
+        "Bad unicode escape sequence in string: four digits expected.",
+        token,
+        current);
   unicode = 0;
   for (int index = 0; index < 4; ++index) {
-	char c = *current++;
-	unicode *= 16;
-	if (c >= '0' && c <= '9')
-	  unicode += c - '0';
-	else if (c >= 'a' && c <= 'f')
-	  unicode += c - 'a' + 10;
-	else if (c >= 'A' && c <= 'F')
-	  unicode += c - 'A' + 10;
-	else
-	  return add_error(
-		  "Bad unicode escape sequence in string: hexadecimal digit expected.",
-		  token,
-		  current);
+    char c = *current++;
+    unicode *= 16;
+    if (c >= '0' && c <= '9')
+      unicode += c - '0';
+    else if (c >= 'a' && c <= 'f')
+      unicode += c - 'a' + 10;
+    else if (c >= 'A' && c <= 'F')
+      unicode += c - 'A' + 10;
+    else
+      return add_error(
+          "Bad unicode escape sequence in string: hexadecimal digit expected.",
+          token,
+          current);
   }
   return true;
 }
@@ -1721,18 +1719,18 @@ bool our_reader::recover_from_error(token_type skip_until_token) {
   int error_count = int(errors_.size());
   token skip;
   for (;;) {
-	if (!read_token(skip))
-	  errors_.resize(error_count); // discard errors caused by recovery
-	if (skip.type_ == skip_until_token || skip.type_ == tt_end_of_stream)
-	  break;
+    if (!read_token(skip))
+      errors_.resize(error_count); // discard errors caused by recovery
+    if (skip.type_ == skip_until_token || skip.type_ == tt_end_of_stream)
+      break;
   }
   errors_.resize(error_count);
   return false;
 }
 
 bool our_reader::add_error_and_recover(std::string const & message,
-								token& token,
-								token_type skip_until_token) {
+                                token& token,
+                                token_type skip_until_token) {
   add_error(message, token);
   return recover_from_error(skip_until_token);
 }
@@ -1741,27 +1739,27 @@ value& our_reader::current_value() { return *(nodes_.top()); }
 
 char our_reader::get_next_char() {
   if (current_ == end_)
-	return 0;
+    return 0;
   return *current_++;
 }
 
 void our_reader::get_location_line_and_column(location_t location,
-									  int& line,
-									  int& column) const {
+                                      int& line,
+                                      int& column) const {
   location_t current = begin_;
   location_t last_line_start = current;
   line = 0;
   while (current < location && current != end_) {
-	char c = *current++;
-	if (c == '\r') {
-	  if (*current == '\n')
-		++current;
-	  last_line_start = current;
-	  ++line;
-	} else if (c == '\n') {
-	  last_line_start = current;
-	  ++line;
-	}
+    char c = *current++;
+    if (c == '\r') {
+      if (*current == '\n')
+        ++current;
+      last_line_start = current;
+      ++line;
+    } else if (c == '\n') {
+      last_line_start = current;
+      ++line;
+    }
   }
   // column & line start at 1
   column = int(location - last_line_start) + 1;
@@ -1787,15 +1785,15 @@ std::string our_reader::get_location_line_and_column(location_t location) const 
 std::string our_reader::get_formatted_messages() const {
   std::string formattedMessage;
   for (errors::const_iterator itError = errors_.begin();
-	   itError != errors_.end();
-	   ++itError) {
-	const ErrorInfo& error = *itError;
-	formattedMessage +=
-		"* " + get_location_line_and_column(error.token_.start_) + "\n";
-	formattedMessage += "  " + error.message_ + "\n";
-	if (error.extra_)
-	  formattedMessage +=
-		  "See " + get_location_line_and_column(error.extra_) + " for detail.\n";
+       itError != errors_.end();
+       ++itError) {
+    const ErrorInfo& error = *itError;
+    formattedMessage +=
+        "* " + get_location_line_and_column(error.token_.start_) + "\n";
+    formattedMessage += "  " + error.message_ + "\n";
+    if (error.extra_)
+      formattedMessage +=
+          "See " + get_location_line_and_column(error.extra_) + " for detail.\n";
   }
   return formattedMessage;
 }
@@ -1803,14 +1801,14 @@ std::string our_reader::get_formatted_messages() const {
 std::vector<our_reader::structured_error> our_reader::get_structured_errors() const {
   std::vector<our_reader::structured_error> allErrors;
   for (errors::const_iterator itError = errors_.begin();
-	   itError != errors_.end();
-	   ++itError) {
-	const ErrorInfo& error = *itError;
-	our_reader::structured_error structured;
-	structured.offset_start = error.token_.start_ - begin_;
-	structured.offset_limit = error.token_.end_ - begin_;
-	structured.message = error.message_;
-	allErrors.push_back(structured);
+       itError != errors_.end();
+       ++itError) {
+    const ErrorInfo& error = *itError;
+    our_reader::structured_error structured;
+    structured.offset_start = error.token_.start_ - begin_;
+    structured.offset_limit = error.token_.end_ - begin_;
+    structured.message = error.message_;
+    allErrors.push_back(structured);
   }
   return allErrors;
 }
@@ -1818,8 +1816,8 @@ std::vector<our_reader::structured_error> our_reader::get_structured_errors() co
 bool our_reader::push_error(value const & value, std::string const & message) {
   size_t length = end_ - begin_;
   if(value.get_offset_start() > length
-	|| value.get_offset_limit() > length)
-	return false;
+    || value.get_offset_limit() > length)
+    return false;
   token token;
   token.type_ = tt_error;
   token.start_ = begin_ + value.get_offset_start();
@@ -1835,9 +1833,9 @@ bool our_reader::push_error(value const & value, std::string const & message) {
 bool our_reader::push_error(class value const & value, std::string const & message, class value const & extra) {
   size_t length = end_ - begin_;
   if(value.get_offset_start() > length
-	|| value.get_offset_limit() > length
-	|| extra.get_offset_limit() > length)
-	return false;
+    || value.get_offset_limit() > length
+    || extra.get_offset_limit() > length)
+    return false;
   token token;
   token.type_ = tt_error;
   token.start_ = begin_ + value.get_offset_start();
@@ -1860,19 +1858,19 @@ class OurCharReader : public char_reader {
   our_reader reader_;
 public:
   OurCharReader(
-	bool collect_comments,
-	our_features const& features)
+    bool collect_comments,
+    our_features const& features)
   : collect_comments_(collect_comments)
   , reader_(features)
   {}
   virtual bool parse(
-	  char const* begin_doc, char const* end_doc,
-	  value* root, std::string* errs) {
-	bool ok = reader_.parse(begin_doc, end_doc, *root, collect_comments_);
-	if (errs) {
-	  *errs = reader_.get_formatted_messages();
-	}
-	return ok;
+      char const* begin_doc, char const* end_doc,
+      value* root, std::string* errs) {
+    bool ok = reader_.parse(begin_doc, end_doc, *root, collect_comments_);
+    if (errs) {
+      *errs = reader_.get_formatted_messages();
+    }
+    return ok;
   }
 };
 
@@ -1919,10 +1917,10 @@ bool char_reader_builder::validate(json::value* invalid) const
   value::Members keys = settings_.get_member_names();
   size_t n = keys.size();
   for (size_t i = 0; i < n; ++i) {
-	std::string const& key = keys[i];
-	if (valid_keys.find(key) == valid_keys.end()) {
-	  inv[key] = settings_[key];
-	}
+    std::string const& key = keys[i];
+    if (valid_keys.find(key) == valid_keys.end()) {
+      inv[key] = settings_[key];
+    }
   }
   return 0u == inv.size();
 }
@@ -1963,8 +1961,8 @@ void char_reader_builder::setDefaults(json::value* settings)
 // global functions
 
 bool parseFromStream(
-	char_reader::factory const& fact, std::istream& sin,
-	value* root, std::string* errs)
+    char_reader::factory const& fact, std::istream& sin,
+    value* root, std::string* errs)
 {
   std::ostringstream ssin;
   ssin << sin.rdbuf();
@@ -1981,11 +1979,11 @@ std::istream& operator>>(std::istream& sin, value& root) {
   std::string errs;
   bool ok = parseFromStream(b, sin, &root, &errs);
   if (!ok) {
-	fprintf(stderr,
-			"Error from reader: %s",
-			errs.c_str());
+    fprintf(stderr,
+            "Error from reader: %s",
+            errs.c_str());
 
-	throw_runtime_error("reader error");
+    throw_runtime_error("reader error");
   }
   return sin;
 }

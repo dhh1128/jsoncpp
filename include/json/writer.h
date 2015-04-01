@@ -4,9 +4,7 @@
 #ifndef _76c97a5fdc4e4f86a21a72493ef2ab89
 #define _76c97a5fdc4e4f86a21a72493ef2ab89
 
-#if !defined(JSON_IS_AMALGAMATION)
 #include "value.h"
-#endif // if !defined(JSON_IS_AMALGAMATION)
 #include <vector>
 #include <string>
 #include <ostream>
@@ -28,10 +26,10 @@ Usage:
 \code
   using namespace json;
   void writeToStdout(stream_writer::factory const& factory, value const& value) {
-	std::unique_ptr<stream_writer> const writer(
-	  factory.newStreamWriter());
-	writer->write(value, &std::cout);
-	std::cout << std::endl;  // add lf and flush
+    std::unique_ptr<stream_writer> const writer(
+      factory.newStreamWriter());
+    writer->write(value, &std::cout);
+    std::cout << std::endl;  // add lf and flush
   }
 \endcode
 */
@@ -42,10 +40,10 @@ public:
   stream_writer();
   virtual ~stream_writer();
   /** Write value into document as configured in sub-class.
-	  Do not take ownership of sout, but maintain a reference during function.
-	  \pre sout != NULL
-	  \return zero on success (For now, we always return zero, so check the stream instead.)
-	  \throw std::exception possibly, depending on configuration
+      Do not take ownership of sout, but maintain a reference during function.
+      \pre sout != NULL
+      \return zero on success (For now, we always return zero, so check the stream instead.)
+      \throw std::exception possibly, depending on configuration
    */
   virtual int write(value const& root, std::ostream* sout) = 0;
 
@@ -53,11 +51,11 @@ public:
    */
   class JSON_API factory {
   public:
-	virtual ~factory();
-	/** \brief Allocate a char_reader via operator new().
-	 * \throw std::exception if something goes wrong (e.g. invalid settings)
-	 */
-	virtual stream_writer* newStreamWriter() const = 0;
+    virtual ~factory();
+    /** \brief Allocate a char_reader via operator new().
+     * \throw std::exception if something goes wrong (e.g. invalid settings)
+     */
+    virtual stream_writer* newStreamWriter() const = 0;
   };  // factory
 };  // stream_writer
 
@@ -77,7 +75,7 @@ Usage:
   builder["commentStyle"] = "None";
   builder["indentation"] = "   ";  // or whatever you like
   std::unique_ptr<json::stream_writer> writer(
-	  builder.newStreamWriter());
+      builder.newStreamWriter());
   writer->write(value, &std::cout);
   std::cout << std::endl;  // add lf and flush
 \endcode
@@ -87,22 +85,22 @@ public:
   // Note: We use a json::value so that we can add data-members to this class
   // without a major version bump.
   /** Configuration of this builder.
-	Available settings (case-sensitive):
-	- "commentStyle": "None" or "All"
-	- "indentation":  "<anything>"
-	- "enableYAMLCompatibility": false or true
-	  - slightly change the whitespace around colons
-	- "dropNullPlaceholders": false or true
-	  - Drop the "null" string from the writer's output for nullValues.
-		Strictly speaking, this is not valid JSON. But when the output is being
-		fed to a browser's Javascript, it makes for smaller output and the
-		browser can handle the output just fine.
+    Available settings (case-sensitive):
+    - "commentStyle": "None" or "All"
+    - "indentation":  "<anything>"
+    - "enableYAMLCompatibility": false or true
+      - slightly change the whitespace around colons
+    - "dropNullPlaceholders": false or true
+      - Drop the "null" string from the writer's output for nullValues.
+        Strictly speaking, this is not valid JSON. But when the output is being
+        fed to a browser's Javascript, it makes for smaller output and the
+        browser can handle the output just fine.
 
-	You can examine 'settings_` yourself
-	to see the defaults. You can also write and read them just like any
-	JSON value.
-	\sa setDefaults()
-	*/
+    You can examine 'settings_` yourself
+    to see the defaults. You can also write and read them just like any
+    JSON value.
+    \sa setDefaults()
+    */
   json::value settings_;
 
   stream_writer_builder();
@@ -239,7 +237,7 @@ private:
 
 /** \brief Writes a value in <a HREF="http://www.json.org">JSON</a> format in a
  human friendly way,
-	 to a stream rather than to a string.
+     to a stream rather than to a string.
  *
  * The rules for line break and indent are as follow:
  * - Object value:
