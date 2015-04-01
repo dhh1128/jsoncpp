@@ -10,19 +10,24 @@
 #include "config.h"
 
 // @todo <= add detail about condition in exception
-# define JSON_ASSERT(condition)                                                \
-  {if (!(condition)) {json::throw_logic_error( "assert json failed" );}}
+#define JSON_ASSERT(condition)                             \
+    {                                                      \
+        if (!(condition)) {                                \
+            json::throw_logic_error("assert json failed"); \
+        }                                                  \
+    }
 
-# define JSON_FAIL_MESSAGE(message)                                            \
-  {                                                                            \
-    std::ostringstream oss; oss << message;                                    \
-    json::throw_logic_error(oss.str());                                          \
-    abort();                                                                   \
-  }
+#define JSON_FAIL_MESSAGE(message)          \
+    {                                       \
+        std::ostringstream oss;             \
+        oss << message;                     \
+        json::throw_logic_error(oss.str()); \
+        abort();                            \
+    }
 
-#define JSON_ASSERT_MESSAGE(condition, message)                                \
-  if (!(condition)) {                                                          \
-    JSON_FAIL_MESSAGE(message);                                                \
-  }
+#define JSON_ASSERT_MESSAGE(condition, message) \
+    if (!(condition)) {                         \
+        JSON_FAIL_MESSAGE(message);             \
+    }
 
 #endif // sentry

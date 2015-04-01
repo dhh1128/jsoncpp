@@ -7,18 +7,18 @@
 #include <cstdint>
 
 #if defined(JSON_DLL_BUILD)
-    #if defined(_MSC_VER)
-        #define JSON_API __declspec(dllexport)
-        #define JSONCPP_DISABLE_DLL_INTERFACE_WARNING
-    #endif // if defined(_MSC_VER)
+#if defined(_MSC_VER)
+#define JSON_API __declspec(dllexport)
+#define JSONCPP_DISABLE_DLL_INTERFACE_WARNING
+#endif // if defined(_MSC_VER)
 #elif defined(JSON_DLL)
-    #if defined(_MSC_VER)
-        #define JSON_API __declspec(dllimport)
-        #define JSONCPP_DISABLE_DLL_INTERFACE_WARNING
-    #endif // if defined(_MSC_VER)
+#if defined(_MSC_VER)
+#define JSON_API __declspec(dllimport)
+#define JSONCPP_DISABLE_DLL_INTERFACE_WARNING
+#endif // if defined(_MSC_VER)
 #endif
 #if !defined(JSON_API)
-    #define JSON_API
+#define JSON_API
 #endif
 
 // If JSON_NO_INT64 is defined, then json only support C++ "int" type for
@@ -42,12 +42,12 @@
 #define JSONCPP_DEPRECATED(message) __declspec(deprecated(message))
 #elif defined(__clang__) && defined(__has_feature)
 #if __has_feature(attribute_deprecated_with_message)
-#define JSONCPP_DEPRECATED(message)  __attribute__ ((deprecated(message)))
+#define JSONCPP_DEPRECATED(message) __attribute__((deprecated(message)))
 #endif
-#elif defined(__GNUC__) &&  (__GNUC__ > 4 || (__GNUC__ == 4 && __GNUC_MINOR__ >= 5))
-#define JSONCPP_DEPRECATED(message)  __attribute__ ((deprecated(message)))
-#elif defined(__GNUC__) &&  (__GNUC__ > 3 || (__GNUC__ == 3 && __GNUC_MINOR__ >= 1))
-#define JSONCPP_DEPRECATED(message)  __attribute__((__deprecated__))
+#elif defined(__GNUC__) && (__GNUC__ > 4 || (__GNUC__ == 4 && __GNUC_MINOR__ >= 5))
+#define JSONCPP_DEPRECATED(message) __attribute__((deprecated(message)))
+#elif defined(__GNUC__) && (__GNUC__ > 3 || (__GNUC__ == 3 && __GNUC_MINOR__ >= 1))
+#define JSONCPP_DEPRECATED(message) __attribute__((__deprecated__))
 #endif
 
 #if !defined(JSONCPP_DEPRECATED)
