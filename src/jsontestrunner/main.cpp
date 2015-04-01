@@ -18,7 +18,7 @@ struct options
   std::string path;
   json::features features;
   bool parse_only;
-  typedef std::string (*write_func)(json::value const&);
+  typedef std::string (*write_func)(json::value const &);
   write_func write;
 };
 
@@ -68,7 +68,7 @@ static std::string read_input_test_file(const char* path) {
 }
 
 static void
-print_value_tree(FILE* fout, json::value& value, std::string const & path = ".") {
+print_value_tree(FILE* fout, json::value & value, std::string const & path = ".") {
   if (value.has_comment(json::comment_before)) {
 	fprintf(fout, "%s\n", value.get_comment(json::comment_before).c_str());
   }
@@ -137,7 +137,7 @@ print_value_tree(FILE* fout, json::value& value, std::string const & path = ".")
 static int parseAndSaveValueTree(std::string const & input,
 								 std::string const & actual,
 								 std::string const & kind,
-								 const json::features& features,
+								 const json::features & features,
 								 bool parse_only,
 								 json::value* root)
 {
@@ -160,19 +160,19 @@ static int parseAndSaveValueTree(std::string const & input,
   }
   return 0;
 }
-// static std::string useFastWriter(json::value const& root) {
+// static std::string useFastWriter(json::value const & root) {
 //   json::fast_writer writer;
 //   writer.enableYAMLCompatibility();
 //   return writer.write(root);
 // }
 static std::string use_styled_writer(
-	json::value const& root)
+	json::value const & root)
 {
   json::styled_writer writer;
   return writer.write(root);
 }
 static std::string use_styled_stream_writer(
-	json::value const& root)
+	json::value const & root)
 {
   json::styled_stream_writer writer;
   std::ostringstream sout;
@@ -180,14 +180,14 @@ static std::string use_styled_stream_writer(
   return sout.str();
 }
 static std::string use_built_styled_stream_writer(
-	json::value const& root)
+	json::value const & root)
 {
   json::stream_writer_builder builder;
   return json::write_string(builder, root);
 }
 static int rewrite_value_tree(
 	std::string const & rewrite_path,
-	const json::value& root,
+	const json::value & root,
 	options::write_func write,
 	std::string* rewrite)
 {
@@ -266,7 +266,7 @@ static int parse_cmdline(
 }
 
 
-static int run_test(options const& opts)
+static int run_test(options const & opts)
 {
   int exitCode = 0;
 
@@ -318,7 +318,7 @@ int main(int argc, const char* argv[]) {
   try {
 	return run_test(opts);
   }
-  catch (const std::exception& e) {
+  catch (const std::exception & e) {
 	printf("Unhandled exception:\n%s\n", e.what());
 	return 1;
   }

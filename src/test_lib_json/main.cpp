@@ -83,16 +83,16 @@ struct ValueTest : JsonTest::TestCase {
     bool isNumeric_;
   };
 
-  void checkConstMemberCount(const json::value& value,
+  void checkConstMemberCount(const json::value & value,
                              unsigned int expectedCount);
 
-  void checkMemberCount(json::value& value, unsigned int expectedCount);
+  void checkMemberCount(json::value & value, unsigned int expectedCount);
 
-  void checkIs(const json::value& value, const IsCheck& check);
+  void checkIs(const json::value & value, const IsCheck & check);
 
-  void checkIsLess(const json::value& x, const json::value& y);
+  void checkIsLess(const json::value & x, const json::value & y);
 
-  void checkIsEqual(const json::value& x, const json::value& y);
+  void checkIsEqual(const json::value & x, const json::value & y);
 
   /// Normalize the representation of floating-point number by stripped leading
   /// 0 in exponent.
@@ -185,7 +185,7 @@ JSONTEST_FIXTURE(ValueTest, objects) {
   JSONTEST_ASSERT(!emptyObject_.is_convertible_to(json::vt_string));
 
   // Access through const reference
-  const json::value& constObject = object1_;
+  const json::value & constObject = object1_;
 
   JSONTEST_ASSERT_EQUAL(json::value(1234), constObject["id"]);
   JSONTEST_ASSERT_EQUAL(json::value(), constObject["unknown id"]);
@@ -239,7 +239,7 @@ JSONTEST_FIXTURE(ValueTest, arrays) {
   JSONTEST_ASSERT(!emptyArray_.is_convertible_to(json::vt_string));
 
   // Access through const reference
-  const json::value& constArray = array1_;
+  const json::value & constArray = array1_;
   JSONTEST_ASSERT_EQUAL(json::value(1234), constArray[index0]);
   JSONTEST_ASSERT_EQUAL(json::value(1234), constArray[0]);
 
@@ -1255,7 +1255,7 @@ JSONTEST_FIXTURE(ValueTest, nonIntegers) {
                                normalize_floating_point_str(val.as_string()));
 }
 
-void ValueTest::checkConstMemberCount(const json::value& value,
+void ValueTest::checkConstMemberCount(const json::value & value,
                                       unsigned int expectedCount) {
   unsigned int count = 0;
   json::value::const_iterator itEnd = value.end();
@@ -1265,7 +1265,7 @@ void ValueTest::checkConstMemberCount(const json::value& value,
   JSONTEST_ASSERT_EQUAL(expectedCount, count) << "json::value::const_iterator";
 }
 
-void ValueTest::checkMemberCount(json::value& value,
+void ValueTest::checkMemberCount(json::value & value,
                                  unsigned int expectedCount) {
   JSONTEST_ASSERT_EQUAL(expectedCount, value.size());
 
@@ -1285,7 +1285,7 @@ ValueTest::IsCheck::IsCheck()
       isUInt64_(false), isIntegral_(false), isDouble_(false),
       isNumeric_(false) {}
 
-void ValueTest::checkIs(const json::value& value, const IsCheck& check) {
+void ValueTest::checkIs(const json::value & value, const IsCheck & check) {
   JSONTEST_ASSERT_EQUAL(check.isObject_, value.is_object());
   JSONTEST_ASSERT_EQUAL(check.isArray_, value.is_array());
   JSONTEST_ASSERT_EQUAL(check.isBool_, value.is_bool());
@@ -1400,7 +1400,7 @@ JSONTEST_FIXTURE(ValueTest, compareType) {
                                    json::value(json::vt_object)));
 }
 
-void ValueTest::checkIsLess(const json::value& x, const json::value& y) {
+void ValueTest::checkIsLess(const json::value & x, const json::value & y) {
   JSONTEST_ASSERT(x < y);
   JSONTEST_ASSERT(y > x);
   JSONTEST_ASSERT(x <= y);
@@ -1415,7 +1415,7 @@ void ValueTest::checkIsLess(const json::value& x, const json::value& y) {
   JSONTEST_ASSERT(y.compare(x) >= 0);
 }
 
-void ValueTest::checkIsEqual(const json::value& x, const json::value& y) {
+void ValueTest::checkIsEqual(const json::value & x, const json::value & y) {
   JSONTEST_ASSERT(x == y);
   JSONTEST_ASSERT(y == x);
   JSONTEST_ASSERT(x <= y);

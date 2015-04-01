@@ -81,7 +81,7 @@ TestResult::TestResult()
 
 void TestResult::setTestName(std::string const & name) { name_ = name; }
 
-TestResult&
+TestResult &
 TestResult::addFailure(const char* file, unsigned int line, const char* expr) {
   /// Walks the PredicateContext stack adding them to failures_ if not already
   /// added.
@@ -120,7 +120,7 @@ void TestResult::addFailureInfo(const char* file,
   failures_.push_back(failure);
 }
 
-TestResult& TestResult::popPredicateContext() {
+TestResult & TestResult::popPredicateContext() {
   PredicateContext* lastNode = &rootPredicateNode_;
   while (lastNode->next_ != 0 && lastNode->next_->next_ != 0) {
     lastNode = lastNode->next_;
@@ -160,7 +160,7 @@ void TestResult::printFailure(bool printTestName) const {
   // Print in reverse to display the callstack in the right order
   Failures::const_iterator itEnd = failures_.end();
   for (Failures::const_iterator it = failures_.begin(); it != itEnd; ++it) {
-    const Failure& failure = *it;
+    const Failure & failure = *it;
     std::string indent(failure.nestingLevel_ * 2, ' ');
     if (failure.file_) {
       printf("%s%s(%d): ", indent.c_str(), failure.file_, failure.line_);
@@ -193,22 +193,22 @@ std::string TestResult::indentText(std::string const & text,
   return reindented;
 }
 
-TestResult& TestResult::addToLastFailure(std::string const & message) {
+TestResult & TestResult::addToLastFailure(std::string const & message) {
   if (messageTarget_ != 0) {
     messageTarget_->message_ += message;
   }
   return *this;
 }
 
-TestResult& TestResult::operator<<(int64_t value) {
+TestResult & TestResult::operator<<(int64_t value) {
   return addToLastFailure(json::valueToString(value));
 }
 
-TestResult& TestResult::operator<<(uint64_t value) {
+TestResult & TestResult::operator<<(uint64_t value) {
   return addToLastFailure(json::valueToString(value));
 }
 
-TestResult& TestResult::operator<<(bool value) {
+TestResult & TestResult::operator<<(bool value) {
   return addToLastFailure(value ? "true" : "false");
 }
 
@@ -219,7 +219,7 @@ TestCase::TestCase() : result_(0) {}
 
 TestCase::~TestCase() {}
 
-void TestCase::run(TestResult& result) {
+void TestCase::run(TestResult & result) {
   result_ = &result;
   runTestCase();
 }
@@ -229,7 +229,7 @@ void TestCase::run(TestResult& result) {
 
 Runner::Runner() {}
 
-Runner& Runner::add(TestCaseFactory factory) {
+Runner & Runner::add(TestCaseFactory factory) {
   tests_.push_back(factory);
   return *this;
 }
@@ -245,7 +245,7 @@ std::string Runner::testNameAt(unsigned int index) const {
   return name;
 }
 
-void Runner::runTestAt(unsigned int index, TestResult& result) const {
+void Runner::runTestAt(unsigned int index, TestResult & result) const {
   TestCase* test = tests_[index]();
   result.setTestName(test->testName());
   printf("Testing %s: ", test->testName());
@@ -253,7 +253,7 @@ void Runner::runTestAt(unsigned int index, TestResult& result) const {
   try {
     test->run(result);
   }
-  catch (const std::exception& e) {
+  catch (const std::exception & e) {
     result.addFailure(__FILE__, __LINE__, "Unexpected exception caught:")
         << e.what();
   }
@@ -281,7 +281,7 @@ bool Runner::runAllTest(bool printSummary) const {
     return true;
   } else {
     for (unsigned int index = 0; index < failures.size(); ++index) {
-      TestResult& result = failures[index];
+      TestResult & result = failures[index];
       result.printFailure(count > 1);
     }
 
@@ -298,7 +298,7 @@ bool Runner::runAllTest(bool printSummary) const {
 }
 
 bool Runner::testIndex(std::string const & testName,
-                       unsigned int& indexOut) const {
+                       unsigned int & indexOut) const {
   unsigned int count = testCount();
   for (unsigned int index = 0; index < count; ++index) {
     if (testNameAt(index) == testName) {
@@ -420,7 +420,7 @@ void Runner::print_usage(const char* appName) {
 // Assertion functions
 // //////////////////////////////////////////////////////////////////
 
-TestResult& checkStringEqual(TestResult& result,
+TestResult & checkStringEqual(TestResult & result,
                              std::string const & expected,
                              std::string const & actual,
                              const char* file,

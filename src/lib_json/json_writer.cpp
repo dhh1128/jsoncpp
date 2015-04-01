@@ -566,7 +566,7 @@ styled_stream_writer::styled_stream_writer(std::string indentation)
     : document_(NULL), rightMargin_(74), indentation_(indentation),
       addChildValues_() {}
 
-void styled_stream_writer::write(std::ostream& out, value const & root) {
+void styled_stream_writer::write(std::ostream & out, value const & root) {
   document_ = &out;
   addChildValues_ = false;
   indentString_ = "";
@@ -784,23 +784,23 @@ struct CommentStyle {
 struct built_styled_stream_writer : public stream_writer
 {
   built_styled_stream_writer(
-      std::string const& indentation,
+      std::string const & indentation,
       CommentStyle::Enum cs,
-      std::string const& colonSymbol,
-      std::string const& nullSymbol,
-      std::string const& endingLineFeedSymbol);
-  virtual int write(value const& root, std::ostream* sout);
+      std::string const & colonSymbol,
+      std::string const & nullSymbol,
+      std::string const & endingLineFeedSymbol);
+  virtual int write(value const & root, std::ostream* sout);
 private:
-  void writeValue(value const& value);
-  void writeArrayValue(value const& value);
-  bool isMultineArray(value const& value);
-  void pushValue(std::string const& value);
+  void writeValue(value const & value);
+  void writeArrayValue(value const & value);
+  bool isMultineArray(value const & value);
+  void pushValue(std::string const & value);
   void writeIndent();
-  void writeWithIndent(std::string const& value);
+  void writeWithIndent(std::string const & value);
   void indent();
   void unindent();
-  void writeCommentBeforeValue(value const& root);
-  void writeCommentAfterValueOnSameLine(value const& root);
+  void writeCommentBeforeValue(value const & root);
+  void writeCommentAfterValueOnSameLine(value const & root);
   static bool hasCommentForValue(value const & value);
 
   typedef std::vector<std::string> ChildValues;
@@ -817,11 +817,11 @@ private:
   bool indented_ : 1;
 };
 built_styled_stream_writer::built_styled_stream_writer(
-      std::string const& indentation,
+      std::string const & indentation,
       CommentStyle::Enum cs,
-      std::string const& colonSymbol,
-      std::string const& nullSymbol,
-      std::string const& endingLineFeedSymbol)
+      std::string const & colonSymbol,
+      std::string const & nullSymbol,
+      std::string const & endingLineFeedSymbol)
   : rightMargin_(74)
   , indentation_(indentation)
   , cs_(cs)
@@ -832,7 +832,7 @@ built_styled_stream_writer::built_styled_stream_writer(
   , indented_(false)
 {
 }
-int built_styled_stream_writer::write(value const& root, std::ostream* sout)
+int built_styled_stream_writer::write(value const & root, std::ostream* sout)
 {
   sout_ = sout;
   addChildValues_ = false;
@@ -847,7 +847,7 @@ int built_styled_stream_writer::write(value const& root, std::ostream* sout)
   sout_ = NULL;
   return 0;
 }
-void built_styled_stream_writer::writeValue(value const& value) {
+void built_styled_stream_writer::writeValue(value const & value) {
   switch (value.type()) {
   case vt_null:
     pushValue(nullSymbol_);
@@ -886,8 +886,8 @@ void built_styled_stream_writer::writeValue(value const& value) {
       indent();
       value::Members::iterator it = members.begin();
       for (;;) {
-        std::string const& name = *it;
-        class value const& childValue = value[name];
+        std::string const & name = *it;
+        class value const & childValue = value[name];
         writeCommentBeforeValue(childValue);
         writeWithIndent(valueToQuotedStringN(name.data(), name.length()));
         *sout_ << colonSymbol_;
@@ -906,7 +906,7 @@ void built_styled_stream_writer::writeValue(value const& value) {
   }
 }
 
-void built_styled_stream_writer::writeArrayValue(value const& value) {
+void built_styled_stream_writer::writeArrayValue(value const & value) {
   unsigned size = value.size();
   if (size == 0)
     pushValue("[]");
@@ -918,7 +918,7 @@ void built_styled_stream_writer::writeArrayValue(value const& value) {
       bool hasChildValue = !childValues_.empty();
       unsigned index = 0;
       for (;;) {
-        class value const& childValue = value[index];
+        class value const & childValue = value[index];
         writeCommentBeforeValue(childValue);
         if (hasChildValue)
           writeWithIndent(childValues_[index]);
@@ -953,12 +953,12 @@ void built_styled_stream_writer::writeArrayValue(value const& value) {
   }
 }
 
-bool built_styled_stream_writer::isMultineArray(value const& value) {
+bool built_styled_stream_writer::isMultineArray(value const & value) {
   int size = value.size();
   bool isMultiLine = size * 3 >= rightMargin_;
   childValues_.clear();
   for (int index = 0; index < size && !isMultiLine; ++index) {
-    class value const& childValue = value[index];
+    class value const & childValue = value[index];
     isMultiLine =
         isMultiLine || ((childValue.is_array() || childValue.is_object()) &&
                         childValue.size() > 0);
@@ -981,7 +981,7 @@ bool built_styled_stream_writer::isMultineArray(value const& value) {
   return isMultiLine;
 }
 
-void built_styled_stream_writer::pushValue(std::string const& value) {
+void built_styled_stream_writer::pushValue(std::string const & value) {
   if (addChildValues_)
     childValues_.push_back(value);
   else
@@ -1000,7 +1000,7 @@ void built_styled_stream_writer::writeIndent() {
   }
 }
 
-void built_styled_stream_writer::writeWithIndent(std::string const& value) {
+void built_styled_stream_writer::writeWithIndent(std::string const & value) {
   if (!indented_) writeIndent();
   *sout_ << value;
   indented_ = false;
@@ -1013,7 +1013,7 @@ void built_styled_stream_writer::unindent() {
   indentString_.resize(indentString_.size() - indentation_.size());
 }
 
-void built_styled_stream_writer::writeCommentBeforeValue(value const& root) {
+void built_styled_stream_writer::writeCommentBeforeValue(value const & root) {
   if (cs_ == CommentStyle::None) return;
   if (!root.has_comment(comment_before))
     return;
@@ -1032,7 +1032,7 @@ void built_styled_stream_writer::writeCommentBeforeValue(value const& root) {
   indented_ = false;
 }
 
-void built_styled_stream_writer::writeCommentAfterValueOnSameLine(value const& root) {
+void built_styled_stream_writer::writeCommentAfterValueOnSameLine(value const & root) {
   if (cs_ == CommentStyle::None) return;
   if (root.has_comment(comment_after_on_same_line))
     *sout_ << " " + root.get_comment(comment_after_on_same_line);
@@ -1109,20 +1109,20 @@ bool stream_writer_builder::validate(json::value* invalid) const
 {
   json::value my_invalid;
   if (!invalid) invalid = &my_invalid;  // so we do not need to test for NULL
-  json::value& inv = *invalid;
+  json::value & inv = *invalid;
   std::set<std::string> valid_keys;
   getValidWriterKeys(&valid_keys);
   value::Members keys = settings_.get_member_names();
   size_t n = keys.size();
   for (size_t i = 0; i < n; ++i) {
-    std::string const& key = keys[i];
+    std::string const & key = keys[i];
     if (valid_keys.find(key) == valid_keys.end()) {
       inv[key] = settings_[key];
     }
   }
   return 0u == inv.size();
 }
-value& stream_writer_builder::operator[](std::string key)
+value & stream_writer_builder::operator[](std::string key)
 {
   return settings_[key];
 }
@@ -1137,14 +1137,14 @@ void stream_writer_builder::setDefaults(json::value* settings)
   //! [StreamWriterBuilderDefaults]
 }
 
-std::string write_string(stream_writer::factory const& builder, value const& root) {
+std::string write_string(stream_writer::factory const & builder, value const & root) {
   std::ostringstream sout;
   StreamWriterPtr const writer(builder.newStreamWriter());
   writer->write(root, &sout);
   return sout.str();
 }
 
-std::ostream& operator<<(std::ostream& sout, value const& root) {
+std::ostream & operator<<(std::ostream & sout, value const & root) {
   stream_writer_builder builder;
   StreamWriterPtr const writer(builder.newStreamWriter());
   writer->write(root, &sout);

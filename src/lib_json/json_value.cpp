@@ -25,7 +25,7 @@ namespace json {
 #define ALIGNAS(byte_alignment)
 #endif
 static const unsigned char ALIGNAS(8) kNull[sizeof(value)] = { 0 };
-const unsigned char& kNullRef = kNull[0];
+const unsigned char & kNullRef = kNull[0];
 value const & value::null = reinterpret_cast<value const &>(kNullRef);
 value const & value::null_ref = null;
 
@@ -145,7 +145,7 @@ namespace json {
 
 class JSON_API Exception : public std::exception {
 public:
-  Exception(std::string const& msg);
+  Exception(std::string const & msg);
   virtual ~Exception() throw();
   virtual char const* what() const throw();
 protected:
@@ -153,14 +153,14 @@ protected:
 };
 class JSON_API RuntimeError : public Exception {
 public:
-  RuntimeError(std::string const& msg);
+  RuntimeError(std::string const & msg);
 };
 class JSON_API LogicError : public Exception {
 public:
-  LogicError(std::string const& msg);
+  LogicError(std::string const & msg);
 };
 
-Exception::Exception(std::string const& msg)
+Exception::Exception(std::string const & msg)
   : msg_(msg)
 {}
 Exception::~Exception() throw()
@@ -169,17 +169,17 @@ char const* Exception::what() const throw()
 {
   return msg_.c_str();
 }
-RuntimeError::RuntimeError(std::string const& msg)
+RuntimeError::RuntimeError(std::string const & msg)
   : Exception(msg)
 {}
-LogicError::LogicError(std::string const& msg)
+LogicError::LogicError(std::string const & msg)
   : Exception(msg)
 {}
-void throw_runtime_error(std::string const& msg)
+void throw_runtime_error(std::string const & msg)
 {
   throw RuntimeError(msg);
 }
-void throw_logic_error(std::string const& msg)
+void throw_logic_error(std::string const & msg)
 {
   throw LogicError(msg);
 }
@@ -233,7 +233,7 @@ value::czstring::czstring(char const* str, unsigned length, duplication_policy a
   storage_.length_ = length;
 }
 
-value::czstring::czstring(const czstring& other)
+value::czstring::czstring(const czstring & other)
     : cstr_(other.storage_.policy_ != no_duplication && other.cstr_ != 0
                 ? duplicateStringValue(other.cstr_, other.storage_.length_)
                 : other.cstr_)
@@ -250,17 +250,17 @@ value::czstring::~czstring() {
     releaseStringValue(const_cast<char*>(cstr_));
 }
 
-void value::czstring::swap(czstring& other) {
+void value::czstring::swap(czstring & other) {
   std::swap(cstr_, other.cstr_);
   std::swap(index_, other.index_);
 }
 
-value::czstring& value::czstring::operator=(czstring other) {
+value::czstring & value::czstring::operator=(czstring other) {
   swap(other);
   return *this;
 }
 
-bool value::czstring::operator<(const czstring& other) const {
+bool value::czstring::operator<(const czstring & other) const {
   if (!cstr_) return index_ < other.index_;
   //return strcmp(cstr_, other.cstr_) < 0;
   // Assume both are strings.
@@ -273,7 +273,7 @@ bool value::czstring::operator<(const czstring& other) const {
   return (this_len < other_len);
 }
 
-bool value::czstring::operator==(const czstring& other) const {
+bool value::czstring::operator==(const czstring & other) const {
   if (!cstr_) return index_ == other.index_;
   //return strcmp(cstr_, other.cstr_) == 0;
   // Assume both are strings.
@@ -372,7 +372,7 @@ value::value(std::string const & value) {
       duplicateAndPrefixStringValue(value.data(), static_cast<unsigned>(value.length()));
 }
 
-value::value(const static_string& value) {
+value::value(const static_string & value) {
   init_basic(vt_string);
   value_.string_ = const_cast<char*>(value.c_str());
 }
@@ -382,7 +382,7 @@ value::value(bool value) {
   value_.bool_ = value;
 }
 
-value::value(value const& other)
+value::value(value const & other)
     : type_(other.type_), allocated_(false)
       ,
       comments_(0), start_(other.start_), limit_(other.limit_)
@@ -418,7 +418,7 @@ value::value(value const& other)
   if (other.comments_) {
     comments_ = new comment_info[number_of_comment_placement];
     for (int comment = 0; comment < number_of_comment_placement; ++comment) {
-      const comment_info& otherComment = other.comments_[comment];
+      const comment_info & otherComment = other.comments_[comment];
       if (otherComment.comment_)
         comments_[comment].set_comment(
             otherComment.comment_, strlen(otherComment.comment_));
@@ -450,12 +450,12 @@ value::~value() {
     delete[] comments_;
 }
 
-value& value::operator=(value other) {
+value & value::operator=(value other) {
   swap(other);
   return *this;
 }
 
-void value::swap_payload(value& other) {
+void value::swap_payload(value & other) {
   value_type temp = type_;
   type_ = other.type_;
   other.type_ = temp;
@@ -465,7 +465,7 @@ void value::swap_payload(value& other) {
   other.allocated_ = temp2;
 }
 
-void value::swap(value& other) {
+void value::swap(value & other) {
   swap_payload(other);
   std::swap(comments_, other.comments_);
   std::swap(start_, other.start_);
@@ -891,7 +891,7 @@ void value::resize(array_index newSize) {
   }
 }
 
-value& value::operator[](array_index index) {
+value & value::operator[](array_index index) {
   JSON_ASSERT_MESSAGE(
       type_ == vt_null || type_ == vt_array,
       "in json::value::operator[](array_index): requires vt_array");
@@ -907,7 +907,7 @@ value& value::operator[](array_index index) {
   return (*it).second;
 }
 
-value& value::operator[](int index) {
+value & value::operator[](int index) {
   JSON_ASSERT_MESSAGE(
       index >= 0,
       "in json::value::operator[](int index): index cannot be negative");
@@ -945,7 +945,7 @@ void value::init_basic(value_type type, bool allocated) {
 // Access an object value by name, create a null member if it does not exist.
 // @pre Type of '*this' is object or null.
 // @param key is null-terminated.
-value& value::resolve_reference(const char* key) {
+value & value::resolve_reference(const char* key) {
   JSON_ASSERT_MESSAGE(
       type_ == vt_null || type_ == vt_object,
       "in json::value::resolve_reference(): requires vt_object");
@@ -959,12 +959,12 @@ value& value::resolve_reference(const char* key) {
 
   object_values::value_type default_value(actual_key, null_ref);
   it = value_.map_->insert(it, default_value);
-  value& value = (*it).second;
+  value & value = (*it).second;
   return value;
 }
 
 // @param key is not null-terminated.
-value& value::resolve_reference(char const* key, char const* end)
+value & value::resolve_reference(char const* key, char const* end)
 {
   JSON_ASSERT_MESSAGE(
       type_ == vt_null || type_ == vt_object,
@@ -979,7 +979,7 @@ value& value::resolve_reference(char const* key, char const* end)
 
   object_values::value_type default_value(actual_key, null_ref);
   it = value_.map_->insert(it, default_value);
-  value& value = (*it).second;
+  value & value = (*it).second;
   return value;
 }
 
@@ -1007,37 +1007,37 @@ value const & value::operator[](const char* key) const
   if (!found) return null_ref;
   return *found;
 }
-value const& value::operator[](std::string const& key) const
+value const & value::operator[](std::string const & key) const
 {
   value const* found = find(key.data(), key.data() + key.length());
   if (!found) return null_ref;
   return *found;
 }
 
-value& value::operator[](const char* key) {
+value & value::operator[](const char* key) {
   return resolve_reference(key, key + strlen(key));
 }
 
-value& value::operator[](std::string const & key) {
+value & value::operator[](std::string const & key) {
   return resolve_reference(key.data(), key.data() + key.length());
 }
 
-value& value::operator[](const static_string& key) {
+value & value::operator[](const static_string & key) {
   return resolve_reference(key.c_str());
 }
 
-value& value::append(value const & value) { return (*this)[size()] = value; }
+value & value::append(value const & value) { return (*this)[size()] = value; }
 
-value value::get(char const* key, char const* end, value const& default_value) const
+value value::get(char const* key, char const* end, value const & default_value) const
 {
   value const* found = find(key, end);
   return !found ? default_value : *found;
 }
-value value::get(char const* key, value const& default_value) const
+value value::get(char const* key, value const & default_value) const
 {
   return get(key, key + strlen(key), default_value);
 }
-value value::get(std::string const& key, value const& default_value) const
+value value::get(std::string const & key, value const & default_value) const
 {
   return get(key.data(), key.data() + key.length(), default_value);
 }
@@ -1060,7 +1060,7 @@ bool value::remove_member(const char* key, value* removed)
 {
   return remove_member(key, key + strlen(key), removed);
 }
-bool value::remove_member(std::string const& key, value* removed)
+bool value::remove_member(std::string const & key, value* removed)
 {
   return remove_member(key.data(), key.data() + key.length(), removed);
 }
@@ -1112,7 +1112,7 @@ bool value::is_member(char const* key) const
 {
   return is_member(key, key + strlen(key));
 }
-bool value::is_member(std::string const& key) const
+bool value::is_member(std::string const & key) const
 {
   return is_member(key.data(), key.data() + key.length());
 }
@@ -1342,11 +1342,11 @@ path_argument::path_argument(std::string const & key)
 // //////////////////////////////////////////////////////////////////
 
 path::path(std::string const & path,
-           const path_argument& a1,
-           const path_argument& a2,
-           const path_argument& a3,
-           const path_argument& a4,
-           const path_argument& a5) {
+           const path_argument & a1,
+           const path_argument & a2,
+           const path_argument & a3,
+           const path_argument & a4,
+           const path_argument & a5) {
   InArgs in;
   in.push_back(&a1);
   in.push_back(&a2);
@@ -1356,7 +1356,7 @@ path::path(std::string const & path,
   makePath(path, in);
 }
 
-void path::makePath(std::string const & path, const InArgs& in) {
+void path::makePath(std::string const & path, const InArgs & in) {
   const char* current = path.c_str();
   const char* end = current + path.length();
   InArgs::const_iterator itInArg = in.begin();
@@ -1388,8 +1388,8 @@ void path::makePath(std::string const & path, const InArgs& in) {
 }
 
 void path::addPathInArg(std::string const & /*path*/,
-                        const InArgs& in,
-                        InArgs::const_iterator& itInArg,
+                        const InArgs & in,
+                        InArgs::const_iterator & itInArg,
                         path_argument::Kind kind) {
   if (itInArg == in.end()) {
     // Error: missing argument %d
@@ -1407,7 +1407,7 @@ void path::invalidPath(std::string const & /*path*/, int /*location*/) {
 value const & path::resolve(value const & root) const {
   const value* node = &root;
   for (Args::const_iterator it = args_.begin(); it != args_.end(); ++it) {
-    const path_argument& arg = *it;
+    const path_argument & arg = *it;
     if (arg.kind_ == path_argument::kindIndex) {
       if (!node->is_array() || !node->is_valid_index(arg.index_)) {
         // Error: unable to resolve path (array value expected at position...
@@ -1430,7 +1430,7 @@ value const & path::resolve(value const & root) const {
 value path::resolve(value const & root, value const & default_value) const {
   const value* node = &root;
   for (Args::const_iterator it = args_.begin(); it != args_.end(); ++it) {
-    const path_argument& arg = *it;
+    const path_argument & arg = *it;
     if (arg.kind_ == path_argument::kindIndex) {
       if (!node->is_array() || !node->is_valid_index(arg.index_))
         return default_value;
@@ -1446,10 +1446,10 @@ value path::resolve(value const & root, value const & default_value) const {
   return *node;
 }
 
-value& path::make(value& root) const {
+value & path::make(value & root) const {
   value* node = &root;
   for (Args::const_iterator it = args_.begin(); it != args_.end(); ++it) {
-    const path_argument& arg = *it;
+    const path_argument & arg = *it;
     if (arg.kind_ == path_argument::kindIndex) {
       if (!node->is_array()) {
         // Error: node is not an array at position ...
