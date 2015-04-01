@@ -407,11 +407,11 @@ json::value obj_value(json::vt_object); // {}
     /// \note deep copy
     /// \param key may contain embedded nulls.
     value get(std::string const& key, value const& default_value) const;
-    /// Most general and efficient version of is_member()const, get()const,
+    /// most general and efficient version of is_member()const, get()const,
     /// and operator[]const
     /// \note As stated elsewhere, behavior is undefined if (end-key) >= 2^30
     value const* find(char const* key, char const* end) const;
-    /// Most general and efficient version of object-mutators.
+    /// most general and efficient version of object-mutators.
     /// \note As stated elsewhere, behavior is undefined if (end-key) >= 2^30
     /// \return non-zero, but JSON_ASSERT if this is neither object nor vt_null.
     value const* demand(char const* key, char const* end);
@@ -544,14 +544,14 @@ public:
     path_argument(std::string const& key);
 
 private:
-    enum Kind {
-        kindNone = 0,
-        kindIndex,
-        kindKey
+    enum kind {
+        kind_none = 0,
+        kind_index,
+        kind_key
     };
     std::string key_;
     array_index index_;
-    Kind kind_;
+    kind kind_;
 };
 
 /** \brief Experimental and untested: represents a "path" to access a node.
@@ -588,7 +588,7 @@ private:
     void addPathInArg(std::string const& path,
         InArgs const& in,
         InArgs::const_iterator& itInArg,
-        path_argument::Kind kind);
+        path_argument::kind kind);
     void invalidPath(std::string const& path, int location);
 
     Args args_;

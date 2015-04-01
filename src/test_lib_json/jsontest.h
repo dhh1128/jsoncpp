@@ -149,7 +149,7 @@ public:
     int runCommandLine(int argc, const char* argv[]) const;
 
     /// Runs all the test cases
-    bool runAllTest(bool printSummary) const;
+    bool runallTest(bool printSummary) const;
 
     /// Returns the number of test case in the suite
     unsigned int testCount() const;

@@ -253,7 +253,7 @@ public:
     class factory {
     public:
         virtual ~factory() {}
-        /** \brief Allocate a char_reader via operator new().
+        /** \brief allocate a char_reader via operator new().
      * \throw std::exception if something goes wrong (e.g. invalid settings)
      */
         virtual char_reader* new_char_reader() const = 0;

@@ -1419,28 +1419,28 @@ value::iterator value::end()
 path_argument::path_argument()
     : key_()
     , index_()
-    , kind_(kindNone)
+    , kind_(kind_none)
 {
 }
 
 path_argument::path_argument(array_index index)
     : key_()
     , index_(index)
-    , kind_(kindIndex)
+    , kind_(kind_index)
 {
 }
 
 path_argument::path_argument(const char* key)
     : key_(key)
     , index_()
-    , kind_(kindKey)
+    , kind_(kind_key)
 {
 }
 
 path_argument::path_argument(std::string const& key)
     : key_(key.c_str())
     , index_()
-    , kind_(kindKey)
+    , kind_(kind_key)
 {
 }
 
@@ -1472,7 +1472,7 @@ void path::makePath(std::string const& path, InArgs const& in)
         if (*current == '[') {
             ++current;
             if (*current == '%')
-                addPathInArg(path, in, itInArg, path_argument::kindIndex);
+                addPathInArg(path, in, itInArg, path_argument::kind_index);
             else {
                 array_index index = 0;
                 for (; current != end && *current >= '0' && *current <= '9'; ++current)
@@ -1483,7 +1483,7 @@ void path::makePath(std::string const& path, InArgs const& in)
                 invalidPath(path, int(current - path.c_str()));
         }
         else if (*current == '%') {
-            addPathInArg(path, in, itInArg, path_argument::kindKey);
+            addPathInArg(path, in, itInArg, path_argument::kind_key);
             ++current;
         }
         else if (*current == '.') {
@@ -1501,7 +1501,7 @@ void path::makePath(std::string const& path, InArgs const& in)
 void path::addPathInArg(std::string const& /*path*/,
     InArgs const& in,
     InArgs::const_iterator& itInArg,
-    path_argument::Kind kind)
+    path_argument::kind kind)
 {
     if (itInArg == in.end()) {
         // Error: missing argument %d
@@ -1524,13 +1524,13 @@ value const& path::resolve(value const& root) const
     const value* node = &root;
     for (Args::const_iterator it = args_.begin(); it != args_.end(); ++it) {
         path_argument const& arg = *it;
-        if (arg.kind_ == path_argument::kindIndex) {
+        if (arg.kind_ == path_argument::kind_index) {
             if (!node->is_array() || !node->is_valid_index(arg.index_)) {
                 // Error: unable to resolve path (array value expected at position...
             }
             node = &((*node)[arg.index_]);
         }
-        else if (arg.kind_ == path_argument::kindKey) {
+        else if (arg.kind_ == path_argument::kind_key) {
             if (!node->is_object()) {
                 // Error: unable to resolve path (object value expected at position...)
             }
@@ -1549,12 +1549,12 @@ value path::resolve(value const& root, value const& default_value) const
     const value* node = &root;
     for (Args::const_iterator it = args_.begin(); it != args_.end(); ++it) {
         path_argument const& arg = *it;
-        if (arg.kind_ == path_argument::kindIndex) {
+        if (arg.kind_ == path_argument::kind_index) {
             if (!node->is_array() || !node->is_valid_index(arg.index_))
                 return default_value;
             node = &((*node)[arg.index_]);
         }
-        else if (arg.kind_ == path_argument::kindKey) {
+        else if (arg.kind_ == path_argument::kind_key) {
             if (!node->is_object())
                 return default_value;
             node = &((*node)[arg.key_]);
@@ -1570,13 +1570,13 @@ value& path::make(value& root) const
     value* node = &root;
     for (Args::const_iterator it = args_.begin(); it != args_.end(); ++it) {
         path_argument const& arg = *it;
-        if (arg.kind_ == path_argument::kindIndex) {
+        if (arg.kind_ == path_argument::kind_index) {
             if (!node->is_array()) {
                 // Error: node is not an array at position ...
             }
             node = &((*node)[arg.index_]);
         }
-        else if (arg.kind_ == path_argument::kindKey) {
+        else if (arg.kind_ == path_argument::kind_key) {
             if (!node->is_object()) {
                 // Error: node is not an object at position...
             }

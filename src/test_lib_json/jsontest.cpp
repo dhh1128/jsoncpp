@@ -285,7 +285,7 @@ void Runner::runTestAt(unsigned int index, TestResult& result) const
     fflush(stdout);
 }
 
-bool Runner::runAllTest(bool printSummary) const
+bool Runner::runallTest(bool printSummary) const
 {
     unsigned int count = testCount();
     std::deque<TestResult> failures;
@@ -299,7 +299,7 @@ bool Runner::runAllTest(bool printSummary) const
 
     if (failures.empty()) {
         if (printSummary) {
-            printf("All %d tests passed\n", count);
+            printf("all %d tests passed\n", count);
         }
         return true;
     }
@@ -379,10 +379,10 @@ int Runner::runCommandLine(int argc, const char* argv[]) const
     }
     bool succeeded;
     if (subrunner.testCount() > 0) {
-        succeeded = subrunner.runAllTest(subrunner.testCount() > 1);
+        succeeded = subrunner.runallTest(subrunner.testCount() > 1);
     }
     else {
-        succeeded = runAllTest(true);
+        succeeded = runallTest(true);
     }
     return succeeded ? 0 : 1;
 }

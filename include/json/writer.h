@@ -52,7 +52,7 @@ public:
     class JSON_API factory {
     public:
         virtual ~factory();
-        /** \brief Allocate a char_reader via operator new().
+        /** \brief allocate a char_reader via operator new().
      * \throw std::exception if something goes wrong (e.g. invalid settings)
      */
         virtual stream_writer* new_stream_writer() const = 0;
@@ -71,7 +71,7 @@ Usage:
   using namespace json;
   value value = ...;
   stream_writer_builder builder;
-  builder["comment_style"] = "None";
+  builder["comment_style"] = "none";
   builder["indentation"] = "   ";  // or whatever you like
   std::unique_ptr<json::stream_writer> writer(
       builder.new_stream_writer());
@@ -85,7 +85,7 @@ public:
     // without a major version bump.
     /** Configuration of this builder.
     Available settings (case-sensitive):
-    - "comment_style": "None" or "All"
+    - "comment_style": "none" or "all"
     - "indentation":  "<anything>"
     - "enable_yaml_compatibility": false or true
       - slightly change the whitespace around colons

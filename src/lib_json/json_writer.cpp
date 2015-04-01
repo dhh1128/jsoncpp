@@ -101,7 +101,7 @@ std::string value_to_string(uint32_t value)
 
 std::string value_to_string(double value)
 {
-    // Allocate a buffer that is more than large enough to store the 16 digits of
+    // allocate a buffer that is more than large enough to store the 16 digits of
     // precision requested below.
     char buffer[32];
     int len = -1;
@@ -816,9 +816,9 @@ bool styled_stream_writer::has_comment_for_value(value const& value)
 
 /// Decide whether to write comments.
 enum class comment_style {
-    None, ///< Drop all comments.
-    Most, ///< Recover odd behavior of previous versions (not implemented yet).
-    All ///< Keep all comments.
+    none, ///< Drop all comments.
+    most, ///< Recover odd behavior of previous versions (not implemented yet).
+    all ///< Keep all comments.
 };
 
 struct built_styled_stream_writer : public stream_writer {
@@ -955,7 +955,7 @@ void built_styled_stream_writer::write_array_value(value const& value)
     if (size == 0)
         push_value("[]");
     else {
-        bool is_multiline = (cs_ == comment_style::All) || is_multiline_array(value);
+        bool is_multiline = (cs_ == comment_style::all) || is_multiline_array(value);
         if (is_multiline) {
             write_with_indent("[");
             indent();
@@ -1067,7 +1067,7 @@ void built_styled_stream_writer::unindent()
 
 void built_styled_stream_writer::write_comment_before_value(value const& root)
 {
-    if (cs_ == comment_style::None)
+    if (cs_ == comment_style::none)
         return;
     if (!root.has_comment(comment_before))
         return;
@@ -1088,7 +1088,7 @@ void built_styled_stream_writer::write_comment_before_value(value const& root)
 
 void built_styled_stream_writer::write_comment_after_value_on_same_line(value const& root)
 {
-    if (cs_ == comment_style::None)
+    if (cs_ == comment_style::none)
         return;
     if (root.has_comment(comment_after_on_same_line))
         *sout_ << " " + root.get_comment(comment_after_on_same_line);
@@ -1136,15 +1136,15 @@ stream_writer* stream_writer_builder::new_stream_writer() const
     std::string cs_str = settings_["comment_style"].as_string();
     bool eyc = settings_["enable_yaml_compatibility"].as_bool();
     bool dnp = settings_["drop_null_placeholders"].as_bool();
-    comment_style cs = comment_style::All;
-    if (cs_str == "All") {
-        cs = comment_style::All;
+    comment_style cs = comment_style::all;
+    if (cs_str == "all") {
+        cs = comment_style::all;
     }
-    else if (cs_str == "None") {
-        cs = comment_style::None;
+    else if (cs_str == "none") {
+        cs = comment_style::none;
     }
     else {
-        throw_runtime_error("comment_style must be 'All' or 'None'");
+        throw_runtime_error("comment_style must be 'all' or 'none'");
     }
     std::string colon_symbol = " : ";
     if (eyc) {
@@ -1196,7 +1196,7 @@ value& stream_writer_builder::operator[](std::string key)
 void stream_writer_builder::set_defaults(json::value* settings)
 {
     //! [StreamwriterBuilderDefaults]
-    (*settings)["comment_style"] = "All";
+    (*settings)["comment_style"] = "all";
     (*settings)["indentation"] = "\t";
     (*settings)["enable_yaml_compatibility"] = false;
     (*settings)["drop_null_placeholders"] = false;

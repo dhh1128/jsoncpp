@@ -1583,7 +1583,7 @@ JSONTEST_FIXTURE(ValueTest, CommentBefore)
     json::value val; // fill val
     val.set_comment("// this comment should appear before", json::comment_before);
     json::stream_writer_builder wbuilder;
-    wbuilder.settings_["comment_style"] = "All";
+    wbuilder.settings_["comment_style"] = "all";
     {
         char const expected[] = "// this comment should appear before\nnull";
         std::string result = json::write_string(wbuilder, val);
@@ -2072,10 +2072,10 @@ JSONTEST_FIXTURE(CharReaderFailIfExtraTest, commentAfterBool)
     JSONTEST_ASSERT_EQUAL(true, root.as_bool());
     delete reader;
 }
-struct CharReaderAllowDropNullTest : JsonTest::TestCase {
+struct CharReaderallowDropNullTest : JsonTest::TestCase {
 };
 
-JSONTEST_FIXTURE(CharReaderAllowDropNullTest, issue178)
+JSONTEST_FIXTURE(CharReaderallowDropNullTest, issue178)
 {
     json::char_reader_builder b;
     b.settings_["allow_dropped_null_placeholders"] = true;
@@ -2226,10 +2226,10 @@ JSONTEST_FIXTURE(CharReaderAllowDropNullTest, issue178)
     delete reader;
 }
 
-struct CharReaderAllowSingleQuotesTest : JsonTest::TestCase {
+struct CharReaderallowSingleQuotesTest : JsonTest::TestCase {
 };
 
-JSONTEST_FIXTURE(CharReaderAllowSingleQuotesTest, issue182)
+JSONTEST_FIXTURE(CharReaderallowSingleQuotesTest, issue182)
 {
     json::char_reader_builder b;
     b.settings_["allow_single_quotes"] = true;
@@ -2260,10 +2260,10 @@ JSONTEST_FIXTURE(CharReaderAllowSingleQuotesTest, issue182)
     }
 }
 
-struct CharReaderAllowZeroesTest : JsonTest::TestCase {
+struct CharReaderallowZeroesTest : JsonTest::TestCase {
 };
 
-JSONTEST_FIXTURE(CharReaderAllowZeroesTest, issue176)
+JSONTEST_FIXTURE(CharReaderallowZeroesTest, issue176)
 {
     json::char_reader_builder b;
     b.settings_["allow_single_quotes"] = true;
@@ -2431,11 +2431,11 @@ int main(int argc, const char* argv[])
     JSONTEST_REGISTER_FIXTURE(runner, CharReaderFailIfExtraTest, commentAfterArray);
     JSONTEST_REGISTER_FIXTURE(runner, CharReaderFailIfExtraTest, commentAfterBool);
 
-    JSONTEST_REGISTER_FIXTURE(runner, CharReaderAllowDropNullTest, issue178);
+    JSONTEST_REGISTER_FIXTURE(runner, CharReaderallowDropNullTest, issue178);
 
-    JSONTEST_REGISTER_FIXTURE(runner, CharReaderAllowSingleQuotesTest, issue182);
+    JSONTEST_REGISTER_FIXTURE(runner, CharReaderallowSingleQuotesTest, issue182);
 
-    JSONTEST_REGISTER_FIXTURE(runner, CharReaderAllowZeroesTest, issue176);
+    JSONTEST_REGISTER_FIXTURE(runner, CharReaderallowZeroesTest, issue176);
 
     JSONTEST_REGISTER_FIXTURE(runner, BuilderTest, settings);
 
