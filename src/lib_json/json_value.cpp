@@ -673,11 +673,11 @@ std::string value::as_string() const
     case vt_bool:
         return value_.bool_ ? "true" : "false";
     case vt_int:
-        return valueToString(value_.int_);
+        return value_to_string(value_.int_);
     case vt_uint:
-        return valueToString(value_.uint_);
+        return value_to_string(value_.uint_);
     case vt_real:
-        return valueToString(value_.real_);
+        return value_to_string(value_.real_);
     default:
         JSON_FAIL_MESSAGE("Type is not convertible to string");
     }

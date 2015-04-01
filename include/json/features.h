@@ -9,7 +9,7 @@
 namespace json {
 
 /** \brief Configuration passed to reader and writer.
- * This configuration object can be used to force the reader or Writer
+ * This configuration object can be used to force the reader or writer
  * to behave in a standard conforming way.
  */
 class JSON_API features {

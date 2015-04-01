@@ -37,12 +37,12 @@
 namespace json {
 
 #if __cplusplus >= 201103L
-typedef std::unique_ptr<stream_writer> StreamWriterPtr;
+typedef std::unique_ptr<stream_writer> StreamwriterPtr;
 #else
-typedef std::auto_ptr<stream_writer> StreamWriterPtr;
+typedef std::auto_ptr<stream_writer> StreamwriterPtr;
 #endif
 
-static bool containsControlCharacter(const char* str)
+static bool contains_control_char(const char* str)
 {
     while (*str) {
         if (is_control_char(*(str++)))
@@ -51,7 +51,7 @@ static bool containsControlCharacter(const char* str)
     return false;
 }
 
-static bool containsControlCharacter0(const char* str, unsigned len)
+static bool contains_control_char0(const char* str, unsigned len)
 {
     char const* end = str + len;
     while (end != str) {
@@ -62,7 +62,7 @@ static bool containsControlCharacter0(const char* str, unsigned len)
     return false;
 }
 
-std::string valueToString(largest_int_t value)
+std::string value_to_string(largest_int_t value)
 {
     uint_to_string_buffer buffer;
     char* current = buffer + sizeof(buffer);
@@ -76,7 +76,7 @@ std::string valueToString(largest_int_t value)
     return current;
 }
 
-std::string valueToString(largest_uint_t value)
+std::string value_to_string(largest_uint_t value)
 {
     uint_to_string_buffer buffer;
     char* current = buffer + sizeof(buffer);
@@ -87,19 +87,19 @@ std::string valueToString(largest_uint_t value)
 
 #if defined(JSON_HAS_INT64)
 
-std::string valueToString(int32_t value)
+std::string value_to_string(int32_t value)
 {
-    return valueToString(largest_int_t(value));
+    return value_to_string(largest_int_t(value));
 }
 
-std::string valueToString(uint32_t value)
+std::string value_to_string(uint32_t value)
 {
-    return valueToString(largest_uint_t(value));
+    return value_to_string(largest_uint_t(value));
 }
 
 #endif // # if defined(JSON_HAS_INT64)
 
-std::string valueToString(double value)
+std::string value_to_string(double value)
 {
     // Allocate a buffer that is more than large enough to store the 16 digits of
     // precision requested below.
@@ -140,14 +140,14 @@ std::string valueToString(double value)
     return buffer;
 }
 
-std::string valueToString(bool value) { return value ? "true" : "false"; }
+std::string value_to_string(bool value) { return value ? "true" : "false"; }
 
-std::string valueToQuotedString(const char* value)
+std::string value_to_quoted_string(const char* value)
 {
     if (value == NULL)
         return "";
     // Not sure how to handle unicode...
-    if (strpbrk(value, "\"\\\b\f\n\r\t") == NULL && !containsControlCharacter(value))
+    if (strpbrk(value, "\"\\\b\f\n\r\t") == NULL && !contains_control_char(value))
         return std::string("\"") + value + "\"";
     // We have to walk value and escape any special characters.
     // Appending to std::string is not efficient, but this should be rare.
@@ -220,12 +220,12 @@ static char const* strnpbrk(char const* s, char const* accept, size_t n)
     }
     return NULL;
 }
-static std::string valueToQuotedStringN(const char* value, unsigned length)
+static std::string value_to_quoted_string_n(const char* value, unsigned length)
 {
     if (value == NULL)
         return "";
     // Not sure how to handle unicode...
-    if (strnpbrk(value, "\"\\\b\f\n\r\t", length) == NULL && !containsControlCharacter0(value, length))
+    if (strnpbrk(value, "\"\\\b\f\n\r\t", length) == NULL && !contains_control_char0(value, length))
         return std::string("\"") + value + "\"";
     // We have to walk value and escape any special characters.
     // Appending to std::string is not efficient, but this should be rare.
@@ -283,56 +283,56 @@ static std::string valueToQuotedStringN(const char* value, unsigned length)
     return result;
 }
 
-// Class Writer
+// Class writer
 // //////////////////////////////////////////////////////////////////
-Writer::~Writer() {}
+writer::~writer() {}
 
 // Class fast_writer
 // //////////////////////////////////////////////////////////////////
 
 fast_writer::fast_writer()
-    : yamlCompatiblityEnabled_(false)
-    , dropNullPlaceholders_(false)
-    , omitEndingLineFeed_(false)
+    : yaml_compatibility_enabled_(false)
+    , drop_null_placeholders_(false)
+    , omit_ending_line_feed_(false)
 {
 }
 
-void fast_writer::enableYAMLCompatibility() { yamlCompatiblityEnabled_ = true; }
+void fast_writer::enable_yaml_compatibility() { yaml_compatibility_enabled_ = true; }
 
-void fast_writer::dropNullPlaceholders() { dropNullPlaceholders_ = true; }
+void fast_writer::drop_null_placeholders() { drop_null_placeholders_ = true; }
 
-void fast_writer::omitEndingLineFeed() { omitEndingLineFeed_ = true; }
+void fast_writer::omit_ending_line_feed() { omit_ending_line_feed_ = true; }
 
 std::string fast_writer::write(value const& root)
 {
     document_ = "";
-    writeValue(root);
-    if (!omitEndingLineFeed_)
+    write_value(root);
+    if (!omit_ending_line_feed_)
         document_ += "\n";
     return document_;
 }
 
-void fast_writer::writeValue(value const& value)
+void fast_writer::write_value(value const& value)
 {
     switch (value.type()) {
     case vt_null:
-        if (!dropNullPlaceholders_)
+        if (!drop_null_placeholders_)
             document_ += "null";
         break;
     case vt_int:
-        document_ += valueToString(value.as_largest_int());
+        document_ += value_to_string(value.as_largest_int());
         break;
     case vt_uint:
-        document_ += valueToString(value.as_largest_uint());
+        document_ += value_to_string(value.as_largest_uint());
         break;
     case vt_real:
-        document_ += valueToString(value.as_double());
+        document_ += value_to_string(value.as_double());
         break;
     case vt_string:
-        document_ += valueToQuotedString(value.as_cstring());
+        document_ += value_to_quoted_string(value.as_cstring());
         break;
     case vt_bool:
-        document_ += valueToString(value.as_bool());
+        document_ += value_to_string(value.as_bool());
         break;
     case vt_array: {
         document_ += '[';
@@ -340,7 +340,7 @@ void fast_writer::writeValue(value const& value)
         for (int index = 0; index < size; ++index) {
             if (index > 0)
                 document_ += ',';
-            writeValue(value[index]);
+            write_value(value[index]);
         }
         document_ += ']';
     } break;
@@ -352,9 +352,9 @@ void fast_writer::writeValue(value const& value)
             std::string const& name = *it;
             if (it != members.begin())
                 document_ += ',';
-            document_ += valueToQuotedStringN(name.data(), name.length());
-            document_ += yamlCompatiblityEnabled_ ? ": " : ":";
-            writeValue(value[name]);
+            document_ += value_to_quoted_string_n(name.data(), name.length());
+            document_ += yaml_compatibility_enabled_ ? ": " : ":";
+            write_value(value[name]);
         }
         document_ += '}';
     } break;
@@ -377,26 +377,26 @@ std::string styled_writer::write(value const& root)
     addChildValues_ = false;
     indentString_ = "";
     writeCommentBeforeValue(root);
-    writeValue(root);
+    write_value(root);
     writeCommentAfterValueOnSameLine(root);
     document_ += "\n";
     return document_;
 }
 
-void styled_writer::writeValue(value const& value)
+void styled_writer::write_value(value const& value)
 {
     switch (value.type()) {
     case vt_null:
         pushValue("null");
         break;
     case vt_int:
-        pushValue(valueToString(value.as_largest_int()));
+        pushValue(value_to_string(value.as_largest_int()));
         break;
     case vt_uint:
-        pushValue(valueToString(value.as_largest_uint()));
+        pushValue(value_to_string(value.as_largest_uint()));
         break;
     case vt_real:
-        pushValue(valueToString(value.as_double()));
+        pushValue(value_to_string(value.as_double()));
         break;
     case vt_string: {
         // Is NULL is possible for value.string_?
@@ -404,13 +404,13 @@ void styled_writer::writeValue(value const& value)
         char const* end;
         bool ok = value.get_string(&str, &end);
         if (ok)
-            pushValue(valueToQuotedStringN(str, static_cast<unsigned>(end - str)));
+            pushValue(value_to_quoted_string_n(str, static_cast<unsigned>(end - str)));
         else
             pushValue("");
         break;
     }
     case vt_bool:
-        pushValue(valueToString(value.as_bool()));
+        pushValue(value_to_string(value.as_bool()));
         break;
     case vt_array:
         writeArrayValue(value);
@@ -427,9 +427,9 @@ void styled_writer::writeValue(value const& value)
                 std::string const& name = *it;
                 class value const& childValue = value[name];
                 writeCommentBeforeValue(childValue);
-                writeWithIndent(valueToQuotedString(name.c_str()));
+                writeWithIndent(value_to_quoted_string(name.c_str()));
                 document_ += " : ";
-                writeValue(childValue);
+                write_value(childValue);
                 if (++it == members.end()) {
                     writeCommentAfterValueOnSameLine(childValue);
                     break;
@@ -463,7 +463,7 @@ void styled_writer::writeArrayValue(value const& value)
                     writeWithIndent(childValues_[index]);
                 else {
                     writeIndent();
-                    writeValue(childValue);
+                    write_value(childValue);
                 }
                 if (++index == size) {
                     writeCommentAfterValueOnSameLine(childValue);
@@ -507,7 +507,7 @@ bool styled_writer::isMultineArray(value const& value)
             if (hasCommentForValue(value[index])) {
                 isMultiLine = true;
             }
-            writeValue(value[index]);
+            write_value(value[index]);
             lineLength += int(childValues_[index].length());
         }
         addChildValues_ = false;
@@ -608,32 +608,32 @@ void styled_stream_writer::write(std::ostream& out, value const& root)
     if (!indented_)
         writeIndent();
     indented_ = true;
-    writeValue(root);
+    write_value(root);
     writeCommentAfterValueOnSameLine(root);
     *document_ << "\n";
     document_ = NULL; // Forget the stream, for safety.
 }
 
-void styled_stream_writer::writeValue(value const& value)
+void styled_stream_writer::write_value(value const& value)
 {
     switch (value.type()) {
     case vt_null:
         pushValue("null");
         break;
     case vt_int:
-        pushValue(valueToString(value.as_largest_int()));
+        pushValue(value_to_string(value.as_largest_int()));
         break;
     case vt_uint:
-        pushValue(valueToString(value.as_largest_uint()));
+        pushValue(value_to_string(value.as_largest_uint()));
         break;
     case vt_real:
-        pushValue(valueToString(value.as_double()));
+        pushValue(value_to_string(value.as_double()));
         break;
     case vt_string:
-        pushValue(valueToQuotedString(value.as_cstring()));
+        pushValue(value_to_quoted_string(value.as_cstring()));
         break;
     case vt_bool:
-        pushValue(valueToString(value.as_bool()));
+        pushValue(value_to_string(value.as_bool()));
         break;
     case vt_array:
         writeArrayValue(value);
@@ -650,9 +650,9 @@ void styled_stream_writer::writeValue(value const& value)
                 std::string const& name = *it;
                 class value const& childValue = value[name];
                 writeCommentBeforeValue(childValue);
-                writeWithIndent(valueToQuotedString(name.c_str()));
+                writeWithIndent(value_to_quoted_string(name.c_str()));
                 *document_ << " : ";
-                writeValue(childValue);
+                write_value(childValue);
                 if (++it == members.end()) {
                     writeCommentAfterValueOnSameLine(childValue);
                     break;
@@ -688,7 +688,7 @@ void styled_stream_writer::writeArrayValue(value const& value)
                     if (!indented_)
                         writeIndent();
                     indented_ = true;
-                    writeValue(childValue);
+                    write_value(childValue);
                     indented_ = false;
                 }
                 if (++index == size) {
@@ -733,7 +733,7 @@ bool styled_stream_writer::isMultineArray(value const& value)
             if (hasCommentForValue(value[index])) {
                 isMultiLine = true;
             }
-            writeValue(value[index]);
+            write_value(value[index]);
             lineLength += int(childValues_[index].length());
         }
         addChildValues_ = false;
@@ -834,7 +834,7 @@ struct built_styled_stream_writer : public stream_writer {
     virtual int write(value const& root, std::ostream* sout);
 
 private:
-    void writeValue(value const& value);
+    void write_value(value const& value);
     void writeArrayValue(value const& value);
     bool isMultineArray(value const& value);
     void pushValue(std::string const& value);
@@ -885,26 +885,26 @@ int built_styled_stream_writer::write(value const& root, std::ostream* sout)
     if (!indented_)
         writeIndent();
     indented_ = true;
-    writeValue(root);
+    write_value(root);
     writeCommentAfterValueOnSameLine(root);
     *sout_ << endingLineFeedSymbol_;
     sout_ = NULL;
     return 0;
 }
-void built_styled_stream_writer::writeValue(value const& value)
+void built_styled_stream_writer::write_value(value const& value)
 {
     switch (value.type()) {
     case vt_null:
         pushValue(nullSymbol_);
         break;
     case vt_int:
-        pushValue(valueToString(value.as_largest_int()));
+        pushValue(value_to_string(value.as_largest_int()));
         break;
     case vt_uint:
-        pushValue(valueToString(value.as_largest_uint()));
+        pushValue(value_to_string(value.as_largest_uint()));
         break;
     case vt_real:
-        pushValue(valueToString(value.as_double()));
+        pushValue(value_to_string(value.as_double()));
         break;
     case vt_string: {
         // Is NULL is possible for value.string_?
@@ -912,13 +912,13 @@ void built_styled_stream_writer::writeValue(value const& value)
         char const* end;
         bool ok = value.get_string(&str, &end);
         if (ok)
-            pushValue(valueToQuotedStringN(str, static_cast<unsigned>(end - str)));
+            pushValue(value_to_quoted_string_n(str, static_cast<unsigned>(end - str)));
         else
             pushValue("");
         break;
     }
     case vt_bool:
-        pushValue(valueToString(value.as_bool()));
+        pushValue(value_to_string(value.as_bool()));
         break;
     case vt_array:
         writeArrayValue(value);
@@ -935,9 +935,9 @@ void built_styled_stream_writer::writeValue(value const& value)
                 std::string const& name = *it;
                 class value const& childValue = value[name];
                 writeCommentBeforeValue(childValue);
-                writeWithIndent(valueToQuotedStringN(name.data(), name.length()));
+                writeWithIndent(value_to_quoted_string_n(name.data(), name.length()));
                 *sout_ << colonSymbol_;
-                writeValue(childValue);
+                write_value(childValue);
                 if (++it == members.end()) {
                     writeCommentAfterValueOnSameLine(childValue);
                     break;
@@ -973,7 +973,7 @@ void built_styled_stream_writer::writeArrayValue(value const& value)
                     if (!indented_)
                         writeIndent();
                     indented_ = true;
-                    writeValue(childValue);
+                    write_value(childValue);
                     indented_ = false;
                 }
                 if (++index == size) {
@@ -1022,7 +1022,7 @@ bool built_styled_stream_writer::isMultineArray(value const& value)
             if (hasCommentForValue(value[index])) {
                 isMultiLine = true;
             }
-            writeValue(value[index]);
+            write_value(value[index]);
             lineLength += int(childValues_[index].length());
         }
         addChildValues_ = false;
@@ -1128,12 +1128,12 @@ stream_writer_builder::stream_writer_builder()
 stream_writer_builder::~stream_writer_builder()
 {
 }
-stream_writer* stream_writer_builder::newStreamWriter() const
+stream_writer* stream_writer_builder::newStreamwriter() const
 {
     std::string indentation = settings_["indentation"].as_string();
     std::string cs_str = settings_["commentStyle"].as_string();
-    bool eyc = settings_["enableYAMLCompatibility"].as_bool();
-    bool dnp = settings_["dropNullPlaceholders"].as_bool();
+    bool eyc = settings_["enable_yaml_compatibility"].as_bool();
+    bool dnp = settings_["drop_null_placeholders"].as_bool();
     CommentStyle::Enum cs = CommentStyle::All;
     if (cs_str == "All") {
         cs = CommentStyle::All;
@@ -1160,13 +1160,13 @@ stream_writer* stream_writer_builder::newStreamWriter() const
         indentation, cs,
         colonSymbol, nullSymbol, endingLineFeedSymbol);
 }
-static void getValidWriterKeys(std::set<std::string>* valid_keys)
+static void getValidwriterKeys(std::set<std::string>* valid_keys)
 {
     valid_keys->clear();
     valid_keys->insert("indentation");
     valid_keys->insert("commentStyle");
-    valid_keys->insert("enableYAMLCompatibility");
-    valid_keys->insert("dropNullPlaceholders");
+    valid_keys->insert("enable_yaml_compatibility");
+    valid_keys->insert("drop_null_placeholders");
 }
 bool stream_writer_builder::validate(json::value* invalid) const
 {
@@ -1175,7 +1175,7 @@ bool stream_writer_builder::validate(json::value* invalid) const
         invalid = &my_invalid; // so we do not need to test for NULL
     json::value& inv = *invalid;
     std::set<std::string> valid_keys;
-    getValidWriterKeys(&valid_keys);
+    getValidwriterKeys(&valid_keys);
     value::Members keys = settings_.get_member_names();
     size_t n = keys.size();
     for (size_t i = 0; i < n; ++i) {
@@ -1193,18 +1193,18 @@ value& stream_writer_builder::operator[](std::string key)
 // static
 void stream_writer_builder::set_defaults(json::value* settings)
 {
-    //! [StreamWriterBuilderDefaults]
+    //! [StreamwriterBuilderDefaults]
     (*settings)["commentStyle"] = "All";
     (*settings)["indentation"] = "\t";
-    (*settings)["enableYAMLCompatibility"] = false;
-    (*settings)["dropNullPlaceholders"] = false;
-    //! [StreamWriterBuilderDefaults]
+    (*settings)["enable_yaml_compatibility"] = false;
+    (*settings)["drop_null_placeholders"] = false;
+    //! [StreamwriterBuilderDefaults]
 }
 
 std::string write_string(stream_writer::factory const& builder, value const& root)
 {
     std::ostringstream sout;
-    StreamWriterPtr const writer(builder.newStreamWriter());
+    StreamwriterPtr const writer(builder.newStreamwriter());
     writer->write(root, &sout);
     return sout.str();
 }
@@ -1212,7 +1212,7 @@ std::string write_string(stream_writer::factory const& builder, value const& roo
 std::ostream& operator<<(std::ostream& sout, value const& root)
 {
     stream_writer_builder builder;
-    StreamWriterPtr const writer(builder.newStreamWriter());
+    StreamwriterPtr const writer(builder.newStreamwriter());
     writer->write(root, &sout);
     return sout;
 }

@@ -79,13 +79,13 @@ print_value_tree(FILE* fout, json::value& value, std::string const& path = ".")
         fprintf(fout,
             "%s=%s\n",
             path.c_str(),
-            json::valueToString(value.as_largest_int()).c_str());
+            json::value_to_string(value.as_largest_int()).c_str());
         break;
     case json::vt_uint:
         fprintf(fout,
             "%s=%s\n",
             path.c_str(),
-            json::valueToString(value.as_largest_uint()).c_str());
+            json::value_to_string(value.as_largest_uint()).c_str());
         break;
     case json::vt_real:
         fprintf(fout,
@@ -159,9 +159,9 @@ static int parseAndSaveValueTree(std::string const& input,
     }
     return 0;
 }
-// static std::string useFastWriter(json::value const & root) {
+// static std::string useFastwriter(json::value const & root) {
 //   json::fast_writer writer;
-//   writer.enableYAMLCompatibility();
+//   writer.enable_yaml_compatibility();
 //   return writer.write(root);
 // }
 static std::string use_styled_writer(

@@ -27,7 +27,7 @@ Usage:
   using namespace json;
   void writeToStdout(stream_writer::factory const& factory, value const& value) {
     std::unique_ptr<stream_writer> const writer(
-      factory.newStreamWriter());
+      factory.newStreamwriter());
     writer->write(value, &std::cout);
     std::cout << std::endl;  // add lf and flush
   }
@@ -55,7 +55,7 @@ public:
         /** \brief Allocate a char_reader via operator new().
      * \throw std::exception if something goes wrong (e.g. invalid settings)
      */
-        virtual stream_writer* newStreamWriter() const = 0;
+        virtual stream_writer* newStreamwriter() const = 0;
     }; // factory
 }; // stream_writer
 
@@ -74,7 +74,7 @@ Usage:
   builder["commentStyle"] = "None";
   builder["indentation"] = "   ";  // or whatever you like
   std::unique_ptr<json::stream_writer> writer(
-      builder.newStreamWriter());
+      builder.newStreamwriter());
   writer->write(value, &std::cout);
   std::cout << std::endl;  // add lf and flush
 \endcode
@@ -87,9 +87,9 @@ public:
     Available settings (case-sensitive):
     - "commentStyle": "None" or "All"
     - "indentation":  "<anything>"
-    - "enableYAMLCompatibility": false or true
+    - "enable_yaml_compatibility": false or true
       - slightly change the whitespace around colons
-    - "dropNullPlaceholders": false or true
+    - "drop_null_placeholders": false or true
       - Drop the "null" string from the writer's output for nullValues.
         Strictly speaking, this is not valid JSON. But when the output is being
         fed to a browser's Javascript, it makes for smaller output and the
@@ -108,7 +108,7 @@ public:
     /**
    * \throw std::exception if something goes wrong (e.g. invalid settings)
    */
-    virtual stream_writer* newStreamWriter() const;
+    virtual stream_writer* newStreamwriter() const;
 
     /** \return true if 'settings' are legal and consistent;
    *   otherwise, indicate bad settings via 'invalid'.
@@ -121,7 +121,7 @@ public:
     /** Called by ctor, but you can use this to reset settings_.
    * \pre 'settings' != NULL (but json::null is fine)
    * \remark Defaults:
-   * \snippet src/lib_json/json_writer.cpp StreamWriterBuilderDefaults
+   * \snippet src/lib_json/json_writer.cpp StreamwriterBuilderDefaults
    */
     static void set_defaults(json::value* settings);
 };
@@ -129,9 +129,9 @@ public:
 /** \brief Abstract class for writers.
  * \deprecated Use stream_writer. (And really, this is an implementation detail.)
  */
-class JSON_API Writer {
+class JSON_API writer {
 public:
-    virtual ~Writer();
+    virtual ~writer();
 
     virtual std::string write(value const& root) = 0;
 };
@@ -145,33 +145,33 @@ public:
  * \sa reader, value
  * \deprecated Use stream_writer_builder.
  */
-class JSON_API fast_writer : public Writer {
+class JSON_API fast_writer : public writer {
 
 public:
     fast_writer();
     virtual ~fast_writer() {}
 
-    void enableYAMLCompatibility();
+    void enable_yaml_compatibility();
 
     /** \brief Drop the "null" string from the writer's output for nullValues.
    * Strictly speaking, this is not valid JSON. But when the output is being
    * fed to a browser's Javascript, it makes for smaller output and the
    * browser can handle the output just fine.
    */
-    void dropNullPlaceholders();
+    void drop_null_placeholders();
 
-    void omitEndingLineFeed();
+    void omit_ending_line_feed();
 
-public: // overridden from Writer
+public: // overridden from writer
     virtual std::string write(value const& root);
 
 private:
-    void writeValue(value const& value);
+    void write_value(value const& value);
 
     std::string document_;
-    bool yamlCompatiblityEnabled_;
-    bool dropNullPlaceholders_;
-    bool omitEndingLineFeed_;
+    bool yaml_compatibility_enabled_;
+    bool drop_null_placeholders_;
+    bool omit_ending_line_feed_;
 };
 
 /** \brief Writes a value in <a HREF="http://www.json.org">JSON</a> format in a
@@ -198,12 +198,12 @@ private:
  * \sa reader, value, value::set_comment()
  * \deprecated Use stream_writer_builder.
  */
-class JSON_API styled_writer : public Writer {
+class JSON_API styled_writer : public writer {
 public:
     styled_writer();
     virtual ~styled_writer() {}
 
-public: // overridden from Writer
+public: // overridden from writer
     /** \brief Serialize a value in <a HREF="http://www.json.org">JSON</a> format.
    * \param root value to serialize.
    * \return String containing the JSON document that represents the root value.
@@ -211,7 +211,7 @@ public: // overridden from Writer
     virtual std::string write(value const& root);
 
 private:
-    void writeValue(value const& value);
+    void write_value(value const& value);
     void writeArrayValue(value const& value);
     bool isMultineArray(value const& value);
     void pushValue(std::string const& value);
@@ -269,13 +269,13 @@ public:
     /** \brief Serialize a value in <a HREF="http://www.json.org">JSON</a> format.
    * \param out Stream to write to. (Can be ostringstream, e.g.)
    * \param root value to serialize.
-   * \note There is no point in deriving from Writer, since write() should not
+   * \note There is no point in deriving from writer, since write() should not
    * return a value.
    */
     void write(std::ostream& out, value const& root);
 
 private:
-    void writeValue(value const& value);
+    void write_value(value const& value);
     void writeArrayValue(value const& value);
     bool isMultineArray(value const& value);
     void pushValue(std::string const& value);
@@ -300,14 +300,14 @@ private:
 };
 
 #if defined(JSON_HAS_INT64)
-std::string JSON_API valueToString(int32_t value);
-std::string JSON_API valueToString(uint32_t value);
+std::string JSON_API value_to_string(int32_t value);
+std::string JSON_API value_to_string(uint32_t value);
 #endif // if defined(JSON_HAS_INT64)
-std::string JSON_API valueToString(largest_int_t value);
-std::string JSON_API valueToString(largest_uint_t value);
-std::string JSON_API valueToString(double value);
-std::string JSON_API valueToString(bool value);
-std::string JSON_API valueToQuotedString(const char* value);
+std::string JSON_API value_to_string(largest_int_t value);
+std::string JSON_API value_to_string(largest_uint_t value);
+std::string JSON_API value_to_string(double value);
+std::string JSON_API value_to_string(bool value);
+std::string JSON_API value_to_quoted_string(const char* value);
 
 /// \brief Output using the styled_stream_writer.
 /// \see json::operator>>()

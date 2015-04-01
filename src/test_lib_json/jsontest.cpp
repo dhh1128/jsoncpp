@@ -213,12 +213,12 @@ TestResult& TestResult::addToLastFailure(std::string const& message)
 
 TestResult& TestResult::operator<<(int64_t value)
 {
-    return addToLastFailure(json::valueToString(value));
+    return addToLastFailure(json::value_to_string(value));
 }
 
 TestResult& TestResult::operator<<(uint64_t value)
 {
-    return addToLastFailure(json::valueToString(value));
+    return addToLastFailure(json::value_to_string(value));
 }
 
 TestResult& TestResult::operator<<(bool value)

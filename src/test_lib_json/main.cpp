@@ -1678,33 +1678,33 @@ JSONTEST_FIXTURE(ValueTest, zeroesInKeys)
     }
 }
 
-struct WriterTest : JsonTest::TestCase {
+struct writerTest : JsonTest::TestCase {
 };
 
-JSONTEST_FIXTURE(WriterTest, dropNullPlaceholders)
+JSONTEST_FIXTURE(writerTest, drop_null_placeholders)
 {
     json::fast_writer writer;
     json::value vt_null;
     JSONTEST_ASSERT(writer.write(vt_null) == "null\n");
 
-    writer.dropNullPlaceholders();
+    writer.drop_null_placeholders();
     JSONTEST_ASSERT(writer.write(vt_null) == "\n");
 }
 
-struct StreamWriterTest : JsonTest::TestCase {
+struct StreamwriterTest : JsonTest::TestCase {
 };
 
-JSONTEST_FIXTURE(StreamWriterTest, dropNullPlaceholders)
+JSONTEST_FIXTURE(StreamwriterTest, drop_null_placeholders)
 {
     json::stream_writer_builder b;
     json::value vt_null;
-    b.settings_["dropNullPlaceholders"] = false;
+    b.settings_["drop_null_placeholders"] = false;
     JSONTEST_ASSERT(json::write_string(b, vt_null) == "null");
-    b.settings_["dropNullPlaceholders"] = true;
+    b.settings_["drop_null_placeholders"] = true;
     JSONTEST_ASSERT(json::write_string(b, vt_null) == "");
 }
 
-JSONTEST_FIXTURE(StreamWriterTest, writeZeroes)
+JSONTEST_FIXTURE(StreamwriterTest, writeZeroes)
 {
     std::string binary("hi", 3); // include trailing 0
     JSONTEST_ASSERT_EQUAL(3, binary.length());
@@ -2404,9 +2404,9 @@ int main(int argc, const char* argv[])
     JSONTEST_REGISTER_FIXTURE(runner, ValueTest, zeroes);
     JSONTEST_REGISTER_FIXTURE(runner, ValueTest, zeroesInKeys);
 
-    JSONTEST_REGISTER_FIXTURE(runner, WriterTest, dropNullPlaceholders);
-    JSONTEST_REGISTER_FIXTURE(runner, StreamWriterTest, dropNullPlaceholders);
-    JSONTEST_REGISTER_FIXTURE(runner, StreamWriterTest, writeZeroes);
+    JSONTEST_REGISTER_FIXTURE(runner, writerTest, drop_null_placeholders);
+    JSONTEST_REGISTER_FIXTURE(runner, StreamwriterTest, drop_null_placeholders);
+    JSONTEST_REGISTER_FIXTURE(runner, StreamwriterTest, writeZeroes);
 
     JSONTEST_REGISTER_FIXTURE(runner, ReaderTest, parseWithNoErrors);
     JSONTEST_REGISTER_FIXTURE(
