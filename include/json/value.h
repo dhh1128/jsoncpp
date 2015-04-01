@@ -581,13 +581,13 @@ public:
     value& make(value& root) const;
 
 private:
-    typedef std::vector<const path_argument*> InArgs;
+    typedef std::vector<const path_argument*> in_args;
     typedef std::vector<path_argument> Args;
 
-    void makePath(std::string const& path, InArgs const& in);
-    void addPathInArg(std::string const& path,
-        InArgs const& in,
-        InArgs::const_iterator& itInArg,
+    void make_path(std::string const& path, in_args const& in);
+    void add_path_in_arg(std::string const& path,
+        in_args const& in,
+        in_args::const_iterator& it_in_arg,
         path_argument::kind kind);
     void invalidPath(std::string const& path, int location);
 

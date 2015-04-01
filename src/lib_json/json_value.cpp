@@ -39,7 +39,7 @@ const uint64_t value::max_uint64 = uint64_t(-1);
 // The constant is hard-coded because some compiler have trouble
 // converting value::max_uint64 to a double correctly (AIX/xlC).
 // Assumes that uint64_t is a 64 bits integer.
-static const double maxUInt64AsDouble = 18446744073709551615.0;
+static const double max_uint64_as_double = 18446744073709551615.0;
 #endif // defined(JSON_HAS_INT64)
 const largest_int_t value::min_largest_int = largest_int_t(~(largest_uint_t(-1) / 2));
 const largest_int_t value::max_largest_int = largest_int_t(largest_uint_t(-1) / 2);
@@ -52,13 +52,13 @@ static inline bool in_range(double d, T min, U max)
     return d >= min && d <= max;
 }
 #else // if !defined(JSON_USE_INT64_DOUBLE_CONVERSION)
-static inline double integerToDouble(json::uint64_t value)
+static inline double integer_to_double(json::uint64_t value)
 {
     return static_cast<double>(int64_t(value / 2)) * 2.0 + int64_t(value & 1);
 }
 
 template <typename T>
-static inline double integerToDouble(T value)
+static inline double integer_to_double(T value)
 {
     return static_cast<double>(value);
 }
@@ -66,7 +66,7 @@ static inline double integerToDouble(T value)
 template <typename T, typename U>
 static inline bool in_range(double d, T min, U max)
 {
-    return d >= integerToDouble(min) && d <= integerToDouble(max);
+    return d >= integer_to_double(min) && d <= integer_to_double(max);
 }
 #endif // if !defined(JSON_USE_INT64_DOUBLE_CONVERSION)
 
@@ -77,7 +77,7 @@ static inline bool in_range(double d, T min, U max)
  *               computed using strlen(value).
  * @return Pointer on the duplicate instance of string.
  */
-static inline char* dupliate_string_value(const char* value,
+static inline char* duplicate_string_value(const char* value,
     size_t length)
 {
     // Avoid an integer overflow in the call to malloc below by limiting length
@@ -85,15 +85,15 @@ static inline char* dupliate_string_value(const char* value,
     if (length >= (size_t)value::max_int)
         length = value::max_int - 1;
 
-    char* newString = static_cast<char*>(malloc(length + 1));
-    if (newString == NULL) {
+    char* new_string = static_cast<char*>(malloc(length + 1));
+    if (new_string == NULL) {
         throw_runtime_error(
-            "in json::value::dupliate_string_value(): "
+            "in json::value::duplicate_string_value(): "
             "Failed to allocate string value buffer");
     }
-    memcpy(newString, value, length);
-    newString[length] = 0;
-    return newString;
+    memcpy(new_string, value, length);
+    new_string[length] = 0;
+    return new_string;
 }
 
 /* Record the length as a prefix.
@@ -108,22 +108,22 @@ static inline char* duplicate_and_prefix_string_value(
         "in json::value::duplicate_and_prefix_string_value(): "
         "length too big for prefixing");
     unsigned actualLength = length + sizeof(unsigned) + 1U;
-    char* newString = static_cast<char*>(malloc(actualLength));
-    if (newString == 0) {
+    char* new_string = static_cast<char*>(malloc(actualLength));
+    if (new_string == 0) {
         throw_runtime_error(
             "in json::value::duplicate_and_prefix_string_value(): "
             "Failed to allocate string value buffer");
     }
-    *reinterpret_cast<unsigned*>(newString) = length;
-    memcpy(newString + sizeof(unsigned), value, length);
-    newString[actualLength - 1U] = 0; // to avoid buffer over-run accidents by users later
-    return newString;
+    *reinterpret_cast<unsigned*>(new_string) = length;
+    memcpy(new_string + sizeof(unsigned), value, length);
+    new_string[actualLength - 1U] = 0; // to avoid buffer over-run accidents by users later
+    return new_string;
 }
 inline static void decode_prefixed_string(
-    bool isPrefixed, char const* prefixed,
+    bool is_prefixed, char const* prefixed,
     unsigned* length, char const** value)
 {
-    if (!isPrefixed) {
+    if (!is_prefixed) {
         *length = strlen(prefixed);
         *value = prefixed;
     }
@@ -132,9 +132,9 @@ inline static void decode_prefixed_string(
         *value = prefixed + sizeof(unsigned);
     }
 }
-/** Free the string duplicated by dupliate_string_value()/duplicate_and_prefix_string_value().
+/** Free the string duplicated by duplicate_string_value()/duplicate_and_prefix_string_value().
  */
-static inline void releaseStringValue(char* value) { free(value); }
+static inline void release_string_value(char* value) { free(value); }
 
 } // namespace json
 
@@ -212,13 +212,13 @@ value::comment_info::comment_info()
 value::comment_info::~comment_info()
 {
     if (comment_)
-        releaseStringValue(comment_);
+        release_string_value(comment_);
 }
 
 void value::comment_info::set_comment(const char* text, size_t len)
 {
     if (comment_) {
-        releaseStringValue(comment_);
+        release_string_value(comment_);
         comment_ = 0;
     }
     JSON_ASSERT(text != 0);
@@ -226,7 +226,7 @@ void value::comment_info::set_comment(const char* text, size_t len)
         text[0] == '\0' || text[0] == '/',
         "in json::value::set_comment(): Comments must start with /");
     // It seems that /**/ style comments are acceptable as well.
-    comment_ = dupliate_string_value(text, len);
+    comment_ = duplicate_string_value(text, len);
 }
 
 // //////////////////////////////////////////////////////////////////
@@ -256,7 +256,7 @@ value::czstring::czstring(char const* str, unsigned length, duplication_policy a
 
 value::czstring::czstring(czstring const& other)
     : cstr_(other.storage_.policy_ != no_duplication && other.cstr_ != 0
-              ? dupliate_string_value(other.cstr_, other.storage_.length_)
+              ? duplicate_string_value(other.cstr_, other.storage_.length_)
               : other.cstr_)
 {
     storage_.policy_ = (other.cstr_
@@ -270,7 +270,7 @@ value::czstring::czstring(czstring const& other)
 value::czstring::~czstring()
 {
     if (cstr_ && storage_.policy_ == duplicate)
-        releaseStringValue(const_cast<char*>(cstr_));
+        release_string_value(const_cast<char*>(cstr_));
 }
 
 void value::czstring::swap(czstring& other)
@@ -462,10 +462,10 @@ value::value(value const& other)
     if (other.comments_) {
         comments_ = new comment_info[number_of_comment_placement];
         for (int comment = 0; comment < number_of_comment_placement; ++comment) {
-            comment_info const& otherComment = other.comments_[comment];
-            if (otherComment.comment_)
+            comment_info const& other_comment = other.comments_[comment];
+            if (other_comment.comment_)
                 comments_[comment].set_comment(
-                    otherComment.comment_, strlen(otherComment.comment_));
+                    other_comment.comment_, strlen(other_comment.comment_));
         }
     }
 }
@@ -481,7 +481,7 @@ value::~value()
         break;
     case vt_string:
         if (allocated_)
-            releaseStringValue(value_.string_);
+            release_string_value(value_.string_);
         break;
     case vt_array:
     case vt_object:
@@ -533,9 +533,9 @@ int value::compare(value const& other) const
 
 bool value::operator<(value const& other) const
 {
-    int typeDelta = type_ - other.type_;
-    if (typeDelta)
-        return typeDelta < 0 ? true : false;
+    int type_delta = type_ - other.type_;
+    if (type_delta)
+        return type_delta < 0 ? true : false;
     switch (type_) {
     case vt_null:
         return false;
@@ -803,7 +803,7 @@ double value::as_double() const
 #if !defined(JSON_USE_INT64_DOUBLE_CONVERSION)
         return static_cast<double>(value_.uint_);
 #else // if !defined(JSON_USE_INT64_DOUBLE_CONVERSION)
-        return integerToDouble(value_.uint_);
+        return integer_to_double(value_.uint_);
 #endif // if !defined(JSON_USE_INT64_DOUBLE_CONVERSION)
     case vt_real:
         return value_.real_;
@@ -826,7 +826,7 @@ float value::as_float() const
 #if !defined(JSON_USE_INT64_DOUBLE_CONVERSION)
         return static_cast<float>(value_.uint_);
 #else // if !defined(JSON_USE_INT64_DOUBLE_CONVERSION)
-        return integerToDouble(value_.uint_);
+        return integer_to_double(value_.uint_);
 #endif // if !defined(JSON_USE_INT64_DOUBLE_CONVERSION)
     case vt_real:
         return static_cast<float>(value_.real_);
@@ -916,7 +916,9 @@ bool value::empty() const
         return false;
 }
 
-bool value::operator!() const { return is_null(); }
+bool value::operator!() const {
+    return is_null();
+}
 
 void value::clear()
 {
@@ -1173,8 +1175,8 @@ bool value::remove_index(array_index index, value* removed)
         (*value_.map_)[key] = (*this)[i + 1];
     }
     // erase the last one ("leftover")
-    czstring keyLast(oldSize - 1);
-    object_values::iterator itLast = value_.map_->find(keyLast);
+    czstring key_last(oldSize - 1);
+    object_values::iterator itLast = value_.map_->find(key_last);
     value_.map_->erase(itLast);
     return true;
 }
@@ -1283,7 +1285,7 @@ bool value::isUInt64() const
         // Note that max_uint64 (= 2^64 - 1) is not exactly representable as a
         // double, so double(max_uint64) will be rounded up to 2^64. Therefore we
         // require the value to be strictly less than the limit.
-        return value_.real_ >= 0 && value_.real_ < maxUInt64AsDouble && is_integral(value_.real_);
+        return value_.real_ >= 0 && value_.real_ < max_uint64_as_double && is_integral(value_.real_);
     default:
         break;
     }
@@ -1454,25 +1456,25 @@ path::path(std::string const& path,
     path_argument const& a4,
     path_argument const& a5)
 {
-    InArgs in;
+    in_args in;
     in.push_back(&a1);
     in.push_back(&a2);
     in.push_back(&a3);
     in.push_back(&a4);
     in.push_back(&a5);
-    makePath(path, in);
+    make_path(path, in);
 }
 
-void path::makePath(std::string const& path, InArgs const& in)
+void path::make_path(std::string const& path, in_args const& in)
 {
     const char* current = path.c_str();
     const char* end = current + path.length();
-    InArgs::const_iterator itInArg = in.begin();
+    in_args::const_iterator it_in_arg = in.begin();
     while (current != end) {
         if (*current == '[') {
             ++current;
             if (*current == '%')
-                addPathInArg(path, in, itInArg, path_argument::kind_index);
+                add_path_in_arg(path, in, it_in_arg, path_argument::kind_index);
             else {
                 array_index index = 0;
                 for (; current != end && *current >= '0' && *current <= '9'; ++current)
@@ -1483,34 +1485,34 @@ void path::makePath(std::string const& path, InArgs const& in)
                 invalidPath(path, int(current - path.c_str()));
         }
         else if (*current == '%') {
-            addPathInArg(path, in, itInArg, path_argument::kind_key);
+            add_path_in_arg(path, in, it_in_arg, path_argument::kind_key);
             ++current;
         }
         else if (*current == '.') {
             ++current;
         }
         else {
-            const char* beginName = current;
+            const char* begin_name = current;
             while (current != end && !strchr("[.", *current))
                 ++current;
-            args_.push_back(std::string(beginName, current));
+            args_.push_back(std::string(begin_name, current));
         }
     }
 }
 
-void path::addPathInArg(std::string const& /*path*/,
-    InArgs const& in,
-    InArgs::const_iterator& itInArg,
+void path::add_path_in_arg(std::string const& /*path*/,
+    in_args const& in,
+    in_args::const_iterator& it_in_arg,
     path_argument::kind kind)
 {
-    if (itInArg == in.end()) {
+    if (it_in_arg == in.end()) {
         // Error: missing argument %d
     }
-    else if ((*itInArg)->kind_ != kind) {
+    else if ((*it_in_arg)->kind_ != kind) {
         // Error: bad argument type
     }
     else {
-        args_.push_back(**itInArg);
+        args_.push_back(**it_in_arg);
     }
 }
 
