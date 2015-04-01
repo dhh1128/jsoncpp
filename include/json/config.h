@@ -1,20 +1,10 @@
-// Copyright 2007-2010 Baptiste Lepilleur
-// Distributed under MIT license, or public domain if desired and
-// recognized in your jurisdiction.
-// See file LICENSE for detail or copy at http://jsoncpp.sourceforge.net/LICENSE
+// Derived from public-domain/MIT-licensed code at
+// https://github.com/open-source-parsers/jsoncpp. Thanks, Baptiste Lepilleur!
 
-#ifndef JSON_CONFIG_H_INCLUDED
-#define JSON_CONFIG_H_INCLUDED
+#ifndef _7337e4f3cf6d40a7b164211ffa36a7c3
+#define _7337e4f3cf6d40a7b164211ffa36a7c3
 
-/// If defined, indicates that json library is embedded in CppTL library.
-//# define JSON_IN_CPPTL 1
-
-/// If defined, indicates that json may leverage CppTL library
-//#  define JSON_USE_CPPTL 1
-/// If defined, indicates that cpptl vector based map should be used instead of
-/// std::map
-/// as Value container.
-//#  define JSON_USE_CPPTL_SMALLMAP 1
+#include <cstdint>
 
 // If non-zero, the library uses exceptions to report bad input instead of C
 // assertion macros. The default is to use exceptions.
@@ -27,31 +17,22 @@
 /// Remarks: it is automatically defined in the generated amalgated header.
 // #define JSON_IS_AMALGAMATION
 
-#ifdef JSON_IN_CPPTL
-#include <cpptl/config.h>
-#ifndef JSON_USE_CPPTL
-#define JSON_USE_CPPTL 1
-#endif
-#endif
-
-#ifdef JSON_IN_CPPTL
-#define JSON_API CPPTL_API
-#elif defined(JSON_DLL_BUILD)
-#if defined(_MSC_VER)
-#define JSON_API __declspec(dllexport)
-#define JSONCPP_DISABLE_DLL_INTERFACE_WARNING
-#endif // if defined(_MSC_VER)
+#if defined(JSON_DLL_BUILD)
+	#if defined(_MSC_VER)
+		#define JSON_API __declspec(dllexport)
+		#define JSONCPP_DISABLE_DLL_INTERFACE_WARNING
+	#endif // if defined(_MSC_VER)
 #elif defined(JSON_DLL)
-#if defined(_MSC_VER)
-#define JSON_API __declspec(dllimport)
-#define JSONCPP_DISABLE_DLL_INTERFACE_WARNING
-#endif // if defined(_MSC_VER)
+	#if defined(_MSC_VER)
+		#define JSON_API __declspec(dllimport)
+		#define JSONCPP_DISABLE_DLL_INTERFACE_WARNING
+	#endif // if defined(_MSC_VER)
 #endif // ifdef JSON_IN_CPPTL
 #if !defined(JSON_API)
-#define JSON_API
+	#define JSON_API
 #endif
 
-// If JSON_NO_INT64 is defined, then Json only support C++ "int" type for
+// If JSON_NO_INT64 is defined, then json only support C++ "int" type for
 // integer
 // Storages, and 64 bits integer support is disabled.
 // #define JSON_NO_INT64 1
@@ -84,26 +65,16 @@
 #define JSONCPP_DEPRECATED(message)
 #endif // if !defined(JSONCPP_DEPRECATED)
 
-namespace Json {
-typedef int Int;
-typedef unsigned int UInt;
+namespace json {
 #if defined(JSON_NO_INT64)
-typedef int LargestInt;
-typedef unsigned int LargestUInt;
+typedef int32_t largest_int_t;
+typedef uint32_t largest_uint_t;
 #undef JSON_HAS_INT64
-#else                 // if defined(JSON_NO_INT64)
-// For Microsoft Visual use specific types as long long is not supported
-#if defined(_MSC_VER) // Microsoft Visual Studio
-typedef __int64 Int64;
-typedef unsigned __int64 UInt64;
-#else                 // if defined(_MSC_VER) // Other platforms, use long long
-typedef long long int Int64;
-typedef unsigned long long int UInt64;
-#endif // if defined(_MSC_VER)
-typedef Int64 LargestInt;
-typedef UInt64 LargestUInt;
+#else
+typedef int64_t largest_int_t;
+typedef uint64_t largest_uint_t;
 #define JSON_HAS_INT64
-#endif // if defined(JSON_NO_INT64)
-} // end namespace Json
+#endif
+} // end namespace json
 
-#endif // JSON_CONFIG_H_INCLUDED
+#endif // sentry

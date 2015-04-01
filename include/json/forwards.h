@@ -1,37 +1,35 @@
-// Copyright 2007-2010 Baptiste Lepilleur
-// Distributed under MIT license, or public domain if desired and
-// recognized in your jurisdiction.
-// See file LICENSE for detail or copy at http://jsoncpp.sourceforge.net/LICENSE
+// Derived from public-domain/MIT-licensed code at
+// https://github.com/open-source-parsers/jsoncpp. Thanks, Baptiste Lepilleur!
 
-#ifndef JSON_FORWARDS_H_INCLUDED
-#define JSON_FORWARDS_H_INCLUDED
+#ifndef _1b21596d9ecf48f28bb725321673eceb
+#define _1b21596d9ecf48f28bb725321673eceb
 
 #if !defined(JSON_IS_AMALGAMATION)
 #include "config.h"
 #endif // if !defined(JSON_IS_AMALGAMATION)
 
-namespace Json {
+namespace json {
 
 // writer.h
-class FastWriter;
-class StyledWriter;
+class fast_writer;
+class styled_writer;
 
 // reader.h
-class Reader;
+class reader;
 
 // features.h
-class Features;
+class features;
 
 // value.h
-typedef unsigned int ArrayIndex;
-class StaticString;
-class Path;
-class PathArgument;
-class Value;
-class ValueIteratorBase;
-class ValueIterator;
-class ValueConstIterator;
+typedef unsigned int array_index;
+class static_string;
+class path;
+class path_argument;
+class value;
+class value_iterator_base;
+class value_iterator;
+class value_const_iterator;
 
-} // namespace Json
+} // end namespace
 
-#endif // JSON_FORWARDS_H_INCLUDED
+#endif // sentry

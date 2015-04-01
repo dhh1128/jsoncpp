@@ -1,5 +1,5 @@
+cmake_minimum_required(VERSION 2.8)
+
 ADD_SUBDIRECTORY(lib_json)
-IF(JSONCPP_WITH_TESTS)
-    ADD_SUBDIRECTORY(jsontestrunner)
-    ADD_SUBDIRECTORY(test_lib_json)
-ENDIF(JSONCPP_WITH_TESTS)
+ADD_SUBDIRECTORY(jsontestrunner)
+ADD_SUBDIRECTORY(test_lib_json)

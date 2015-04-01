@@ -12,11 +12,10 @@ serialization and deserialization to and from strings. It can also preserve
 existing comment in unserialization/serialization steps, making it a convenient
 format to store user input files.
 
-[JsonCpp]: http://open-source-parsers.github.io/jsoncpp-docs/doxygen/index.html
+[JsonCpp]: https://github.com/dhh1128/jsoncpp
 
 ## A note on backward-compatibility
 * `1.y.z` is built with C++11.
-* `0.y.z` can be used with older compilers.
 * Major versions maintain binary-compatibility.
 
 Using JsonCpp in your project
@@ -75,36 +74,6 @@ the `-G` option).
 
 By default CMake hides compilation commands. This can be modified by specifying
 `-DCMAKE_VERBOSE_MAKEFILE=true` when generating makefiles.
-
-Building and testing with SCons
--------------------------------
-**Note:** The SCons-based build system is deprecated. Please use CMake; see the
-section above.
-
-JsonCpp can use [Scons][] as a build system. Note that SCons requires Python to
-be installed.
-
-[SCons]: http://www.scons.org/
-
-Invoke SCons as follows:
-
-    scons platform=$PLATFORM [TARGET]
-
-where `$PLATFORM` may be one of:
-
-* `suncc`: Sun C++ (Solaris)
-* `vacpp`: Visual Age C++ (AIX)
-* `mingw`
-* `msvc6`: Microsoft Visual Studio 6 service pack 5-6
-* `msvc70`: Microsoft Visual Studio 2002
-* `msvc71`: Microsoft Visual Studio 2003
-* `msvc80`: Microsoft Visual Studio 2005
-* `msvc90`: Microsoft Visual Studio 2008
-* `linux-gcc`: Gnu C++ (linux, also reported to work for Mac OS X)
-
-If you are building with Microsoft Visual Studio 2008, you need to set up the
-environment by running `vcvars32.bat` (e.g. MSVC 2008 command prompt) before
-running SCons.
 
 # Running the tests manually
 You need to run tests manually only if you are troubleshooting an issue.

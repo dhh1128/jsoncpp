@@ -1,10 +1,8 @@
-// Copyright 2007-2010 Baptiste Lepilleur
-// Distributed under MIT license, or public domain if desired and
-// recognized in your jurisdiction.
-// See file LICENSE for detail or copy at http://jsoncpp.sourceforge.net/LICENSE
+// Derived from public-domain/MIT-licensed code at
+// https://github.com/open-source-parsers/jsoncpp. Thanks, Baptiste Lepilleur!
 
-#ifndef JSONTEST_H_INCLUDED
-#define JSONTEST_H_INCLUDED
+#ifndef _168447578ee3470da61b7ef63813d636
+#define _168447578ee3470da61b7ef63813d636
 
 #include <json/config.h>
 #include <json/value.h>
@@ -65,7 +63,7 @@ public:
   /// \internal Implementation detail for predicate macros
   PredicateContext* predicateStackTail_;
 
-  void setTestName(const std::string& name);
+  void setTestName(std::string const & name);
 
   /// Adds an assertion failure.
   TestResult&
@@ -82,29 +80,29 @@ public:
 
   // Generic operator that will work with anything ostream can deal with.
   template <typename T> TestResult& operator<<(const T& value) {
-    std::ostringstream oss;
-    oss.precision(16);
-    oss.setf(std::ios_base::floatfield);
-    oss << value;
-    return addToLastFailure(oss.str());
+	std::ostringstream oss;
+	oss.precision(16);
+	oss.setf(std::ios_base::floatfield);
+	oss << value;
+	return addToLastFailure(oss.str());
   }
 
   // Specialized versions.
   TestResult& operator<<(bool value);
   // std:ostream does not support 64bits integers on all STL implementation
-  TestResult& operator<<(Json::Int64 value);
-  TestResult& operator<<(Json::UInt64 value);
+  TestResult& operator<<(int64_t value);
+  TestResult& operator<<(uint64_t value);
 
 private:
-  TestResult& addToLastFailure(const std::string& message);
+  TestResult& addToLastFailure(std::string const & message);
   unsigned int getAssertionNestingLevel() const;
   /// Adds a failure or a predicate context
   void addFailureInfo(const char* file,
-                      unsigned int line,
-                      const char* expr,
-                      unsigned int nestingLevel);
-  static std::string indentText(const std::string& text,
-                                const std::string& indent);
+					  unsigned int line,
+					  const char* expr,
+					  unsigned int nestingLevel);
+  static std::string indentText(std::string const & text,
+								std::string const & indent);
 
   typedef std::deque<Failure> Failures;
   Failures failures_;
@@ -168,7 +166,7 @@ private: // prevents copy construction and assignment
 
 private:
   void listTests() const;
-  bool testIndex(const std::string& testName, unsigned int& index) const;
+  bool testIndex(std::string const & testName, unsigned int& index) const;
   static void preventDialogOnCrash();
 
 private:
@@ -178,25 +176,25 @@ private:
 
 template <typename T, typename U>
 TestResult& checkEqual(TestResult& result,
-                       T expected,
-                       U actual,
-                       const char* file,
-                       unsigned int line,
-                       const char* expr) {
+					   T expected,
+					   U actual,
+					   const char* file,
+					   unsigned int line,
+					   const char* expr) {
   if (static_cast<U>(expected) != actual) {
-    result.addFailure(file, line, expr);
-    result << "Expected: " << static_cast<U>(expected) << "\n";
-    result << "Actual  : " << actual;
+	result.addFailure(file, line, expr);
+	result << "Expected: " << static_cast<U>(expected) << "\n";
+	result << "Actual  : " << actual;
   }
   return result;
 }
 
 TestResult& checkStringEqual(TestResult& result,
-                             const std::string& expected,
-                             const std::string& actual,
-                             const char* file,
-                             unsigned int line,
-                             const char* expr);
+							 std::string const & expected,
+							 std::string const & actual,
+							 const char* file,
+							 unsigned int line,
+							 const char* expr);
 
 } // namespace JsonTest
 
@@ -213,62 +211,62 @@ TestResult& checkStringEqual(TestResult& result,
 /// fixture.
 #define JSONTEST_ASSERT_PRED(expr)                                             \
   {                                                                            \
-    JsonTest::PredicateContext _minitest_Context = {                           \
-      result_->predicateId_, __FILE__, __LINE__, #expr, NULL, NULL             \
-    };                                                                         \
-    result_->predicateStackTail_->next_ = &_minitest_Context;                  \
-    result_->predicateId_ += 1;                                                \
-    result_->predicateStackTail_ = &_minitest_Context;                         \
-    (expr);                                                                    \
-    result_->popPredicateContext();                                            \
+	JsonTest::PredicateContext _minitest_Context = {                           \
+	  result_->predicateId_, __FILE__, __LINE__, #expr, NULL, NULL             \
+	};                                                                         \
+	result_->predicateStackTail_->next_ = &_minitest_Context;                  \
+	result_->predicateId_ += 1;                                                \
+	result_->predicateStackTail_ = &_minitest_Context;                         \
+	(expr);                                                                    \
+	result_->popPredicateContext();                                            \
   }
 
 /// \brief Asserts that two values are equals.
 #define JSONTEST_ASSERT_EQUAL(expected, actual)                                \
   JsonTest::checkEqual(*result_,                                               \
-                       expected,                                               \
-                       actual,                                                 \
-                       __FILE__,                                               \
-                       __LINE__,                                               \
-                       #expected " == " #actual)
+					   expected,                                               \
+					   actual,                                                 \
+					   __FILE__,                                               \
+					   __LINE__,                                               \
+					   #expected " == " #actual)
 
 /// \brief Asserts that two values are equals.
 #define JSONTEST_ASSERT_STRING_EQUAL(expected, actual)                         \
   JsonTest::checkStringEqual(*result_,                                         \
-                             std::string(expected),                            \
-                             std::string(actual),                              \
-                             __FILE__,                                         \
-                             __LINE__,                                         \
-                             #expected " == " #actual)
+							 std::string(expected),                            \
+							 std::string(actual),                              \
+							 __FILE__,                                         \
+							 __LINE__,                                         \
+							 #expected " == " #actual)
 
 /// \brief Asserts that a given expression throws an exception
 #define JSONTEST_ASSERT_THROWS(expr)                                           \
   {                                                                            \
-    bool _threw = false;                                                       \
-    try {                                                                      \
-      expr;                                                                    \
-    }                                                                          \
-    catch (...) {                                                              \
-      _threw = true;                                                           \
-    }                                                                          \
-    if (!_threw)                                                               \
-      result_->addFailure(                                                     \
-          __FILE__, __LINE__, "expected exception thrown: " #expr);            \
+	bool _threw = false;                                                       \
+	try {                                                                      \
+	  expr;                                                                    \
+	}                                                                          \
+	catch (...) {                                                              \
+	  _threw = true;                                                           \
+	}                                                                          \
+	if (!_threw)                                                               \
+	  result_->addFailure(                                                     \
+		  __FILE__, __LINE__, "expected exception thrown: " #expr);            \
   }
 
 /// \brief Begin a fixture test case.
 #define JSONTEST_FIXTURE(FixtureType, name)                                    \
   class Test##FixtureType##name : public FixtureType {                         \
   public:                                                                      \
-    static JsonTest::TestCase* factory() {                                     \
-      return new Test##FixtureType##name();                                    \
-    }                                                                          \
-                                                                               \
+	static JsonTest::TestCase* factory() {                                     \
+	  return new Test##FixtureType##name();                                    \
+	}                                                                          \
+																			   \
   public: /* overidden from TestCase */                                        \
-    virtual const char* testName() const { return #FixtureType "/" #name; }    \
-    virtual void runTestCase();                                                \
+	virtual const char* testName() const { return #FixtureType "/" #name; }    \
+	virtual void runTestCase();                                                \
   };                                                                           \
-                                                                               \
+																			   \
   void Test##FixtureType##name::runTestCase()
 
 #define JSONTEST_FIXTURE_FACTORY(FixtureType, name)                            \

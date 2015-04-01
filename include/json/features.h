@@ -1,57 +1,55 @@
-// Copyright 2007-2010 Baptiste Lepilleur
-// Distributed under MIT license, or public domain if desired and
-// recognized in your jurisdiction.
-// See file LICENSE for detail or copy at http://jsoncpp.sourceforge.net/LICENSE
+// Derived from public-domain/MIT-licensed code at
+// https://github.com/open-source-parsers/jsoncpp. Thanks, Baptiste Lepilleur!
 
-#ifndef CPPTL_JSON_FEATURES_H_INCLUDED
-#define CPPTL_JSON_FEATURES_H_INCLUDED
+#ifndef _b6d1716efdfd4e8bb9fff5b55b9b64bd
+#define _b6d1716efdfd4e8bb9fff5b55b9b64bd
 
 #if !defined(JSON_IS_AMALGAMATION)
 #include "forwards.h"
 #endif // if !defined(JSON_IS_AMALGAMATION)
 
-namespace Json {
+namespace json {
 
 /** \brief Configuration passed to reader and writer.
- * This configuration object can be used to force the Reader or Writer
+ * This configuration object can be used to force the reader or Writer
  * to behave in a standard conforming way.
  */
-class JSON_API Features {
+class JSON_API features {
 public:
   /** \brief A configuration that allows all features and assumes all strings
    * are UTF-8.
    * - C & C++ comments are allowed
    * - Root object can be any JSON value
-   * - Assumes Value strings are encoded in UTF-8
+   * - Assumes value strings are encoded in UTF-8
    */
-  static Features all();
+  static features all();
 
   /** \brief A configuration that is strictly compatible with the JSON
    * specification.
    * - Comments are forbidden.
    * - Root object must be either an array or an object value.
-   * - Assumes Value strings are encoded in UTF-8
+   * - Assumes value strings are encoded in UTF-8
    */
-  static Features strictMode();
+  static features strictMode();
 
   /** \brief Initialize the configuration like JsonConfig::allFeatures;
    */
-  Features();
+  features();
 
   /// \c true if comments are allowed. Default: \c true.
-  bool allowComments_;
+  bool allow_comments_;
 
   /// \c true if root must be either an array or an object value. Default: \c
   /// false.
-  bool strictRoot_;
+  bool strict_root_;
 
   /// \c true if dropped null placeholders are allowed. Default: \c false.
-  bool allowDroppedNullPlaceholders_;
+  bool allow_dropped_null_placeholders_;
 
   /// \c true if numeric object key are allowed. Default: \c false.
-  bool allowNumericKeys_;
+  bool allow_numeric_keys_;
 };
 
-} // namespace Json
+} // namespace json
 
 #endif // CPPTL_JSON_FEATURES_H_INCLUDED

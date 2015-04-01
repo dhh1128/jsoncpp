@@ -1,10 +1,8 @@
-// Copyright 2007-2010 Baptiste Lepilleur
-// Distributed under MIT license, or public domain if desired and
-// recognized in your jurisdiction.
-// See file LICENSE for detail or copy at http://jsoncpp.sourceforge.net/LICENSE
+// Derived from public-domain/MIT-licensed code at
+// https://github.com/open-source-parsers/jsoncpp. Thanks, Baptiste Lepilleur!
 
-#ifndef CPPTL_JSON_ASSERTIONS_H_INCLUDED
-#define CPPTL_JSON_ASSERTIONS_H_INCLUDED
+#ifndef _1feb388b3b7b4e3f92d1c3f399efebb8
+#define _1feb388b3b7b4e3f92d1c3f399efebb8
 
 #include <stdlib.h>
 #include <sstream>
@@ -21,13 +19,13 @@
 
 // @todo <= add detail about condition in exception
 # define JSON_ASSERT(condition)                                                \
-  {if (!(condition)) {Json::throwLogicError( "assert json failed" );}}
+  {if (!(condition)) {json::throw_logic_error( "assert json failed" );}}
 
 # define JSON_FAIL_MESSAGE(message)                                            \
   {                                                                            \
-    std::ostringstream oss; oss << message;                                    \
-    Json::throwLogicError(oss.str());                                          \
-    abort();                                                                   \
+	std::ostringstream oss; oss << message;                                    \
+	json::throw_logic_error(oss.str());                                          \
+	abort();                                                                   \
   }
 
 #else // JSON_USE_EXCEPTION
@@ -38,9 +36,9 @@
 // release builds we abort, for a core-dump or debugger.
 # define JSON_FAIL_MESSAGE(message)                                            \
   {                                                                            \
-    std::ostringstream oss; oss << message;                                    \
-    assert(false && oss.str().c_str());                                        \
-    abort();                                                                   \
+	std::ostringstream oss; oss << message;                                    \
+	assert(false && oss.str().c_str());                                        \
+	abort();                                                                   \
   }
 
 
@@ -48,7 +46,7 @@
 
 #define JSON_ASSERT_MESSAGE(condition, message)                                \
   if (!(condition)) {                                                          \
-    JSON_FAIL_MESSAGE(message);                                                \
+	JSON_FAIL_MESSAGE(message);                                                \
   }
 
-#endif // CPPTL_JSON_ASSERTIONS_H_INCLUDED
+#endif // sentry
