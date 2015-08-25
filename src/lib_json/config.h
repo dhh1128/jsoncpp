@@ -1,8 +1,7 @@
 // Derived from public-domain/MIT-licensed code at
 // https://github.com/open-source-parsers/jsoncpp. Thanks, Baptiste Lepilleur!
 
-#ifndef _7337e4f3cf6d40a7b164211ffa36a7c3
-#define _7337e4f3cf6d40a7b164211ffa36a7c3
+#pragma once
 
 #include <cstdint>
 
@@ -66,4 +65,3 @@ typedef uint64_t largest_uint_t;
 #endif
 } // end namespace json
 
-#endif // sentry

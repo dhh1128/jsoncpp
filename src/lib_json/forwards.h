@@ -1,8 +1,7 @@
 // Derived from public-domain/MIT-licensed code at
 // https://github.com/open-source-parsers/jsoncpp. Thanks, Baptiste Lepilleur!
 
-#ifndef _1b21596d9ecf48f28bb725321673eceb
-#define _1b21596d9ecf48f28bb725321673eceb
+#pragma once
 
 #include "config.h"
 
@@ -26,4 +25,3 @@ class value_const_iterator;
 
 } // end namespace
 
-#endif // sentry

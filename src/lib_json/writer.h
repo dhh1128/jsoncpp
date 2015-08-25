@@ -1,8 +1,7 @@
 // Derived from public-domain/MIT-licensed code at
 // https://github.com/open-source-parsers/jsoncpp. Thanks, Baptiste Lepilleur!
 
-#ifndef _76c97a5fdc4e4f86a21a72493ef2ab89
-#define _76c97a5fdc4e4f86a21a72493ef2ab89
+#pragma once
 
 #include "value.h"
 #include <vector>
@@ -26,37 +25,37 @@ Usage:
 \code
   using namespace json;
   void writeToStdout(stream_writer::factory const& factory, value const& value) {
-    std::unique_ptr<stream_writer> const writer(
-      factory.new_stream_writer());
-    writer->write(value, &std::cout);
-    std::cout << std::endl;  // add lf and flush
+	std::unique_ptr<stream_writer> const writer(
+	  factory.new_stream_writer());
+	writer->write(value, &std::cout);
+	std::cout << std::endl;  // add lf and flush
   }
 \endcode
 */
 class JSON_API stream_writer {
 protected:
-    std::ostream* sout_; // not owned; will not delete
+	std::ostream* sout_; // not owned; will not delete
 public:
-    stream_writer();
-    virtual ~stream_writer();
-    /** Write value into document as configured in sub-class.
-      Do not take ownership of sout, but maintain a reference during function.
-      \pre sout != NULL
-      \return zero on success (For now, we always return zero, so check the stream instead.)
-      \throw std::exception possibly, depending on configuration
+	stream_writer();
+	virtual ~stream_writer();
+	/** Write value into document as configured in sub-class.
+	  Do not take ownership of sout, but maintain a reference during function.
+	  \pre sout != NULL
+	  \return zero on success (For now, we always return zero, so check the stream instead.)
+	  \throw std::exception possibly, depending on configuration
    */
-    virtual int write(value const& root, std::ostream* sout) = 0;
+	virtual int write(value const& root, std::ostream* sout) = 0;
 
-    /** \brief A simple abstract factory.
+	/** \brief A simple abstract factory.
    */
-    class JSON_API factory {
-    public:
-        virtual ~factory();
-        /** \brief allocate a char_reader via operator new().
-     * \throw std::exception if something goes wrong (e.g. invalid settings)
-     */
-        virtual stream_writer* new_stream_writer() const = 0;
-    }; // factory
+	class JSON_API factory {
+	public:
+		virtual ~factory();
+		/** \brief allocate a char_reader via operator new().
+	 * \throw std::exception if something goes wrong (e.g. invalid settings)
+	 */
+		virtual stream_writer* new_stream_writer() const = 0;
+	}; // factory
 }; // stream_writer
 
 /** \brief Write into stringstream, then return string, for convenience.
@@ -74,56 +73,56 @@ Usage:
   builder["comment_style"] = "none";
   builder["indentation"] = "   ";  // or whatever you like
   std::unique_ptr<json::stream_writer> writer(
-      builder.new_stream_writer());
+	  builder.new_stream_writer());
   writer->write(value, &std::cout);
   std::cout << std::endl;  // add lf and flush
 \endcode
 */
 class JSON_API stream_writer_builder : public stream_writer::factory {
 public:
-    // Note: We use a json::value so that we can add data-members to this class
-    // without a major version bump.
-    /** Configuration of this builder.
-    Available settings (case-sensitive):
-    - "comment_style": "none" or "all"
-    - "indentation":  "<anything>"
-    - "enable_yaml_compatibility": false or true
-      - slightly change the whitespace around colons
-    - "drop_null_placeholders": false or true
-      - Drop the "null" string from the writer's output for nullValues.
-        Strictly speaking, this is not valid JSON. But when the output is being
-        fed to a browser's Javascript, it makes for smaller output and the
-        browser can handle the output just fine.
+	// Note: We use a json::value so that we can add data-members to this class
+	// without a major version bump.
+	/** Configuration of this builder.
+	Available settings (case-sensitive):
+	- "comment_style": "none" or "all"
+	- "indentation":  "<anything>"
+	- "enable_yaml_compatibility": false or true
+	  - slightly change the whitespace around colons
+	- "drop_null_placeholders": false or true
+	  - Drop the "null" string from the writer's output for nullValues.
+		Strictly speaking, this is not valid JSON. But when the output is being
+		fed to a browser's Javascript, it makes for smaller output and the
+		browser can handle the output just fine.
 
-    You can examine 'settings_` yourself
-    to see the defaults. You can also write and read them just like any
-    JSON value.
-    \sa set_defaults()
-    */
-    json::value settings_;
+	You can examine 'settings_` yourself
+	to see the defaults. You can also write and read them just like any
+	JSON value.
+	\sa set_defaults()
+	*/
+	json::value settings_;
 
-    stream_writer_builder();
-    virtual ~stream_writer_builder();
+	stream_writer_builder();
+	virtual ~stream_writer_builder();
 
-    /**
+	/**
    * \throw std::exception if something goes wrong (e.g. invalid settings)
    */
-    virtual stream_writer* new_stream_writer() const;
+	virtual stream_writer* new_stream_writer() const;
 
-    /** \return true if 'settings' are legal and consistent;
+	/** \return true if 'settings' are legal and consistent;
    *   otherwise, indicate bad settings via 'invalid'.
    */
-    bool validate(json::value* invalid) const;
-    /** A simple way to update a specific setting.
+	bool validate(json::value* invalid) const;
+	/** A simple way to update a specific setting.
    */
-    value& operator[](std::string key);
+	value& operator[](std::string key);
 
-    /** Called by ctor, but you can use this to reset settings_.
+	/** Called by ctor, but you can use this to reset settings_.
    * \pre 'settings' != NULL (but json::null is fine)
    * \remark Defaults:
    * \snippet src/lib_json/json_writer.cpp StreamwriterBuilderDefaults
    */
-    static void set_defaults(json::value* settings);
+	static void set_defaults(json::value* settings);
 };
 
 /** \brief Abstract class for writers.
@@ -131,9 +130,9 @@ public:
  */
 class JSON_API writer {
 public:
-    virtual ~writer();
+	virtual ~writer();
 
-    virtual std::string write(value const& root) = 0;
+	virtual std::string write(value const& root) = 0;
 };
 
 /** \brief Outputs a value in <a HREF="http://www.json.org">JSON</a> format
@@ -148,30 +147,30 @@ public:
 class JSON_API fast_writer : public writer {
 
 public:
-    fast_writer();
-    virtual ~fast_writer() {}
+	fast_writer();
+	virtual ~fast_writer() {}
 
-    void enable_yaml_compatibility();
+	void enable_yaml_compatibility();
 
-    /** \brief Drop the "null" string from the writer's output for nullValues.
+	/** \brief Drop the "null" string from the writer's output for nullValues.
    * Strictly speaking, this is not valid JSON. But when the output is being
    * fed to a browser's Javascript, it makes for smaller output and the
    * browser can handle the output just fine.
    */
-    void drop_null_placeholders();
+	void drop_null_placeholders();
 
-    void omit_ending_line_feed();
+	void omit_ending_line_feed();
 
 public: // overridden from writer
-    virtual std::string write(value const& root);
+	virtual std::string write(value const& root);
 
 private:
-    void write_value(value const& value);
+	void write_value(value const& value);
 
-    std::string document_;
-    bool yaml_compatibility_enabled_;
-    bool drop_null_placeholders_;
-    bool omit_ending_line_feed_;
+	std::string document_;
+	bool yaml_compatibility_enabled_;
+	bool drop_null_placeholders_;
+	bool omit_ending_line_feed_;
 };
 
 /** \brief Writes a value in <a HREF="http://www.json.org">JSON</a> format in a
@@ -200,43 +199,43 @@ private:
  */
 class JSON_API styled_writer : public writer {
 public:
-    styled_writer();
-    virtual ~styled_writer() {}
+	styled_writer();
+	virtual ~styled_writer() {}
 
 public: // overridden from writer
-    /** \brief Serialize a value in <a HREF="http://www.json.org">JSON</a> format.
+	/** \brief Serialize a value in <a HREF="http://www.json.org">JSON</a> format.
    * \param root value to serialize.
    * \return String containing the JSON document that represents the root value.
    */
-    virtual std::string write(value const& root);
+	virtual std::string write(value const& root);
 
 private:
-    void write_value(value const& value);
-    void write_array_value(value const& value);
-    bool is_multiline_array(value const& value);
-    void push_value(std::string const& value);
-    void writeIndent();
-    void write_with_indent(std::string const& value);
-    void indent();
-    void unindent();
-    void write_comment_before_value(value const& root);
-    void write_comment_after_value_on_same_line(value const& root);
-    bool has_comment_for_value(value const& value);
-    static std::string normalize_eol(std::string const& text);
+	void write_value(value const& value);
+	void write_array_value(value const& value);
+	bool is_multiline_array(value const& value);
+	void push_value(std::string const& value);
+	void writeIndent();
+	void write_with_indent(std::string const& value);
+	void indent();
+	void unindent();
+	void write_comment_before_value(value const& root);
+	void write_comment_after_value_on_same_line(value const& root);
+	bool has_comment_for_value(value const& value);
+	static std::string normalize_eol(std::string const& text);
 
-    typedef std::vector<std::string> ChildValues;
+	typedef std::vector<std::string> ChildValues;
 
-    ChildValues child_values_;
-    std::string document_;
-    std::string indentString_;
-    int right_margin_;
-    int indentSize_;
-    bool add_child_values_;
+	ChildValues child_values_;
+	std::string document_;
+	std::string indentString_;
+	int right_margin_;
+	int indentSize_;
+	bool add_child_values_;
 };
 
 /** \brief Writes a value in <a HREF="http://www.json.org">JSON</a> format in a
  human friendly way,
-     to a stream rather than to a string.
+	 to a stream rather than to a string.
  *
  * The rules for line break and indent are as follow:
  * - Object value:
@@ -262,41 +261,41 @@ private:
  */
 class JSON_API styled_stream_writer {
 public:
-    styled_stream_writer(std::string indentation = "\t");
-    ~styled_stream_writer() {}
+	styled_stream_writer(std::string indentation = "\t");
+	~styled_stream_writer() {}
 
 public:
-    /** \brief Serialize a value in <a HREF="http://www.json.org">JSON</a> format.
+	/** \brief Serialize a value in <a HREF="http://www.json.org">JSON</a> format.
    * \param out Stream to write to. (Can be ostringstream, e.g.)
    * \param root value to serialize.
    * \note There is no point in deriving from writer, since write() should not
    * return a value.
    */
-    void write(std::ostream& out, value const& root);
+	void write(std::ostream& out, value const& root);
 
 private:
-    void write_value(value const& value);
-    void write_array_value(value const& value);
-    bool is_multiline_array(value const& value);
-    void push_value(std::string const& value);
-    void writeIndent();
-    void write_with_indent(std::string const& value);
-    void indent();
-    void unindent();
-    void write_comment_before_value(value const& root);
-    void write_comment_after_value_on_same_line(value const& root);
-    bool has_comment_for_value(value const& value);
-    static std::string normalize_eol(std::string const& text);
+	void write_value(value const& value);
+	void write_array_value(value const& value);
+	bool is_multiline_array(value const& value);
+	void push_value(std::string const& value);
+	void writeIndent();
+	void write_with_indent(std::string const& value);
+	void indent();
+	void unindent();
+	void write_comment_before_value(value const& root);
+	void write_comment_after_value_on_same_line(value const& root);
+	bool has_comment_for_value(value const& value);
+	static std::string normalize_eol(std::string const& text);
 
-    typedef std::vector<std::string> ChildValues;
+	typedef std::vector<std::string> ChildValues;
 
-    ChildValues child_values_;
-    std::ostream* document_;
-    std::string indentString_;
-    int right_margin_;
-    std::string indentation_;
-    bool add_child_values_ : 1;
-    bool indented_ : 1;
+	ChildValues child_values_;
+	std::ostream* document_;
+	std::string indentString_;
+	int right_margin_;
+	std::string indentation_;
+	bool add_child_values_ : 1;
+	bool indented_ : 1;
 };
 
 #if defined(JSON_HAS_INT64)
@@ -319,4 +318,3 @@ JSON_API std::ostream& operator<<(std::ostream&, value const& root);
 #pragma warning(pop)
 #endif // if defined(JSONCPP_DISABLE_DLL_INTERFACE_WARNING)
 
-#endif // JSON_WRITER_H_INCLUDED
